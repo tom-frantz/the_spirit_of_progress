@@ -1,17 +1,19 @@
+extern crate core;
+
 use crate::camera::camera_move_system;
-use crate::city::{City, CityBundle};
-use crate::connection::Connection;
 use crate::map::create_map;
+use crate::ui::interaction::{click_event_system, InteractionEvents};
 use bevy::prelude::*;
 use bevy_prototype_lyon::prelude::*;
-use std::mem::transmute;
+use components::city::City;
+use components::connection::Connection;
 
-mod city;
-mod connection;
-
+mod components;
 mod map;
 
 mod camera;
+mod ui;
+
 pub mod utils;
 
 fn main() {
@@ -19,8 +21,10 @@ fn main() {
         .insert_resource(Msaa { samples: 4 })
         .add_plugins(DefaultPlugins)
         .add_plugin(ShapePlugin)
+        .add_event::<InteractionEvents>()
         .add_startup_system(setup_system)
         .add_system(camera_move_system)
+        .add_system(click_event_system)
         .run();
 }
 
