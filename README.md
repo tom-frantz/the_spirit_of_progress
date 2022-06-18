@@ -1,0 +1,1 @@
+[Coloors Palette](https://coolors.co/b6b388-7e9579-d6a771-cd834e-f4e8ce-30261c)
