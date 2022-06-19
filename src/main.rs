@@ -1,8 +1,6 @@
-extern crate core;
-
 use crate::camera::camera_move_system;
 use crate::map::create_map;
-use crate::ui::interaction::{click_event_system, InteractionEvents};
+use crate::ui::UiPlugin;
 use bevy::prelude::*;
 use bevy_prototype_lyon::prelude::*;
 use components::city::City;
@@ -16,20 +14,24 @@ mod ui;
 
 pub mod utils;
 
+#[derive(Component)]
+pub struct MainCamera;
+
 fn main() {
     App::new()
         .insert_resource(Msaa { samples: 4 })
         .add_plugins(DefaultPlugins)
         .add_plugin(ShapePlugin)
-        .add_event::<InteractionEvents>()
+        .add_plugin(UiPlugin)
         .add_startup_system(setup_system)
         .add_system(camera_move_system)
-        .add_system(click_event_system)
         .run();
 }
 
 fn setup_system(mut commands: Commands) {
-    commands.spawn_bundle(OrthographicCameraBundle::new_2d());
+    commands
+        .spawn_bundle(OrthographicCameraBundle::new_2d())
+        .insert(MainCamera);
     commands.spawn_bundle(create_map());
 
     let milbourne = commands

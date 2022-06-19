@@ -1,9 +1,10 @@
+use crate::MainCamera;
 use bevy::prelude::*;
 
 pub fn camera_move_system(
     time: Res<Time>,
     keyboard_input: Res<Input<KeyCode>>,
-    mut query: Query<&mut Transform, With<Camera>>,
+    mut query: Query<&mut Transform, With<MainCamera>>,
 ) {
     let mut movement = Transform::default();
     let (mut transform) = query.get_single_mut().unwrap();

@@ -1,11 +1,12 @@
+use crate::MainCamera;
 use bevy::prelude::*;
 use bevy::render::camera::RenderTarget;
 
 pub fn get_cursor_location(
     windows: Res<Windows>,
-    q_camera: Query<(&Camera, &GlobalTransform)>,
+    q_camera: Query<(&Camera, &GlobalTransform, With<MainCamera>)>,
 ) -> Option<Vec2> {
-    let (camera, camera_transform) = q_camera.single();
+    let (camera, camera_transform, _) = q_camera.single();
 
     let wnd = if let RenderTarget::Window(id) = camera.target {
         windows.get(id).unwrap()

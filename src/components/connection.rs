@@ -1,4 +1,4 @@
-use crate::ui::interaction::{Clickable, InteractionEvents, MapClickable};
+use crate::ui::interaction::{Clickable, MapClickable, MapInteractionEvents};
 use crate::utils::colours::MapColour;
 use crate::utils::rendering::ZIndex;
 use crate::Keyframes::Translation;
@@ -65,8 +65,8 @@ impl Clickable for Connection {
         ) <= 5.0
     }
 
-    fn event_type(&self, self_entity: Entity) -> InteractionEvents {
-        InteractionEvents::Connection(self_entity)
+    fn event_type(&self, self_entity: Entity) -> MapInteractionEvents {
+        MapInteractionEvents::Connection(self_entity)
     }
 }
 

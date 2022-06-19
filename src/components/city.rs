@@ -1,4 +1,4 @@
-use crate::ui::interaction::{Clickable, InteractionEvents, MapClickable};
+use crate::ui::interaction::{Clickable, MapClickable, MapInteractionEvents};
 use crate::utils::colours::MapColour;
 use crate::utils::rendering::ZIndex;
 use bevy::math::Vec3Swizzles;
@@ -39,8 +39,8 @@ impl Clickable for City {
         difference.x >= 0.0 && difference.x < 10.0 && difference.y >= 0.0 && difference.y < 10.0
     }
 
-    fn event_type(&self, self_entity: Entity) -> InteractionEvents {
-        InteractionEvents::City(self_entity)
+    fn event_type(&self, self_entity: Entity) -> MapInteractionEvents {
+        MapInteractionEvents::City(self_entity)
     }
 }
 
@@ -48,6 +48,8 @@ pub enum CityEvents {
     Created,
     Destroyed,
 }
+
+pub type CityComponents<'w, 's, 'a> = Query<'w, 's, &'a City>;
 
 #[derive(Bundle)]
 pub struct CityBundle {

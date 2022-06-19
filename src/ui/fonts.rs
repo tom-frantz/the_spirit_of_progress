@@ -1,3 +1,4 @@
+use crate::utils::colours::{MapColour, TypographyColour};
 use bevy::prelude::*;
 
 pub enum Typography {
@@ -17,6 +18,15 @@ impl Typography {
         }
     }
 
+    fn colour(&self) -> Color {
+        match self {
+            Typography::Title => TypographyColour::Blue.into(),
+            Typography::Subtitle => TypographyColour::Blue.into(),
+            Typography::Body => TypographyColour::Black.into(),
+            Typography::BodyBold => TypographyColour::Black.into(),
+        }
+    }
+
     pub fn with_section<S>(
         &self,
         section: S,
@@ -27,9 +37,17 @@ impl Typography {
     where
         S: Into<String>,
     {
+        let color = if style.color == Color::default() {
+            self.colour()
+        } else {
+            style.color
+        };
+
         Text::with_section(
             section,
             TextStyle {
+                color,
+                font_size: 28.0,
                 font: asset_server.load(self.font_handle()),
                 ..style
             },

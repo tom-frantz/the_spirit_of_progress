@@ -1,13 +1,37 @@
-use crate::Color;
+use crate::{Color, UiColor};
 
-pub const LIGHT_GREEN: &str = "B6B388";
-pub const DARK_GREEN: &str = "7E9579";
+pub enum TerrainColour {
+    Step1,
+    Step2,
+    Step3,
+    Step4,
+    Step5,
+    Step6,
+    Step7,
+    Step8,
+}
 
-pub const LIGHT_ORANGE: &str = "D6A771";
-pub const DARK_ORANGE: &str = "CD834E";
+impl TerrainColour {
+    fn hex(&self) -> &'static str {
+        match self {
+            TerrainColour::Step1 => "c8d0ab",
+            TerrainColour::Step2 => "e5d6b5",
+            TerrainColour::Step3 => "d6bba6",
+            TerrainColour::Step4 => "cf968f",
+            TerrainColour::Step5 => "c27474",
+            TerrainColour::Step6 => "ba525b",
+            TerrainColour::Step7 => "b94a51",
+            TerrainColour::Step8 => "973c47",
+        }
+    }
+}
 
-pub const CREAM: &str = "F4E8CE";
-pub const DARK: &str = "30261C";
+impl Into<Color> for TerrainColour {
+    fn into(self) -> Color {
+        let hex = self.hex();
+        Color::hex(hex).unwrap()
+    }
+}
 
 pub enum MapColour {
     LightGreen,
@@ -35,5 +59,35 @@ impl Into<Color> for MapColour {
     fn into(self) -> Color {
         let hex = self.hex();
         Color::hex(hex).unwrap()
+    }
+}
+
+pub enum TypographyColour {
+    Background,
+    Blue,
+    Black,
+}
+
+impl TypographyColour {
+    fn hex(&self) -> &'static str {
+        match self {
+            TypographyColour::Background => "f0e9d7",
+
+            TypographyColour::Blue => "234560",
+            TypographyColour::Black => "3b3b33",
+        }
+    }
+}
+
+impl Into<Color> for TypographyColour {
+    fn into(self) -> Color {
+        let hex = self.hex();
+        Color::hex(hex).unwrap()
+    }
+}
+
+impl Into<UiColor> for TypographyColour {
+    fn into(self) -> UiColor {
+        UiColor(self.into())
     }
 }
