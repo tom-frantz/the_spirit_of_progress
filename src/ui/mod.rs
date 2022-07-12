@@ -1,6 +1,6 @@
 use self::MainElements::*;
 use crate::components::city::CityComponents;
-use crate::ui::components::city_info::create_city_info;
+use crate::ui::components::city_info::{create_city_info, CityInfo};
 use crate::ui::components::{render_root_ui, RootNode};
 use crate::ui::interaction::MapInteractionEvents::*;
 use crate::ui::interaction::{click_event_generator, MapInteractionEvents};
@@ -10,6 +10,7 @@ use bevy::render::camera::RenderTarget;
 pub mod components;
 pub mod fonts;
 pub mod interaction;
+pub mod primitives;
 mod utils;
 
 #[derive(Bundle)]
@@ -28,7 +29,7 @@ pub struct LabelledTextBundle<Label: Component> {
 
 #[derive(Component, Debug)]
 pub enum MainElements {
-    CityInfo,
+    CityInfo(CityInfo),
     ConnectionInfo,
 }
 

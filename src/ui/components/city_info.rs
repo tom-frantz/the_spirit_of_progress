@@ -8,8 +8,8 @@ use crate::utils::colours::TypographyColour;
 use bevy::ecs::system::EntityCommands;
 use bevy::prelude::*;
 
-#[derive(Component)]
-pub struct CityInfoLabel;
+#[derive(Component, Debug)]
+pub struct CityInfo;
 
 pub fn create_city_info(
     city: Entity,
@@ -36,7 +36,7 @@ fn container_node() -> LabelledNodeBundle<MainElements> {
             color: TypographyColour::Background.into(),
             ..default()
         },
-        label: MainElements::CityInfo,
+        label: MainElements::CityInfo(CityInfo {}),
     }
 }
 

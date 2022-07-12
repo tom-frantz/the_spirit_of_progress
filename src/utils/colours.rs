@@ -63,18 +63,23 @@ impl Into<Color> for MapColour {
 }
 
 pub enum TypographyColour {
+    BackgroundBorder,
     Background,
     Blue,
     Black,
+    Red,
 }
 
 impl TypographyColour {
     fn hex(&self) -> &'static str {
         match self {
+            TypographyColour::BackgroundBorder => "dad4c3",
             TypographyColour::Background => "f0e9d7",
 
             TypographyColour::Blue => "234560",
             TypographyColour::Black => "3b3b33",
+            // TODO change red to match book.
+            TypographyColour::Red => "612923",
         }
     }
 }
