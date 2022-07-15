@@ -1,3 +1,4 @@
+use crate::components::connection::utils::point_shortest_distance_to_line;
 use crate::ui::interaction::{Clickable, MapClickable, MapInteractionEvents};
 use crate::utils::colours::MapColour;
 use crate::utils::rendering::ZIndex;
@@ -22,6 +23,7 @@ pub struct ConnectionBundle {
 pub struct Connection {
     start_city: Entity,
     start_city_pos: Vec2,
+
     end_city: Entity,
     end_city_pos: Vec2,
 }
@@ -70,38 +72,42 @@ impl Clickable for Connection {
     }
 }
 
-fn point_shortest_distance_to_line(point: Vec2, start: Vec2, end: Vec2) -> f32 {
-    // https://stackoverflow.com/a/6853926
+mod utils {
+    use bevy::prelude::*;
 
-    let A = point.x - start.x;
-    let B = point.y - start.y;
-    let C = end.x - start.x;
-    let D = end.y - start.y;
+    pub fn point_shortest_distance_to_line(point: Vec2, start: Vec2, end: Vec2) -> f32 {
+        // https://stackoverflow.com/a/6853926
 
-    let dot = A * C + B * D;
-    let len_sq = C.powf(2.0) + D.powf(2.0);
+        let A = point.x - start.x;
+        let B = point.y - start.y;
+        let C = end.x - start.x;
+        let D = end.y - start.y;
 
-    let mut param: f32 = -1.0;
+        let dot = A * C + B * D;
+        let len_sq = C.powf(2.0) + D.powf(2.0);
 
-    if len_sq != 0.0 {
-        param = dot / len_sq
+        let mut param: f32 = -1.0;
+
+        if len_sq != 0.0 {
+            param = dot / len_sq
+        }
+
+        let xx;
+        let yy;
+
+        if param < 0.0 {
+            xx = start.x;
+            yy = start.y;
+        } else if param > 1.0 {
+            xx = end.x;
+            yy = end.y;
+        } else {
+            xx = start.x + param * C;
+            yy = start.y + param * D;
+        }
+
+        let dx = point.x - xx;
+        let dy = point.y - yy;
+        return (dx * dx + dy * dy).sqrt();
     }
-
-    let xx;
-    let yy;
-
-    if param < 0.0 {
-        xx = start.x;
-        yy = start.y;
-    } else if param > 1.0 {
-        xx = end.x;
-        yy = end.y;
-    } else {
-        xx = start.x + param * C;
-        yy = start.y + param * D;
-    }
-
-    let dx = point.x - xx;
-    let dy = point.y - yy;
-    return (dx * dx + dy * dy).sqrt();
 }

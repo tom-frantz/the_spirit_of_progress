@@ -27,6 +27,15 @@ impl Typography {
         }
     }
 
+    fn font_size(&self) -> f32 {
+        match self {
+            Typography::Title => 46.0,
+            Typography::Subtitle => 34.0,
+            Typography::Body => 28.0,
+            Typography::BodyBold => 28.0,
+        }
+    }
+
     pub fn with_section<S>(
         &self,
         section: S,
@@ -47,7 +56,7 @@ impl Typography {
             section,
             TextStyle {
                 color,
-                font_size: 28.0,
+                font_size: self.font_size(),
                 font: asset_server.load(self.font_handle()),
                 ..style
             },
