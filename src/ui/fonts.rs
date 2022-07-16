@@ -1,4 +1,4 @@
-use crate::utils::colours::{MapColour, TypographyColour};
+use crate::ui::theme::{MapColour, TypographyColour};
 use bevy::prelude::*;
 
 pub enum Typography {
@@ -11,10 +11,10 @@ pub enum Typography {
 impl Typography {
     const fn font_handle(&self) -> &str {
         match self {
-            Typography::Title => "fonts/Pragati_Narrow/PragatiNarrow-Bold.ttf",
-            Typography::Subtitle => "fonts/Pragati_Narrow/PragatiNarrow-Regular.ttf",
-            Typography::Body => "fonts/News_Cycle/NewsCycle-Regular.ttf",
-            Typography::BodyBold => "fonts/News_Cycle/NewsCycle-Bold.ttf",
+            Typography::Title => "fonts/Montserrat/Montserrat-Light.ttf",
+            Typography::Subtitle => "fonts/Montserrat/Montserrat-Light.ttf",
+            Typography::Body => "fonts/Montserrat/Montserrat-Light.ttf",
+            Typography::BodyBold => "fonts/Montserrat/Montserrat-Light.ttf",
         }
     }
 
@@ -31,36 +31,23 @@ impl Typography {
         match self {
             Typography::Title => 46.0,
             Typography::Subtitle => 34.0,
-            Typography::Body => 28.0,
-            Typography::BodyBold => 28.0,
+            Typography::Body => 20.0,
+            Typography::BodyBold => 20.0,
         }
     }
 
-    pub fn with_section<S>(
-        &self,
-        section: S,
-        style: TextStyle,
-        alignment: TextAlignment,
-        asset_server: &AssetServer,
-    ) -> Text
+    pub fn with_section<S>(&self, section: S, asset_server: &AssetServer) -> Text
     where
         S: Into<String>,
     {
-        let color = if style.color == Color::default() {
-            self.colour()
-        } else {
-            style.color
-        };
-
         Text::with_section(
             section,
             TextStyle {
-                color,
+                color: self.colour(),
                 font_size: self.font_size(),
                 font: asset_server.load(self.font_handle()),
-                ..style
             },
-            alignment,
+            Default::default(),
         )
     }
 }

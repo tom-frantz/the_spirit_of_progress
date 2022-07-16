@@ -1,5 +1,5 @@
 use crate::ui::interaction::{Clickable, MapClickable, MapInteractionEvents};
-use crate::utils::colours::MapColour;
+use crate::ui::theme::MapColour;
 use crate::utils::rendering::ZIndex;
 use bevy::math::Vec3Swizzles;
 use bevy::prelude::*;
@@ -14,10 +14,12 @@ pub struct City {
     pub name: String,
 }
 
+const CITY_SHAPE_SIZE: f32 = 10.0;
+
 impl City {
     pub fn new(name: String, location: Vec2) -> CityBundle {
         let city_shape = shapes::Rectangle {
-            extents: Vec2::new(10.0, 10.0),
+            extents: Vec2::new(CITY_SHAPE_SIZE, CITY_SHAPE_SIZE),
             origin: RectangleOrigin::BottomLeft,
         };
 
@@ -36,7 +38,11 @@ impl City {
 impl Clickable for City {
     fn clicked(&self, self_transform: &Transform, cursor: Vec2) -> bool {
         let mut difference = cursor - self_transform.translation.xy();
-        difference.x >= 0.0 && difference.x < 10.0 && difference.y >= 0.0 && difference.y < 10.0
+
+        difference.x >= 0.0
+            && difference.x < CITY_SHAPE_SIZE
+            && difference.y >= 0.0
+            && difference.y < CITY_SHAPE_SIZE
     }
 
     fn event_type(&self, self_entity: Entity) -> MapInteractionEvents {

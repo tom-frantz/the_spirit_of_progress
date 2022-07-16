@@ -1,4 +1,5 @@
-use crate::ui::primitives::sidebar::sidebar_builder;
+use crate::ui::primitives::center_box::render_center_box;
+use crate::ui::primitives::sidebar::render_sidebar;
 use crate::ui::LabelledNodeBundle;
 use bevy::prelude::*;
 
@@ -22,7 +23,5 @@ fn root_node() -> LabelledNodeBundle<RootNode> {
 }
 
 pub fn render_root_ui(mut commands: Commands) {
-    commands.spawn_bundle(root_node()).with_children(|parent| {
-        sidebar_builder(parent);
-    });
+    commands.spawn_bundle(root_node());
 }

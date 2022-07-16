@@ -1,6 +1,6 @@
 use crate::components::connection::utils::point_shortest_distance_to_line;
 use crate::ui::interaction::{Clickable, MapClickable, MapInteractionEvents};
-use crate::utils::colours::MapColour;
+use crate::ui::theme::MapColour;
 use crate::utils::rendering::ZIndex;
 use crate::Keyframes::Translation;
 use bevy::math::Vec3Swizzles;

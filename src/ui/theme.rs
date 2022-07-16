@@ -1,5 +1,7 @@
 use crate::{Color, UiColor};
 
+pub const SPACING: f32 = 8.0;
+
 pub enum TerrainColour {
     Step1,
     Step2,
@@ -68,6 +70,7 @@ pub enum TypographyColour {
     Blue,
     Black,
     Red,
+    Yellow,
 }
 
 impl TypographyColour {
@@ -80,6 +83,7 @@ impl TypographyColour {
             TypographyColour::Black => "3b3b33",
             // TODO change red to match book.
             TypographyColour::Red => "612923",
+            TypographyColour::Yellow => "7D5E24",
         }
     }
 }

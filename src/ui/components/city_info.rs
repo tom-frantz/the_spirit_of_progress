@@ -1,48 +1,28 @@
 use crate::ui::fonts::Typography;
-use crate::ui::{LabelledNodeBundle, MainElements};
-
+use crate::ui::primitives::sidebar::SIDEBAR_CONTENT_SIZE;
 use crate::City;
-
-use crate::components::city::CityComponents;
-use crate::utils::colours::TypographyColour;
-use bevy::ecs::system::EntityCommands;
+use bevy::prelude::Val::*;
 use bevy::prelude::*;
 
-#[derive(Component, Debug)]
-pub struct CityInfo;
-
-pub fn create_city_info(
-    city: Entity,
-    city_query: &CityComponents,
+pub fn render_city_info(
+    sidebar_content_node: &mut ChildBuilder,
     asset_server: &AssetServer,
-    parent: &mut ChildBuilder,
+    city: &City,
 ) {
-    let city = city_query.get(city).unwrap();
-
-    parent
-        .spawn_bundle(container_node())
-        .with_children(|container_node| {
-            container_node.spawn_bundle(city_name(city, asset_server));
-        });
-}
-
-fn container_node() -> LabelledNodeBundle<MainElements> {
-    LabelledNodeBundle {
-        node_bundle: NodeBundle {
-            style: Style {
-                size: Size::new(Val::Px(500.0), Val::Px(100.0)),
-                ..default()
-            },
-            color: TypographyColour::Background.into(),
+    sidebar_content_node.spawn_bundle(TextBundle {
+        text: Typography::Title.with_section(city.name.clone(), asset_server),
+        ..default()
+    });
+    sidebar_content_node.spawn_bundle(TextBundle {
+        style: Style {
+            border: Rect::all(Px(5.0)),
+            size: Size::new(Px(SIDEBAR_CONTENT_SIZE), Auto),
             ..default()
         },
-        label: MainElements::CityInfo(CityInfo {}),
-    }
-}
-
-fn city_name(city: &City, asset_server: &AssetServer) -> TextBundle {
-    TextBundle {
-        text: Typography::Title.with_section(&city.name, default(), default(), asset_server),
+        text: Typography::Body.with_section(
+            "This is evidently a very long string and I'd hate to see what I think might happen.",
+            asset_server,
+        ),
         ..default()
-    }
+    });
 }

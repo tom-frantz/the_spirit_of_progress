@@ -1,9 +1,14 @@
 use self::MainElements::*;
 use crate::components::city::CityComponents;
-use crate::ui::components::city_info::{create_city_info, CityInfo};
+// use crate::ui::components::city_info::{create_city_info, CityInfo};
+use crate::ui::components::city_info::render_city_info;
 use crate::ui::components::{render_root_ui, RootNode};
+use crate::ui::fonts::Typography;
 use crate::ui::interaction::MapInteractionEvents::*;
 use crate::ui::interaction::{click_event_generator, MapInteractionEvents};
+use crate::ui::primitives::header::on_header_button_click;
+use crate::ui::primitives::sidebar::{render_sidebar, SIDEBAR_CONTENT_SIZE};
+use bevy::prelude::Val::*;
 use bevy::prelude::*;
 use bevy::render::camera::RenderTarget;
 
@@ -11,6 +16,7 @@ pub mod components;
 pub mod fonts;
 pub mod interaction;
 pub mod primitives;
+pub mod theme;
 mod utils;
 
 #[derive(Bundle)]
@@ -29,11 +35,14 @@ pub struct LabelledTextBundle<Label: Component> {
 
 #[derive(Component, Debug)]
 pub enum MainElements {
-    CityInfo(CityInfo),
-    ConnectionInfo,
+    Sidebar,
+    CenterBox,
 }
 
-fn clear_ui(mut commands: &mut Commands, q_ui_main_elements: &Query<Entity, With<MainElements>>) {
+pub fn clear_ui_elements(
+    mut commands: &mut Commands,
+    q_ui_main_elements: &Query<Entity, With<MainElements>>,
+) {
     for entity in q_ui_main_elements.iter() {
         commands.entity(entity).despawn_recursive();
     }
@@ -52,14 +61,16 @@ pub fn ui_click_event_consumer(
     let root_node = q_ui_root_node.single();
 
     for map_event in map_interaction_events.iter() {
-        println!("Received Event: {:?}", *map_event);
+        clear_ui_elements(&mut commands, &q_ui_main_elements);
+
         match map_event {
             City(entity) => {
-                println!("Doing this?!");
-                clear_ui(&mut commands, &q_ui_main_elements);
+                let city = q_city_ui_components.get(*entity).unwrap();
 
                 commands.entity(root_node).with_children(|parent| {
-                    create_city_info(*entity, &q_city_ui_components, &asset_server, parent);
+                    render_sidebar(parent, |sidebar_content| {
+                        render_city_info(sidebar_content, &asset_server, city);
+                    });
                 });
             }
             Connection(entity) => {}
@@ -79,6 +90,7 @@ impl Plugin for UiPlugin {
             .add_startup_system(create_ui_camera)
             .add_startup_system(render_root_ui)
             .add_system(ui_click_event_consumer)
-            .add_system(click_event_generator);
+            .add_system(click_event_generator)
+            .add_system(on_header_button_click);
     }
 }

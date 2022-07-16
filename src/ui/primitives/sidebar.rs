@@ -1,26 +1,31 @@
-use crate::utils::colours::TypographyColour;
+use crate::ui::primitives::header::render_header;
+use crate::ui::theme::TypographyColour;
+use crate::ui::theme::SPACING;
+use crate::ui::MainElements::Sidebar;
 use bevy::ecs::system::EntityCommands;
+use bevy::prelude::Val::*;
 use bevy::prelude::*;
 
-#[derive(Component, Default, Debug)]
-pub struct SidebarLabel;
-
-pub fn sidebar_builder(parent: &mut ChildBuilder) {
-    let mut sidebar_commands = parent.spawn_bundle(background_bundle());
-
-    sidebar_commands
-        .insert(SidebarLabel)
+pub fn render_sidebar<T>(parent: &mut ChildBuilder, spawn_children: T)
+where
+    T: FnOnce(&mut ChildBuilder) -> (),
+{
+    parent
+        .spawn_bundle(background_bundle())
+        .insert(Sidebar)
         .with_children(|sidebar| {
+            render_header(sidebar);
             sidebar
-                .spawn_bundle(header_bundle())
-                .with_children(|header| {
-                    header.spawn_bundle(close_button_bundle());
-                });
-            sidebar.spawn_bundle(content_bundle());
+                .spawn_bundle(content_bundle())
+                .with_children(spawn_children);
         });
-
-    sidebar_commands;
 }
+
+const SIDEBAR_BACKGROUND_WIDTH: f32 = 800.0;
+const SIDEBAR_BACKGROUND_PADDING: f32 = SPACING;
+const SIDEBAR_CONTENT_PADDING: f32 = SPACING;
+pub const SIDEBAR_CONTENT_SIZE: f32 =
+    SIDEBAR_BACKGROUND_WIDTH - SIDEBAR_BACKGROUND_PADDING * 2.0 - SIDEBAR_CONTENT_PADDING * 2.0;
 
 fn background_bundle() -> NodeBundle {
     NodeBundle {
@@ -28,38 +33,11 @@ fn background_bundle() -> NodeBundle {
 
         style: Style {
             flex_direction: FlexDirection::ColumnReverse,
-            padding: Rect::all(Val::Px(8.0)),
-            size: Size::new(Val::Px(400.0), Val::Percent(100.0)),
+            padding: Rect::all(Px(SIDEBAR_BACKGROUND_PADDING)),
+            size: Size::new(Px(SIDEBAR_BACKGROUND_WIDTH), Percent(100.0)),
             ..default()
         },
         ..Default::default()
-    }
-}
-
-fn header_bundle() -> NodeBundle {
-    NodeBundle {
-        color: TypographyColour::Background.into(),
-        style: Style {
-            size: Size::new(Val::Percent(100.0), Val::Px(16.0)),
-            justify_content: JustifyContent::FlexEnd,
-            margin: Rect {
-                bottom: Val::Px(8.0),
-                ..default()
-            },
-            ..default()
-        },
-        ..default()
-    }
-}
-
-fn close_sidebar_button_bundle() -> NodeBundle {
-    NodeBundle {
-        color: TypographyColour::Red.into(),
-        style: Style {
-            size: Size::new(Val::Px(16.0), Val::Px(16.0)),
-            ..default()
-        },
-        ..default()
     }
 }
 
@@ -67,8 +45,12 @@ fn content_bundle() -> NodeBundle {
     NodeBundle {
         color: TypographyColour::Background.into(),
         style: Style {
-            size: Size::new(Val::Percent(100.0), Val::Auto),
+            size: Size::new(Percent(100.0), Auto),
             flex_grow: 1.0,
+            flex_direction: FlexDirection::ColumnReverse,
+            justify_content: JustifyContent::FlexStart,
+            align_items: AlignItems::FlexStart,
+            padding: Rect::all(Px(SIDEBAR_CONTENT_PADDING)),
             ..default()
         },
         ..Default::default()

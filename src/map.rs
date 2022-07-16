@@ -1,4 +1,4 @@
-use crate::utils::colours::MapColour;
+use crate::ui::theme::MapColour;
 use crate::utils::rendering::ZIndex;
 use bevy::prelude::*;
 use bevy_prototype_lyon::entity::ShapeBundle;
