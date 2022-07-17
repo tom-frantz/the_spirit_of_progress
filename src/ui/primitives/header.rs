@@ -1,6 +1,7 @@
 use crate::ui::theme::TypographyColour;
 use crate::ui::theme::SPACING;
-use crate::ui::{clear_ui_elements, MainElements};
+use crate::ui::utils::clear_ui_elements;
+use crate::ui::MainElements;
 use bevy::prelude::Val::*;
 use bevy::prelude::*;
 
@@ -25,7 +26,7 @@ impl HeaderButton {
 
 const BUTTON_SIZE: f32 = 16.0;
 
-pub fn on_header_button_click(
+pub(super) fn on_header_button_click(
     interaction_query: Query<(&Interaction, &HeaderButton), (Changed<Interaction>, With<Button>)>,
     mut commands: Commands,
     q_ui_main_elements: Query<Entity, With<MainElements>>,

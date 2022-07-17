@@ -1,13 +1,12 @@
 use self::MainElements::*;
 use crate::components::city::CityComponents;
-// use crate::ui::components::city_info::{create_city_info, CityInfo};
 use crate::ui::components::city_info::render_city_info;
 use crate::ui::components::{render_root_ui, RootNode};
 use crate::ui::fonts::Typography;
 use crate::ui::interaction::MapInteractionEvents::*;
 use crate::ui::interaction::{click_event_generator, MapInteractionEvents};
-use crate::ui::primitives::header::on_header_button_click;
 use crate::ui::primitives::sidebar::{render_sidebar, SIDEBAR_CONTENT_SIZE};
+use crate::ui::primitives::UiPrimitivesPlugin;
 use bevy::prelude::Val::*;
 use bevy::prelude::*;
 use bevy::render::camera::RenderTarget;
@@ -39,15 +38,6 @@ pub enum MainElements {
     CenterBox,
 }
 
-pub fn clear_ui_elements(
-    mut commands: &mut Commands,
-    q_ui_main_elements: &Query<Entity, With<MainElements>>,
-) {
-    for entity in q_ui_main_elements.iter() {
-        commands.entity(entity).despawn_recursive();
-    }
-}
-
 pub fn ui_click_event_consumer(
     mut map_interaction_events: EventReader<MapInteractionEvents>,
     mut commands: Commands,
@@ -61,7 +51,7 @@ pub fn ui_click_event_consumer(
     let root_node = q_ui_root_node.single();
 
     for map_event in map_interaction_events.iter() {
-        clear_ui_elements(&mut commands, &q_ui_main_elements);
+        utils::clear_ui_elements(&mut commands, &q_ui_main_elements);
 
         match map_event {
             City(entity) => {
@@ -78,19 +68,15 @@ pub fn ui_click_event_consumer(
     }
 }
 
-fn create_ui_camera(mut commands: Commands) {
-    commands.spawn_bundle(UiCameraBundle::default());
-}
-
 pub struct UiPlugin;
 
 impl Plugin for UiPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<MapInteractionEvents>()
-            .add_startup_system(create_ui_camera)
+            .add_startup_system(utils::create_ui_camera)
             .add_startup_system(render_root_ui)
             .add_system(ui_click_event_consumer)
             .add_system(click_event_generator)
-            .add_system(on_header_button_click);
+            .add_plugin(UiPrimitivesPlugin);
     }
 }

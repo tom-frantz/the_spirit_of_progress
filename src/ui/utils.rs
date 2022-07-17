@@ -1,3 +1,4 @@
+use crate::ui::MainElements;
 use crate::MainCamera;
 use bevy::prelude::*;
 use bevy::render::camera::RenderTarget;
@@ -31,4 +32,17 @@ pub fn get_cursor_location(
         return Some(world_pos);
     }
     None
+}
+
+pub fn create_ui_camera(mut commands: Commands) {
+    commands.spawn_bundle(UiCameraBundle::default());
+}
+
+pub fn clear_ui_elements(
+    mut commands: &mut Commands,
+    q_ui_main_elements: &Query<Entity, With<MainElements>>,
+) {
+    for entity in q_ui_main_elements.iter() {
+        commands.entity(entity).despawn_recursive();
+    }
 }
