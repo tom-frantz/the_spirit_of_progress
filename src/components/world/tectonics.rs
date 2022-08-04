@@ -1,68 +1,48 @@
 use bevy::prelude::*;
-
-pub trait WorldPoint {
-    // Vertical running lines: (-180, 180]
-    fn latitude(&self) -> f32;
-    // Horizontal running lines: [-90, 90]
-    fn longitude(&self) -> f32;
-
-    fn lat(&self) -> f32 {
-        self.latitude()
-    }
-    fn lon(&self) -> f32 {
-        self.longitude()
-    }
-}
-
-impl WorldPoint for Vec2 {
-    fn latitude(&self) -> f32 {
-        self.x
-    }
-    fn longitude(&self) -> f32 {
-        self.y
-    }
-}
-
-impl WorldPoint for UVec2 {
-    fn latitude(&self) -> f32 {
-        self.x as f32
-    }
-    fn longitude(&self) -> f32 {
-        self.y as f32
-    }
-}
+use crate::latlon::*;
 
 pub const DEGREE_STEP_INTERVAL: f32 = 0.5;
 
-fn wrap_latitude(latitude: f32) -> f32 {
-    let mut lat = latitude;
-    while lat <= -180.0 {
-        lat += 360.0;
-    }
-    lat
-}
-
-#[derive(Default)]
 pub struct WorldTectonics<T>
-where
-    T: WorldPoint,
 {
-    points: Vec<Vec<T>>,
+    precision: f32,
+    north_pole_point: ValuePoint<T>,
+    south_pole_point: ValuePoint<T>,
+    points: Vec<ValuePoint<T>>,
 }
 
-impl WorldTectonics<UVec2> {
-    fn point_index(lat: f32, lon: f32) -> UVec2 {
+pub enum WorldTectonicIndex<T> {
+    NorthPole,
+    SouthPole,
+    LatLong(T)
+}
+
+impl WorldTectonics<f32> {
+    pub fn new(precision: f32, north_pole: f32, south_pole: f32, points: Vec<ValuePoint<f32>>) -> Self {
+        assert!((1.0 / precision).fract() <= f32::EPSILON);
+
+        Self {
+            precision,
+            north_pole_point: ValuePoint::new(Vec2::new(90.0, 0.0),north_pole),
+            south_pole_point: ValuePoint::new(Vec2::new(-90.0, 0.0),south_pole),
+            points
+        }
+    }
+
+    fn point_index(lat: f32, lon: f32) -> WorldTectonicIndex<usize> {
         // Bottom up, -180 -> 180
         let lat_index: f32;
-        if lon == 90.0 || lon == -90.0 {
-            lat_index = 0.0
+        if lon == 90.0 {
+            return WorldTectonicIndex::NorthPole
+        } else if lon == -90.0 {
+            return WorldTectonicIndex::SouthPole
         } else {
             lat_index = (if lat == -180.0 { 180.0 } else { lat } + 180.0) / DEGREE_STEP_INTERVAL
         }
 
         let lon_index = (lon + 90.0) / DEGREE_STEP_INTERVAL;
 
-        return UVec2::new(lat_index as u32, lon_index as u32);
+        return WorldTectonicIndex::LatLong(0);
     }
 }
 
@@ -70,24 +50,25 @@ impl<T> WorldTectonics<T>
 where
     T: WorldPoint,
 {
-    fn new() -> Self {
-        return Self { points: Vec::new() };
-    }
-
     pub fn point(&self, lat: f32, lon: f32) -> &T {
         let index = WorldTectonics::point_index(lat, lon);
-        return &self.points[index.x as usize][index.y as usize];
+        match index {
+            WorldTectonicIndex::NorthPole => &self.north_pole_point.value,
+            WorldTectonicIndex::SouthPole => &self.south_pole_point.value,
+            WorldTectonicIndex::LatLong(point) => &self.points[point].value
+        }
     }
 }
 
 #[cfg(test)]
 mod test {
-    use crate::components::world::tectonics::WorldTectonics;
-    use crate::UVec2;
+    use crate::{UVec2, WorldTectonics};
+    use crate::tectonics::WorldTectonicIndex;
 
     #[test]
     fn indexes_correctly() {
-        let world: WorldTectonics<UVec2> = WorldTectonics::new();
+        let world: WorldTectonics<f32> = WorldTectonics::new(0.5, 0.0, 0.0, vec![]);
+
         for lon_range in -180..=180 {
             // -90, 90
             let lon = lon_range as f32 / 2.0;
@@ -96,12 +77,12 @@ mod test {
                 // -180, 180
                 let lat = lat_range as f32 / 2.0;
 
-                let actual: UVec2 = WorldTectonics::point_index(lat, lon);
+                let actual = WorldTectonics::point_index(lat, lon);
 
                 if lon == -90.0 {
-                    assert_eq!(actual, UVec2::new(0, 0))
+                    assert_eq!(actual, WorldTectonicIndex::SouthPole)
                 } else if lon == 90.0 {
-                    assert_eq!(actual, UVec2::new(0, 360))
+                    assert_eq!(actual, WorldTectonicIndex::NorthPole)
                 } else {
                     let lat_expected = if lat == -180.0 {
                         720

@@ -1,8 +1,12 @@
+use bevy::ecs::system::Command;
 use bevy::prelude::*;
 use bevy_prototype_lyon::entity::ShapeBundle;
 use bevy_prototype_lyon::prelude::*;
+use crate::latlon::ValuePoint;
+use crate::tectonics::WorldTectonics;
 
 pub mod tectonics;
+pub mod latlon;
 
 const PIXEL_SIZE: f32 = 4.;
 
@@ -14,8 +18,8 @@ fn get_tile(index: UVec2) -> ShapeBundle {
 
     GeometryBuilder::build_as(
         &city_shape,
-        DrawMode::Fill(FillMode::color(MapColour::Dark.into())),
-        Transform::from_xyz(index.x as f32, index.y as f32, ZIndex::City.into()),
+        DrawMode::Fill(FillMode::color(Color::rgb(255.0, 0.0, 0.0))),
+        Transform::from_xyz(index.x as f32, index.y as f32, 0.),
     )
 }
 
@@ -29,6 +33,10 @@ fn main() {
         })
         .insert_resource(Msaa { samples: 4 })
         .add_plugins(DefaultPlugins)
-        .add_plugin(ShapePlugin)
+        .add_plugin(ShapePlugin).add_startup_system(draw_map)
         .run()
+}
+
+fn draw_map(mut commands: Commands) {
+    let world: WorldTectonics<f32> = WorldTectonics::new(0.5, 0.0, 0.0, vec![]);
 }
