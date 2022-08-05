@@ -1,8 +1,11 @@
+use crate::tectonics::WorldTectonics;
 use bevy::ecs::system::Command;
 use bevy::prelude::*;
+use bevy::render::render_resource::std430::Std430;
 use bevy_prototype_lyon::entity::ShapeBundle;
 use bevy_prototype_lyon::prelude::*;
-use crate::tectonics::WorldTectonics;
+use std::fmt::Debug;
+use std::hash::{Hash, Hasher};
 
 pub mod utils;
 
@@ -20,30 +23,71 @@ pub trait WorldPoint {
     }
 }
 
-impl WorldPoint for Vec2 {
+#[derive(PartialEq, Debug, Clone, Copy)]
+pub struct LatLonPoint(Vec2);
+
+impl LatLonPoint {
+    pub fn validate(&self) {
+        // assert!(self.latitude() >= -180.0);
+        // assert!(self.latitude() <= 180.0);
+        // assert!(self.longitude() >= -90.0);
+        // assert!(self.longitude() <= 90.0);
+    }
+
+    pub fn new(lat: f32, lon: f32) -> Self {
+        let value = LatLonPoint(Vec2::new(lat, lon));
+        value.validate();
+        value
+    }
+}
+
+impl WorldPoint for LatLonPoint {
     fn latitude(&self) -> f32 {
-        self.x
+        self.0.x
     }
+
     fn longitude(&self) -> f32 {
-        self.y
+        self.0.y
     }
 }
 
-pub struct ValuePoint<T> {
-    pub point: Vec2,
-    pub value: T
-}
-
-impl<T> ValuePoint<T> {
-    pub fn new(point: Vec2, value: T) -> Self {
-        Self {
-            point,
-            value
-        }
+impl From<Vec2> for LatLonPoint {
+    fn from(vec2: Vec2) -> Self {
+        Self(vec2)
     }
 }
 
-impl<T> WorldPoint for ValuePoint<T> {
+impl Hash for LatLonPoint {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        state.write_u32((self.latitude() * 2.0) as u32);
+        state.write_u32((self.longitude() * 2.0) as u32);
+    }
+}
+
+impl Eq for LatLonPoint {}
+
+#[derive(Debug)]
+pub struct ValuePoint<T>
+where
+    T: Debug,
+{
+    pub point: LatLonPoint,
+    pub value: T,
+}
+
+impl<T> ValuePoint<T>
+where
+    T: Debug,
+{
+    pub fn new(point: LatLonPoint, value: T) -> Self {
+        Self { point, value }
+    }
+}
+
+impl<T> WorldPoint for ValuePoint<T>
+where
+    T: Debug,
+{
     fn latitude(&self) -> f32 {
         self.point.latitude()
     }
