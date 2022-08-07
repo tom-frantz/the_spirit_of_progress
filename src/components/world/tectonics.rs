@@ -1,15 +1,18 @@
 use crate::latlon::*;
+use crate::tectonics::utils::iterators::*;
+use crate::tectonics::utils::WorldTectonicsIndex;
 use bevy::prelude::*;
 use std::collections::HashMap;
 use std::fmt::Debug;
-use std::thread::current;
+
+pub mod utils;
 
 pub const DEGREE_STEP_INTERVAL: f32 = 0.5;
 
 #[derive(Debug)]
 pub struct WorldTectonics<T>
 where
-    T: Debug,
+    T: Debug + Clone,
 {
     precision: f32,
     north_pole_point: ValuePoint<T>,
@@ -17,69 +20,51 @@ where
     points: HashMap<LatLonPoint, ValuePoint<T>>,
 }
 
-#[derive(Debug)]
-pub enum WorldTectonicIndex<T>
+impl<T> WorldTectonics<T>
 where
-    T: Debug,
+    T: Debug + Clone,
 {
-    NorthPole,
-    SouthPole,
-    LatLong(T),
-}
+    pub fn new_with_func<F>(precision: f32, point_func: F) -> Self
+    where
+        F: Fn(WorldTectonicsIndex) -> T,
+    {
+        let north_pole_point = ValuePoint::new(
+            WorldTectonicsIndex::NorthPole.into(),
+            point_func(WorldTectonicsIndex::NorthPole),
+        );
 
-#[derive(Debug)]
-pub struct WorldTectonicsIterator<'a, T>
-where
-    T: Debug,
-{
-    world: &'a WorldTectonics<T>,
-    current: Option<LatLonPoint>,
-}
+        let south_pole_point = ValuePoint::new(
+            WorldTectonicsIndex::SouthPole.into(),
+            point_func(WorldTectonicsIndex::SouthPole),
+        );
 
-impl<'a, T> WorldTectonicsIterator<'a, T>
-where
-    T: Debug,
-{
-    fn new(world: &'a WorldTectonics<T>) -> Self {
-        Self {
-            world,
-            current: Some(LatLonPoint::new(90.0, 0.0)),
-        }
-    }
-}
+        let points: HashMap<LatLonPoint, ValuePoint<T>> = {
+            let mut point_dict = HashMap::new();
 
-impl<'a, T> Iterator for WorldTectonicsIterator<'a, T>
-where
-    T: Debug,
-{
-    type Item = &'a ValuePoint<T>;
+            // i.e. precision of 2 => -89.5 to 89.5
+            'latitude_loop: for mut lat_index in 1..(LATITUDE_RANGE * precision) as i32 {
+                let lat = (lat_index as f32) / precision - (LATITUDE_RANGE / 2.);
 
-    fn next(&mut self) -> Option<Self::Item> {
-        return if let Some(point) = self.current {
-            if point == LatLonPoint::new(0.0, 90.0) {
-                self.current = Some(LatLonPoint::new(-179.5, 89.5));
-                Some(&self.world.north_pole_point)
-            } else if point == LatLonPoint::new(0.0, -90.0) {
-                self.current = None;
-                Some(&self.world.south_pole_point)
-            } else {
-                let mut lat = point.lat() + 0.5;
-                let mut lon = point.lon();
+                // i.e. precision of 2 = -179.5 to 180.0
+                'longitude_loop: for mut lon_index in 1..=(LONGITUDE_RANGE * precision) as i32 {
+                    let lon = (lon_index as f32) / precision - (LONGITUDE_RANGE / 2.);
 
-                if lat == 180.0 {
-                    lat = -179.5;
-                    lon -= 0.5;
-                    if lon == -90.0 {
-                        lat = 0.0;
-                    }
+                    let lat_lon_point = LatLonPoint::new(lat, lon);
+                    let value = point_func(WorldTectonicsIndex::from(lat_lon_point));
+
+                    point_dict.insert(lat_lon_point, ValuePoint::new(lat_lon_point, value));
                 }
-
-                self.current = Some(LatLonPoint::new(lat, lon));
-                Some(&self.world.points[&point])
             }
-        } else {
-            None
+
+            point_dict
         };
+
+        Self {
+            precision,
+            north_pole_point,
+            south_pole_point,
+            points,
+        }
     }
 }
 
@@ -90,7 +75,7 @@ impl WorldTectonics<f32> {
         south_pole: f32,
         points: HashMap<LatLonPoint, ValuePoint<f32>>,
     ) -> Self {
-        assert!((1.0 / precision).fract() <= f32::EPSILON);
+        assert!(precision.fract() <= f32::EPSILON);
 
         Self {
             precision,
@@ -101,80 +86,10 @@ impl WorldTectonics<f32> {
     }
 
     pub fn iter(&self) -> WorldTectonicsIterator<f32> {
-        WorldTectonicsIterator {
-            world: self,
-            current: Some(LatLonPoint::new(0.0, 90.0)),
-        }
+        WorldTectonicsIterator::new(self)
     }
 
-    // fn point_index(lat: f32, lon: f32) -> WorldTectonicIndex<usize> {
-    //     // Bottom up, -180 -> 180
-    //     let lat_index: f32;
-    //     if lon == 90.0 {
-    //         return WorldTectonicIndex::NorthPole
-    //     } else if lon == -90.0 {
-    //         return WorldTectonicIndex::SouthPole
-    //     } else {
-    //         lat_index = (if lat == -180.0 { 180.0 } else { lat } + 180.0) / DEGREE_STEP_INTERVAL
-    //     }
-    //
-    //     let lon_index = (lon + 90.0) / DEGREE_STEP_INTERVAL;
-    //
-    //     return WorldTectonicIndex::LatLong(0);
-    // }
+    pub fn into_iter(self) -> WorldTectonicsIntoIterator<f32> {
+        WorldTectonicsIntoIterator::new(self)
+    }
 }
-
-impl<T> WorldTectonics<T>
-where
-    T: Debug,
-{
-    // pub fn point(&self, lat: f32, lon: f32) -> &T {
-    //     let index = WorldTectonics::point_index(lat, lon);
-    //     match index {
-    //         WorldTectonicIndex::NorthPole => &self.north_pole_point.value,
-    //         WorldTectonicIndex::SouthPole => &self.south_pole_point.value,
-    //         WorldTectonicIndex::LatLong(point) => &self.points[point].value
-    //     }
-    // }
-}
-
-// #[cfg(test)]
-// mod test {
-//     use crate::{UVec2, WorldTectonics};
-//     use crate::tectonics::WorldTectonicIndex;
-//
-//     #[test]
-//     fn indexes_correctly() {
-//         let world: WorldTectonics<f32> = WorldTectonics::new(0.5, 0.0, 0.0, vec![]);
-//
-//         for lon_range in -180..=180 {
-//             // -90, 90
-//             let lon = lon_range as f32 / 2.0;
-//
-//             for lat_range in -360..=360 {
-//                 // -180, 180
-//                 let lat = lat_range as f32 / 2.0;
-//
-//                 let actual = WorldTectonics::point_index(lat, lon);
-//
-//                 if lon == -90.0 {
-//                     assert_eq!(actual, WorldTectonicIndex::SouthPole)
-//                 } else if lon == 90.0 {
-//                     assert_eq!(actual, WorldTectonicIndex::NorthPole)
-//                 } else {
-//                     let lat_expected = if lat == -180.0 {
-//                         720
-//                     } else {
-//                         (lat_range + 360) as u32
-//                     };
-//                     let lon_expected = (lon_range + 180) as u32;
-//                     // println!(
-//                     //     "Current: {} {}, or {}, {}. Expected: {} {}",
-//                     //     lat, lon, lat_range, lon_range, lat_expected, lon_expected
-//                     // );
-//                     assert_eq!(actual, UVec2::new(lat_expected, lon_expected))
-//                 }
-//             }
-//         }
-//     }
-// }

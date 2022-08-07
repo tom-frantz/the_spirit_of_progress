@@ -1,7 +1,6 @@
 use crate::tectonics::WorldTectonics;
 use bevy::ecs::system::Command;
 use bevy::prelude::*;
-use bevy::render::render_resource::std430::Std430;
 use bevy_prototype_lyon::entity::ShapeBundle;
 use bevy_prototype_lyon::prelude::*;
 use std::fmt::Debug;
@@ -9,10 +8,18 @@ use std::hash::{Hash, Hasher};
 
 pub mod utils;
 
+// Horizontal running lines
+// Run parallel to each other and the equator.
+pub const LATITUDE_RANGE: f32 = 180.;
+
+// Vertical running lines
+// All touch both poles, intersect equator.
+pub const LONGITUDE_RANGE: f32 = 360.;
+
 pub trait WorldPoint {
-    // Vertical running lines: (-180, 180]
+    // [-90, 90]
     fn latitude(&self) -> f32;
-    // Horizontal running lines: [-90, 90]
+    // (-180, 180]
     fn longitude(&self) -> f32;
 
     fn lat(&self) -> f32 {
@@ -27,17 +34,8 @@ pub trait WorldPoint {
 pub struct LatLonPoint(Vec2);
 
 impl LatLonPoint {
-    pub fn validate(&self) {
-        // assert!(self.latitude() >= -180.0);
-        // assert!(self.latitude() <= 180.0);
-        // assert!(self.longitude() >= -90.0);
-        // assert!(self.longitude() <= 90.0);
-    }
-
     pub fn new(lat: f32, lon: f32) -> Self {
-        let value = LatLonPoint(Vec2::new(lat, lon));
-        value.validate();
-        value
+        LatLonPoint(Vec2::new(lat, lon))
     }
 }
 
@@ -66,10 +64,10 @@ impl Hash for LatLonPoint {
 
 impl Eq for LatLonPoint {}
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ValuePoint<T>
 where
-    T: Debug,
+    T: Debug + Clone,
 {
     pub point: LatLonPoint,
     pub value: T,
@@ -77,7 +75,7 @@ where
 
 impl<T> ValuePoint<T>
 where
-    T: Debug,
+    T: Debug + Clone,
 {
     pub fn new(point: LatLonPoint, value: T) -> Self {
         Self { point, value }
@@ -86,7 +84,7 @@ where
 
 impl<T> WorldPoint for ValuePoint<T>
 where
-    T: Debug,
+    T: Debug + Clone,
 {
     fn latitude(&self) -> f32 {
         self.point.latitude()

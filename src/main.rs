@@ -30,7 +30,7 @@ fn main() {
 
 fn setup_system(mut commands: Commands) {
     commands
-        .spawn_bundle(OrthographicCameraBundle::new_2d())
+        .spawn_bundle(Camera2dBundle::default())
         .insert(MainCamera);
     commands.spawn_bundle(create_map());
 

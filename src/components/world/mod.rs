@@ -1,7 +1,11 @@
-use crate::latlon::{LatLonPoint, ValuePoint, WorldPoint};
+use crate::latlon::{LatLonPoint, ValuePoint, WorldPoint, LATITUDE_RANGE, LONGITUDE_RANGE};
+use crate::tectonics::utils::WorldTectonicsIndex;
 use crate::tectonics::WorldTectonics;
 use bevy::ecs::system::Command;
 use bevy::prelude::*;
+use bevy::render::settings::{Backends, WgpuSettings};
+use bevy_ecs_tilemap::prelude::TilemapGridSize;
+use bevy_ecs_tilemap::TilemapBundle;
 use bevy_prototype_lyon::entity::ShapeBundle;
 use bevy_prototype_lyon::prelude::*;
 use std::collections::HashMap;
@@ -9,25 +13,34 @@ use std::collections::HashMap;
 pub mod latlon;
 pub mod tectonics;
 
-const PIXEL_SIZE: f32 = 2.;
+const PIXEL_SIZE: f32 = 3.;
+const PIXEL_BUFFER: f32 = 5.;
+const TECTONIC_PRECISION: f32 = 2.;
 
 fn get_tile(lat: f32, lon: f32, value: f32) -> ShapeBundle {
-    let city_shape = shapes::Rectangle {
-        extents: Vec2::new(PIXEL_SIZE, PIXEL_SIZE),
-        origin: RectangleOrigin::BottomLeft,
+    let city_shape = if lat == 90. || lat == -90. {
+        let x = PIXEL_SIZE * TECTONIC_PRECISION * LATITUDE_RANGE;
+        shapes::Rectangle {
+            extents: Vec2::new(x, PIXEL_SIZE),
+            origin: RectangleOrigin::CustomCenter(Vec2::new(PIXEL_SIZE, PIXEL_SIZE / 2.)),
+        }
+    } else {
+        shapes::Rectangle {
+            extents: Vec2::new(PIXEL_SIZE, PIXEL_SIZE),
+            origin: RectangleOrigin::BottomLeft,
+        }
     };
 
-    let LATLON_PERCISION = 2.0;
     GeometryBuilder::build_as(
         &city_shape,
         DrawMode::Fill(FillMode::color(Color::rgb(
-            (value + 270.0) / (270.0 * LATLON_PERCISION),
+            (value + 270.0) / (270.0 * TECTONIC_PRECISION),
             0.0,
             0.0,
         ))),
         Transform::from_xyz(
-            (lat) * LATLON_PERCISION * PIXEL_SIZE,
-            (lon) * LATLON_PERCISION * PIXEL_SIZE,
+            (lon) * TECTONIC_PRECISION * PIXEL_SIZE,
+            (lat) * TECTONIC_PRECISION * PIXEL_SIZE,
             0.,
         ),
     )
@@ -37,9 +50,13 @@ fn main() {
     App::new()
         .insert_resource(WindowDescriptor {
             title: "I am a window!".to_string(),
-            width: 360. * 2.0 * PIXEL_SIZE,
-            height: 180. * 2.0 * PIXEL_SIZE,
+            width: (LONGITUDE_RANGE + PIXEL_BUFFER) * TECTONIC_PRECISION * PIXEL_SIZE,
+            height: (LATITUDE_RANGE + PIXEL_BUFFER) * TECTONIC_PRECISION * PIXEL_SIZE,
             ..default()
+        })
+        .insert_resource(WgpuSettings {
+            backends: Some(Backends::VULKAN),
+            ..Default::default()
         })
         .insert_resource(Msaa { samples: 4 })
         .add_plugins(DefaultPlugins)
@@ -49,47 +66,31 @@ fn main() {
 }
 
 fn draw_map(mut commands: Commands) {
-    commands.spawn_bundle(OrthographicCameraBundle::new_2d());
-    // .insert(MainCamera);
+    commands.spawn_bundle(Camera2dBundle::default());
 
-    let mut points = HashMap::with_capacity(360 * 720);
-
-    for mut lat_index in 0..720 {
-        let lat = (lat_index as f32 + 1.0) / 2.0 - 180.0;
-
-        'label: for mut lon_index in 0..360 {
-            let lon = (lon_index as f32 + 1.0) / 2.0 - 90.0;
-
-            let point = LatLonPoint::new(lat, lon);
-            points.insert(point, ValuePoint::new(point, lat + lon));
-
-            if lon_index == 0 || lon_index == 360 {
-                continue 'label;
-            }
-        }
-    }
-
-    let world: WorldTectonics<f32> = WorldTectonics::new(0.5, 0.0, 0.0, points);
+    let world: WorldTectonics<f32> =
+        WorldTectonics::new_with_func(TECTONIC_PRECISION, |index| match index {
+            WorldTectonicsIndex::NorthPole => 0.0,
+            WorldTectonicsIndex::SouthPole => 0.0,
+            WorldTectonicsIndex::Point(point) => point.lat() + point.lon(),
+        });
     let mut last_point: Option<f32> = None;
-    for point in world.iter() {
-        if let Some(lon) = last_point {
-            if point.lon() - lon < 0.01 {
-                println!("LON: {}", point.lon());
-                last_point = Some(lon);
+
+    let map = world.into_iter().map(move |point| {
+        if let Some(lat) = last_point {
+            if (point.lat() - lat).abs() > 0.01 {
+                println!("lat: {}", point.lat());
+                last_point = Some(point.lat());
             }
         } else {
-            println!("LON: {}", point.lon());
-            last_point = Some(point.lon());
+            println!("lat: {}", point.lat());
+            last_point = Some(point.lat());
         }
-        if point.lat() == 179.5
-            || point.lat() == -179.5
-            || point.lon() == 89.5
-            || point.lon() == -89.5
-        {
-            let tile = get_tile(point.latitude(), point.longitude(), point.value);
-            commands.spawn_bundle(tile);
-        }
-    }
+
+        let tile = get_tile(point.latitude(), point.longitude(), point.value);
+        tile
+    });
+    commands.spawn_batch(map);
 }
 
 // -1 to 1
