@@ -2,6 +2,8 @@ use crate::camera::camera_move_system;
 use crate::map::create_map;
 use crate::ui::UiPlugin;
 use bevy::prelude::*;
+use bevy::render::settings::WgpuSettings;
+use bevy_ecs_tilemap::TilemapPlugin;
 use bevy_prototype_lyon::prelude::*;
 use components::city::City;
 use components::connection::Connection;
@@ -23,6 +25,11 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_plugin(ShapePlugin)
         .add_plugin(UiPlugin)
+        .add_plugin(TilemapPlugin)
+        .insert_resource(WgpuSettings {
+            backends: Some(bevy::render::settings::Backends::DX12),
+            ..Default::default()
+        })
         .add_startup_system(setup_system)
         .add_system(camera_move_system)
         .run();

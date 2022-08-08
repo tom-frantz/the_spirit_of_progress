@@ -1,4 +1,4 @@
-use crate::tectonics::WorldTectonics;
+use crate::tectonics::WorldPoints;
 use bevy::ecs::system::Command;
 use bevy::prelude::*;
 use bevy_prototype_lyon::entity::ShapeBundle;

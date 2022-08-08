@@ -1,4 +1,6 @@
 use crate::{Color, UiColor};
+use bevy_ecs_tilemap::prelude::TileColor;
+use bevy_ecs_tilemap::tiles::TileTexture;
 
 pub const SPACING: f32 = 8.0;
 
@@ -26,12 +28,31 @@ impl TerrainColour {
             TerrainColour::Step8 => "973c47",
         }
     }
+
+    fn tile_texture(&self) -> u32 {
+        match self {
+            TerrainColour::Step1 => 0,
+            TerrainColour::Step2 => 1,
+            TerrainColour::Step3 => 2,
+            TerrainColour::Step4 => 3,
+            TerrainColour::Step5 => 4,
+            TerrainColour::Step6 => 5,
+            TerrainColour::Step7 => 6,
+            TerrainColour::Step8 => 7,
+        }
+    }
 }
 
 impl Into<Color> for TerrainColour {
     fn into(self) -> Color {
         let hex = self.hex();
         Color::hex(hex).unwrap()
+    }
+}
+
+impl Into<TileTexture> for TerrainColour {
+    fn into(self) -> TileTexture {
+        TileTexture(self.tile_texture())
     }
 }
 

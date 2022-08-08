@@ -10,7 +10,7 @@ pub mod utils;
 pub const DEGREE_STEP_INTERVAL: f32 = 0.5;
 
 #[derive(Debug)]
-pub struct WorldTectonics<T>
+pub struct WorldPoints<T>
 where
     T: Debug + Clone,
 {
@@ -20,7 +20,7 @@ where
     points: HashMap<LatLonPoint, ValuePoint<T>>,
 }
 
-impl<T> WorldTectonics<T>
+impl<T> WorldPoints<T>
 where
     T: Debug + Clone,
 {
@@ -66,9 +66,17 @@ where
             points,
         }
     }
+
+    pub fn iter(&self) -> WorldTectonicsIterator<T> {
+        WorldTectonicsIterator::new(self)
+    }
+
+    pub fn into_iter(self) -> WorldTectonicsIntoIterator<T> {
+        WorldTectonicsIntoIterator::new(self)
+    }
 }
 
-impl WorldTectonics<f32> {
+impl WorldPoints<f32> {
     pub fn new(
         precision: f32,
         north_pole: f32,
@@ -83,13 +91,5 @@ impl WorldTectonics<f32> {
             south_pole_point: ValuePoint::new(LatLonPoint::new(0.0, -90.0), south_pole),
             points,
         }
-    }
-
-    pub fn iter(&self) -> WorldTectonicsIterator<f32> {
-        WorldTectonicsIterator::new(self)
-    }
-
-    pub fn into_iter(self) -> WorldTectonicsIntoIterator<f32> {
-        WorldTectonicsIntoIterator::new(self)
     }
 }

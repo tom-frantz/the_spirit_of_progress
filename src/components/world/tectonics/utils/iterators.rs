@@ -1,5 +1,5 @@
 use crate::tectonics::utils::WorldTectonicsIndex;
-use crate::{LatLonPoint, ValuePoint, WorldPoint, WorldTectonics};
+use crate::{LatLonPoint, ValuePoint, WorldPoint, WorldPoints};
 use std::fmt::Debug;
 
 #[derive(Debug)]
@@ -7,7 +7,7 @@ pub struct WorldTectonicsIterator<'a, T>
 where
     T: Debug + Clone,
 {
-    world: &'a WorldTectonics<T>,
+    world: &'a WorldPoints<T>,
     current: Option<WorldTectonicsIndex>,
 }
 
@@ -15,7 +15,7 @@ impl<'a, T> WorldTectonicsIterator<'a, T>
 where
     T: Debug + Clone,
 {
-    pub fn new(world: &'a WorldTectonics<T>) -> Self {
+    pub fn new(world: &'a WorldPoints<T>) -> Self {
         Self {
             world,
             current: Some(WorldTectonicsIndex::NorthPole),
@@ -28,7 +28,7 @@ pub struct WorldTectonicsIntoIterator<T>
 where
     T: Debug + Clone,
 {
-    world: WorldTectonics<T>,
+    world: WorldPoints<T>,
     current: Option<WorldTectonicsIndex>,
 }
 
@@ -36,7 +36,7 @@ impl<T> WorldTectonicsIntoIterator<T>
 where
     T: Debug + Clone,
 {
-    pub fn new(world: WorldTectonics<T>) -> Self {
+    pub fn new(world: WorldPoints<T>) -> Self {
         Self {
             world,
             current: Some(WorldTectonicsIndex::NorthPole),
