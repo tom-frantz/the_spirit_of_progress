@@ -1,8 +1,11 @@
 use crate::tectonics::WorldPoints;
+use crate::KeyCode::L;
 use bevy::ecs::system::Command;
 use bevy::prelude::*;
 use bevy_prototype_lyon::entity::ShapeBundle;
 use bevy_prototype_lyon::prelude::*;
+use geoutils::Location;
+use rand::Rng;
 use std::fmt::Debug;
 use std::hash::{Hash, Hasher};
 
@@ -36,6 +39,24 @@ pub struct LatLonPoint(Vec2);
 impl LatLonPoint {
     pub fn new(lat: f32, lon: f32) -> Self {
         LatLonPoint(Vec2::new(lat, lon))
+    }
+
+    pub fn random(precision: u32) -> LatLonPoint {
+        let mut rng = rand::thread_rng();
+        let lat = (rng.gen_range(0..=LATITUDE_RANGE as u32 * precision) / precision) as f32
+            - (LATITUDE_RANGE / 2.);
+        let lon = (rng.gen_range(1..=LONGITUDE_RANGE as u32 * precision) / precision) as f32
+            - (LONGITUDE_RANGE / 2.);
+
+        LatLonPoint::new(lat, lon)
+    }
+
+    /// Distance via the central angle of a great circle segment.
+    /// https://en.wikipedia.org/wiki/Great-circle_distance
+    pub fn distance(&self, other: &LatLonPoint) -> f32 {
+        let sins = self.lat().sin() * other.lat().sin();
+        let coss = self.lat().cos() * other.lat().cos() * (self.lon() - other.lon()).cos();
+        f32::acos(sins + coss)
     }
 }
 
