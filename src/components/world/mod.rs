@@ -1,4 +1,6 @@
 use crate::latlon::{LatLonPoint, ValuePoint, WorldPoint, LATITUDE_RANGE, LONGITUDE_RANGE};
+use crate::render::draw_map;
+use crate::tectonics::plates::PlatePoint;
 use crate::tectonics::utils::WorldTectonicsIndex;
 use crate::tectonics::WorldPoints;
 use bevy::prelude::*;
@@ -32,6 +34,12 @@ fn main() {
         .add_plugin(ShapePlugin)
         .add_plugin(TilemapPlugin)
         .insert_resource(ImageSettings::default_nearest())
-        .add_startup_system(render::draw_map)
+        .add_startup_system(draw_height_map)
         .run()
+}
+
+fn draw_height_map(mut commands: Commands, asset_server: Res<AssetServer>) {
+    let world = WorldPoints::new(2, |point| PlatePoint::new(0, 0.));
+
+    draw_map(world, commands, asset_server)
 }

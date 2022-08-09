@@ -1,6 +1,8 @@
 use crate::latlon::*;
+use crate::render::WorldRender;
 use crate::tectonics::utils::iterators::*;
 use crate::tectonics::utils::WorldTectonicsIndex;
+use bevy_ecs_tilemap::map::TilemapGridSize;
 use std::collections::HashMap;
 use std::fmt::Debug;
 
@@ -10,7 +12,7 @@ pub mod utils;
 
 pub const DEGREE_STEP_INTERVAL: f32 = 0.5;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct WorldPoints<T>
 where
     T: Debug + Clone,
@@ -25,6 +27,7 @@ impl<T> WorldPoints<T>
 where
     T: Debug + Clone,
 {
+    /// Create a new world, where each points value is determined by passing the lat/lon through a function
     pub fn new<F>(precision: u32, point_func: F) -> Self
     where
         F: Fn(WorldTectonicsIndex) -> T,
@@ -71,8 +74,21 @@ where
     pub fn iter(&self) -> WorldTectonicsIterator<T> {
         WorldTectonicsIterator::new(self)
     }
+}
 
-    pub fn into_iter(self) -> WorldTectonicsIntoIterator<T> {
-        WorldTectonicsIntoIterator::new(self)
+impl<T> WorldRender for WorldPoints<T>
+where
+    T: Debug + Clone,
+{
+    fn texture_asset_name(&self) -> &str {
+        "pergamon_tiles.png"
+    }
+
+    fn tilemap_asset_size(&self) -> TilemapGridSize {
+        TilemapGridSize { x: 8. * 3., y: 3. }
+    }
+
+    fn precision(&self) -> u32 {
+        2
     }
 }

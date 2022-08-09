@@ -1,5 +1,7 @@
+use crate::render::TileRender;
 use crate::{LatLonPoint, WorldPoints};
 use bevy::utils::HashMap;
+use bevy_ecs_tilemap::prelude::*;
 
 #[derive(Debug, Clone)]
 pub struct Plate {
@@ -15,6 +17,16 @@ pub struct Plate {
 pub struct PlatePoint {
     plate_id: u32,
     strength: f32,
+}
+
+impl TileRender for PlatePoint {
+    fn bundle(&self, position: TilePos, tilemap_id: TilemapId) -> TileBundle {
+        TileBundle {
+            position,
+            tilemap_id,
+            ..Default::default()
+        }
+    }
 }
 
 impl PlatePoint {

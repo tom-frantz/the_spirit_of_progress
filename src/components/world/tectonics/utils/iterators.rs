@@ -111,3 +111,27 @@ where
         };
     }
 }
+
+impl<T> IntoIterator for WorldPoints<T>
+where
+    T: Debug + Clone,
+{
+    type Item = ValuePoint<T>;
+    type IntoIter = WorldTectonicsIntoIterator<T>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        WorldTectonicsIntoIterator::new(self)
+    }
+}
+
+impl<'a, T> IntoIterator for &'a WorldPoints<T>
+where
+    T: Debug + Clone,
+{
+    type Item = &'a ValuePoint<T>;
+    type IntoIter = WorldTectonicsIterator<'a, T>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        WorldTectonicsIterator::new(self)
+    }
+}
