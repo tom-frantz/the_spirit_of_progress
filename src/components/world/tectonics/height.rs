@@ -1,5 +1,3 @@
-use bevy_ecs_tilemap::prelude::TileBundle;
-
 pub struct HeightData {
     height: f32,
 }

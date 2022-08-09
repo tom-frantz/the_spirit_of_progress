@@ -79,7 +79,7 @@ impl TectonicPlates {
 
                     if let Some((id, current_min_distance)) = min_distance {
                         if current_min_distance > distance {
-                            min_distance = Some((*id, distance))
+                            min_distance = Some((id.clone(), distance))
                         }
                     } else {
                         min_distance = Some((*id, distance));

@@ -1,7 +1,6 @@
 use crate::latlon::*;
 use crate::tectonics::utils::iterators::*;
 use crate::tectonics::utils::WorldTectonicsIndex;
-use bevy::prelude::*;
 use std::collections::HashMap;
 use std::fmt::Debug;
 
@@ -44,13 +43,11 @@ where
             let mut point_dict = HashMap::new();
 
             // i.e. precision of 2 => -89.5 to 89.5
-            'latitude_loop: for mut lat_index in 1..(LATITUDE_RANGE as u32 * precision) as i32 {
+            for lat_index in 1..(LATITUDE_RANGE as u32 * precision) as i32 {
                 let lat = (lat_index as f32) / precision as f32 - (LATITUDE_RANGE / 2.);
 
                 // i.e. precision of 2 = -179.5 to 180.0
-                'longitude_loop: for mut lon_index in
-                    1..=(LONGITUDE_RANGE as u32 * precision) as i32
-                {
+                for lon_index in 1..=(LONGITUDE_RANGE as u32 * precision) as i32 {
                     let lon = (lon_index as f32) / precision as f32 - (LONGITUDE_RANGE / 2.);
 
                     let lat_lon_point = LatLonPoint::new(lat, lon);

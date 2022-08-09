@@ -1,15 +1,11 @@
 use crate::latlon::{LatLonPoint, ValuePoint, WorldPoint, LATITUDE_RANGE, LONGITUDE_RANGE};
 use crate::tectonics::utils::WorldTectonicsIndex;
 use crate::tectonics::WorldPoints;
-use bevy::ecs::system::Command;
 use bevy::prelude::*;
 use bevy::render::settings::{Backends, WgpuSettings};
 use bevy::render::texture::ImageSettings;
 use bevy_ecs_tilemap::prelude::*;
-use bevy_ecs_tilemap::TilemapBundle;
-use bevy_prototype_lyon::entity::ShapeBundle;
 use bevy_prototype_lyon::prelude::*;
-use std::collections::HashMap;
 
 pub mod latlon;
 pub mod render;
