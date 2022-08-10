@@ -6,6 +6,7 @@ use bevy::asset::AssetPath;
 use bevy::prelude::*;
 use bevy_ecs_tilemap::prelude::*;
 use std::fmt::Debug;
+use std::time::Instant;
 
 pub trait WorldRender {
     // The handle to the asset to use for tiles
@@ -92,6 +93,8 @@ where
 
     // Logging to see progress
     // let mut last_point: Option<f32> = None;
+    let now = Instant::now();
+
     for point in world.into_iter() {
         // Just logging to see progress
         // if let Some(lat) = last_point {
@@ -114,7 +117,8 @@ where
 
         tile_storage.set(&pos, Some(tile_entity));
     }
-
+    let elapsed = now.elapsed();
+    println!("ELAPSED ITER: {:?}", elapsed);
     commands
         .entity(tilemap_entity)
         .insert_bundle(world.bundle(tile_storage, asset_server));

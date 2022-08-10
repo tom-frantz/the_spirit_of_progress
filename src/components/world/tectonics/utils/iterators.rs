@@ -2,13 +2,20 @@ use crate::tectonics::utils::WorldTectonicsIndex;
 use crate::{LatLonPoint, ValuePoint, WorldPoint, WorldPoints};
 use std::fmt::Debug;
 
+#[derive(Debug, Clone)]
+enum WorldPointsIterCursor {
+    NorthPole,
+    SouthPole,
+    Point(usize),
+}
+
 #[derive(Debug)]
 pub struct WorldTectonicsIterator<'a, T>
 where
     T: Debug + Clone,
 {
     world: &'a WorldPoints<T>,
-    current: Option<WorldTectonicsIndex>,
+    cursor: Option<WorldPointsIterCursor>,
 }
 
 impl<'a, T> WorldTectonicsIterator<'a, T>
@@ -18,7 +25,7 @@ where
     pub fn new(world: &'a WorldPoints<T>) -> Self {
         Self {
             world,
-            current: Some(WorldTectonicsIndex::NorthPole),
+            cursor: Some(WorldPointsIterCursor::NorthPole),
         }
     }
 }
@@ -29,7 +36,7 @@ where
     T: Debug + Clone,
 {
     world: WorldPoints<T>,
-    current: Option<WorldTectonicsIndex>,
+    cursor: Option<WorldPointsIterCursor>,
 }
 
 impl<T> WorldTectonicsIntoIterator<T>
@@ -39,27 +46,24 @@ where
     pub fn new(world: WorldPoints<T>) -> Self {
         Self {
             world,
-            current: Some(WorldTectonicsIndex::NorthPole),
+            cursor: Some(WorldPointsIterCursor::NorthPole),
         }
     }
 }
 
-fn next_iter_point(current_point: WorldTectonicsIndex) -> Option<WorldTectonicsIndex> {
-    match current_point {
-        WorldTectonicsIndex::NorthPole => {
-            Some(WorldTectonicsIndex::Point(LatLonPoint::new(89.5, -179.5)))
-        }
-        WorldTectonicsIndex::SouthPole => None,
-        WorldTectonicsIndex::Point(point) => {
-            let mut lat = point.lat();
-            let mut lon = point.lon() + 0.5;
-
-            if lon == 180.5 {
-                lat -= 0.5;
-                lon = -179.5;
+fn next_from_cursor(
+    current_cursor: &WorldPointsIterCursor,
+    points_len: usize,
+) -> Option<WorldPointsIterCursor> {
+    match current_cursor {
+        WorldPointsIterCursor::NorthPole => Some(WorldPointsIterCursor::Point(0)),
+        WorldPointsIterCursor::SouthPole => None,
+        WorldPointsIterCursor::Point(index) => {
+            if index + 1 == points_len {
+                Some(WorldPointsIterCursor::SouthPole)
+            } else {
+                Some(WorldPointsIterCursor::Point(index + 1))
             }
-
-            Some(WorldTectonicsIndex::from(LatLonPoint::new(lat, lon)))
         }
     }
 }
@@ -71,18 +75,17 @@ where
     type Item = &'a ValuePoint<T>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        return if let Some(current_index) = self.current {
-            let next = next_iter_point(current_index);
+        return if let Some(current_cursor) = &self.cursor {
+            let next = next_from_cursor(current_cursor, self.world.points_len());
 
-            let return_point: Option<&ValuePoint<T>> =
-                self.current.map(|current_index| match current_index {
-                    WorldTectonicsIndex::NorthPole => &self.world.north_pole_point,
-                    WorldTectonicsIndex::SouthPole => &self.world.south_pole_point,
-                    WorldTectonicsIndex::Point(point) => &self.world.points[&point],
-                });
+            let return_point: &ValuePoint<T> = match current_cursor {
+                WorldPointsIterCursor::NorthPole => &self.world.north_pole_point,
+                WorldPointsIterCursor::SouthPole => &self.world.south_pole_point,
+                WorldPointsIterCursor::Point(index) => &self.world.points[*index],
+            };
 
-            self.current = next;
-            return_point
+            self.cursor = next;
+            Some(return_point)
         } else {
             None
         };
@@ -96,16 +99,18 @@ where
     type Item = ValuePoint<T>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        return if let Some(current_index) = self.current {
-            let next = next_iter_point(current_index);
-            let return_point = self.current.map(|current_index| match current_index {
-                WorldTectonicsIndex::NorthPole => self.world.north_pole_point.clone(),
-                WorldTectonicsIndex::SouthPole => self.world.south_pole_point.clone(),
-                WorldTectonicsIndex::Point(point) => self.world.points[&point].clone(),
-            });
+        return if let Some(current_cursor) = &self.cursor {
+            let next: Option<WorldPointsIterCursor> =
+                next_from_cursor(current_cursor, self.world.points_len());
 
-            self.current = next;
-            return_point
+            let return_point: ValuePoint<T> = match current_cursor {
+                WorldPointsIterCursor::NorthPole => self.world.north_pole_point.clone(),
+                WorldPointsIterCursor::SouthPole => self.world.south_pole_point.clone(),
+                WorldPointsIterCursor::Point(_index) => self.world.points.remove(0),
+            };
+
+            self.cursor = next;
+            Some(return_point)
         } else {
             None
         };

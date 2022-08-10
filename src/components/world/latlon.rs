@@ -52,6 +52,19 @@ impl LatLonPoint {
         let coss = self.lat().cos() * other.lat().cos() * (self.lon() - other.lon()).cos();
         f32::acos(sins + coss)
     }
+
+    pub fn index(&self, precision: u32) -> usize {
+        // 90.0 - (90 to -90)
+        let delta_lat = (LATITUDE_RANGE / 2. - self.lat()) * precision as f32;
+        // (-179.5 to 180) + (180 - 0.5)
+        let delta_lon =
+            (self.lon() + ((LONGITUDE_RANGE / 2.) - (1. / precision as f32))) * precision as f32;
+
+        let lat_index = (delta_lat * (LONGITUDE_RANGE * precision as f32)) as usize;
+        let lon_index = delta_lon as usize;
+
+        lat_index + lon_index
+    }
 }
 
 impl WorldPoint for LatLonPoint {
