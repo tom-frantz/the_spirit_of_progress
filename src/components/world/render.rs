@@ -91,22 +91,9 @@ where
     let tilemap_entity = commands.spawn().id();
     let mut tile_storage = TileStorage::empty(world.tilemap_size());
 
-    // Logging to see progress
-    // let mut last_point: Option<f32> = None;
     let now = Instant::now();
 
     for point in world.into_iter() {
-        // Just logging to see progress
-        // if let Some(lat) = last_point {
-        //     if (point.lat() - lat).abs() > 0.01 {
-        //         println!("lat: {}", point.lat());
-        //         last_point = Some(point.lat());
-        //     }
-        // } else {
-        //     println!("lat: {}", point.lat());
-        //     last_point = Some(point.lat());
-        // }
-
         let pos = TilePos {
             y: ((point.lat() + (LATITUDE_RANGE / 2.)) * TECTONIC_PRECISION as f32) as u32,
             x: ((point.lon() + (LONGITUDE_RANGE / 2.)) * TECTONIC_PRECISION as f32) as u32,

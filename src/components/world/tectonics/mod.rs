@@ -33,8 +33,6 @@ where
     where
         F: Fn(WorldTectonicsIndex) -> T,
     {
-        let now = Instant::now();
-
         let north_pole_point = ValuePoint::new(
             WorldTectonicsIndex::NorthPole.into(),
             point_func(WorldTectonicsIndex::NorthPole),
@@ -46,10 +44,6 @@ where
         );
 
         let points: Vec<ValuePoint<T>> = {
-            println!(
-                "Capacity: {}",
-                WorldPoints::<T>::precision_points_len(precision)
-            );
             let mut point_vec =
                 Vec::with_capacity(WorldPoints::<T>::precision_points_len(precision));
 
@@ -71,14 +65,8 @@ where
                     point_vec.push(ValuePoint::new(lat_lon_point, value));
                 }
             }
-
-            println!("PVEC LEN {}", point_vec.len());
-
             point_vec
         };
-
-        let elapsed = now.elapsed();
-        println!("ELAPSED NEW: {:?}", elapsed);
 
         Self {
             precision,
