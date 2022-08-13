@@ -1,6 +1,5 @@
-use crate::render::TileRender;
-use crate::{WorldPoints, PIXEL_SIZE};
-use bevy::prelude::*;
+use crate::components::world::render::TileRender;
+use crate::components::world::WorldPoints;
 use bevy_ecs_tilemap::prelude::*;
 
 #[derive(Debug, Clone)]

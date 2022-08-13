@@ -3,9 +3,18 @@ name = "vads"
 version = "0.1.0"
 edition = "2021"
 
+[lib]
+path = "src/lib.rs"
+name = "vads"
+crate-type = ["lib"]
+
 [[bin]]
-path = "src/components/world/mod.rs"
+path = "src/bin/world_sim.rs"
 name = "world_sim"
+
+[[bin]]
+path = "src/bin/vads.rs"
+name = "vads_game"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

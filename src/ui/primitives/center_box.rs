@@ -1,6 +1,6 @@
 use crate::ui::primitives::header::render_header;
-use crate::ui::theme::TypographyColour;
 use crate::ui::theme::SPACING;
+use crate::ui::theme::{Colour, MenuColour};
 use crate::ui::MainElements::CenterBox;
 use bevy::prelude::Val::*;
 use bevy::prelude::*;
@@ -23,13 +23,13 @@ where
 fn background_bundle() -> NodeBundle {
     const CENTER_BOX_SIZE: f32 = 80.0;
     NodeBundle {
-        color: TypographyColour::BackgroundBorder.into(),
+        color: MenuColour::BorderBackground.ui_color(),
 
         style: Style {
             flex_direction: FlexDirection::ColumnReverse,
-            padding: Rect::all(Px(SPACING)),
+            padding: UiRect::all(Px(SPACING)),
             size: Size::new(Percent(CENTER_BOX_SIZE), Auto),
-            margin: Rect::all(Px(50.0)),
+            margin: UiRect::all(Px(50.0)),
             flex_grow: 1.0,
             display: Display::Flex,
             ..default()
@@ -40,7 +40,7 @@ fn background_bundle() -> NodeBundle {
 
 fn content_bundle() -> NodeBundle {
     NodeBundle {
-        color: TypographyColour::Background.into(),
+        color: MenuColour::Background.ui_color(),
         style: Style {
             size: Size::new(Percent(100.0), Auto),
             flex_grow: 1.0,

@@ -1,5 +1,7 @@
-use crate::MainCamera;
 use bevy::prelude::*;
+
+#[derive(Component)]
+pub struct MainCamera;
 
 pub fn camera_move_system(
     time: Res<Time>,
@@ -7,7 +9,7 @@ pub fn camera_move_system(
     mut query: Query<&mut Transform, With<MainCamera>>,
 ) {
     let mut movement = Transform::default();
-    let (mut transform) = query.get_single_mut().unwrap();
+    let mut transform = query.get_single_mut().unwrap();
 
     if keyboard_input.pressed(KeyCode::W) {
         movement.translation += Vec3::new(0.0, 1.0, 0.0)

@@ -1,4 +1,4 @@
-use crate::ui::theme::{MapColour, TypographyColour};
+use crate::ui::theme::{Colour, MenuColour};
 use bevy::prelude::*;
 
 pub enum Typography {
@@ -20,10 +20,10 @@ impl Typography {
 
     fn colour(&self) -> Color {
         match self {
-            Typography::Title => TypographyColour::Blue.into(),
-            Typography::Subtitle => TypographyColour::Blue.into(),
-            Typography::Body => TypographyColour::Black.into(),
-            Typography::BodyBold => TypographyColour::Black.into(),
+            Typography::Title => MenuColour::BluePen.color(),
+            Typography::Subtitle => MenuColour::BluePen.color(),
+            Typography::Body => MenuColour::BlackPen.color(),
+            Typography::BodyBold => MenuColour::BlackPen.color(),
         }
     }
 
@@ -40,14 +40,13 @@ impl Typography {
     where
         S: Into<String>,
     {
-        Text::with_section(
+        Text::from_section(
             section,
             TextStyle {
                 color: self.colour(),
                 font_size: self.font_size(),
                 font: asset_server.load(self.font_handle()),
             },
-            Default::default(),
         )
     }
 }

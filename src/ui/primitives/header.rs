@@ -1,9 +1,10 @@
-use crate::ui::theme::TypographyColour;
 use crate::ui::theme::SPACING;
+use crate::ui::theme::{Colour, MenuColour};
 use crate::ui::utils::clear_ui_elements;
 use crate::ui::MainElements;
 use bevy::prelude::Val::*;
 use bevy::prelude::*;
+use bevy::ui::UiRect;
 
 #[derive(Component, Debug)]
 pub enum HeaderButton {
@@ -14,7 +15,7 @@ pub enum HeaderButton {
 impl HeaderButton {
     pub fn clicked(
         &self,
-        mut commands: &mut Commands,
+        commands: &mut Commands,
         q_ui_main_elements: &Query<Entity, With<MainElements>>,
     ) {
         match self {
@@ -44,23 +45,23 @@ pub fn render_header(parent: &mut ChildBuilder) {
         .spawn_bundle(header_bundle())
         .with_children(|header| {
             header
-                .spawn_bundle(button_bundle(TypographyColour::Yellow))
+                .spawn_bundle(button_bundle(MenuColour::Chart))
                 .insert(HeaderButton::Expand);
 
             header
-                .spawn_bundle(button_bundle(TypographyColour::Red))
+                .spawn_bundle(button_bundle(MenuColour::RedPen))
                 .insert(HeaderButton::Close);
         });
 }
 
 pub fn header_bundle() -> NodeBundle {
     NodeBundle {
-        color: TypographyColour::Background.into(),
+        color: UiColor(MenuColour::Background.color()),
         style: Style {
             size: Size::new(Percent(100.0), Px(BUTTON_SIZE + SPACING)),
             justify_content: JustifyContent::FlexEnd,
-            padding: Rect::all(Px(SPACING / 2.0)),
-            margin: Rect {
+            padding: UiRect::all(Px(SPACING / 2.0)),
+            margin: UiRect {
                 bottom: Px(SPACING),
                 ..default()
             },
@@ -69,11 +70,11 @@ pub fn header_bundle() -> NodeBundle {
         ..default()
     }
 }
-pub fn button_bundle(color: TypographyColour) -> ButtonBundle {
+pub fn button_bundle(color: MenuColour) -> ButtonBundle {
     ButtonBundle {
-        color: color.into(),
+        color: UiColor(color.color()),
         style: Style {
-            margin: Rect {
+            margin: UiRect {
                 left: Px(SPACING),
                 ..default()
             },

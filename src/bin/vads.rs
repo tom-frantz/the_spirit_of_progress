@@ -1,23 +1,12 @@
-use crate::camera::camera_move_system;
-use crate::map::create_map;
-use crate::ui::UiPlugin;
 use bevy::prelude::*;
 use bevy::render::settings::WgpuSettings;
+use bevy::ui::UiPlugin;
 use bevy_ecs_tilemap::TilemapPlugin;
 use bevy_prototype_lyon::prelude::*;
-use components::city::City;
-use components::connection::Connection;
-
-mod components;
-mod map;
-
-mod camera;
-mod ui;
-
-pub mod utils;
-
-#[derive(Component)]
-pub struct MainCamera;
+use vads::camera::{camera_move_system, MainCamera};
+use vads::components::city::City;
+use vads::components::connection::Connection;
+use vads::map::create_map;
 
 fn main() {
     App::new()
@@ -34,7 +23,7 @@ fn main() {
         .add_system(camera_move_system)
         .run();
 }
-
+//
 fn setup_system(mut commands: Commands) {
     commands
         .spawn_bundle(Camera2dBundle::default())

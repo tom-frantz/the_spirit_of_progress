@@ -1,5 +1,5 @@
+use crate::camera::MainCamera;
 use crate::ui::MainElements;
-use crate::MainCamera;
 use bevy::prelude::*;
 use bevy::render::camera::RenderTarget;
 
@@ -22,7 +22,7 @@ pub fn get_cursor_location(
         let ndc = (screen_pos / window_size) * 2.0 - Vec2::ONE;
 
         // matrix for undoing the projection and camera transform
-        let ndc_to_world = camera_transform.compute_matrix() * camera.projection_matrix.inverse();
+        let ndc_to_world = camera_transform.compute_matrix() * camera.projection_matrix().inverse();
 
         // use it to convert ndc to world-space coordinates
         let world_pos = ndc_to_world.project_point3(ndc.extend(-1.0));
@@ -34,12 +34,8 @@ pub fn get_cursor_location(
     None
 }
 
-pub fn create_ui_camera(mut commands: Commands) {
-    commands.spawn_bundle(UiCameraBundle::default());
-}
-
 pub fn clear_ui_elements(
-    mut commands: &mut Commands,
+    commands: &mut Commands,
     q_ui_main_elements: &Query<Entity, With<MainElements>>,
 ) {
     for entity in q_ui_main_elements.iter() {

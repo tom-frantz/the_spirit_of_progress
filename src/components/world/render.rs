@@ -1,12 +1,8 @@
-use crate::{
-    ValuePoint, WorldPoint, WorldPoints, WorldTectonicsIndex, LATITUDE_RANGE, LONGITUDE_RANGE,
-    PIXEL_SIZE, TECTONIC_PRECISION,
-};
-use bevy::asset::AssetPath;
+use crate::components::world::latlon::{ValuePoint, WorldPoint, LATITUDE_RANGE, LONGITUDE_RANGE};
+use crate::components::world::{PIXEL_SIZE, TECTONIC_PRECISION};
 use bevy::prelude::*;
 use bevy_ecs_tilemap::prelude::*;
 use std::fmt::Debug;
-use std::time::Instant;
 
 pub trait WorldRender {
     // The handle to the asset to use for tiles
@@ -91,8 +87,6 @@ where
     let tilemap_entity = commands.spawn().id();
     let mut tile_storage = TileStorage::empty(world.tilemap_size());
 
-    let now = Instant::now();
-
     for point in world.into_iter() {
         let pos = TilePos {
             y: ((point.lat() + (LATITUDE_RANGE / 2.)) * TECTONIC_PRECISION as f32) as u32,
@@ -104,8 +98,7 @@ where
 
         tile_storage.set(&pos, Some(tile_entity));
     }
-    let elapsed = now.elapsed();
-    println!("ELAPSED ITER: {:?}", elapsed);
+
     commands
         .entity(tilemap_entity)
         .insert_bundle(world.bundle(tile_storage, asset_server));

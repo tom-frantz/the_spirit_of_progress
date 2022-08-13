@@ -1,5 +1,3 @@
-use crate::ui::primitives::center_box::render_center_box;
-use crate::ui::primitives::sidebar::render_sidebar;
 use crate::ui::LabelledNodeBundle;
 use bevy::prelude::*;
 

@@ -1,4 +1,4 @@
-use crate::{LatLonPoint, ValuePoint, WorldPoint};
+use crate::components::world::tectonics::{LatLonPoint, ValuePoint, WorldPoint};
 use std::fmt::Debug;
 
 pub mod iterators;

@@ -1,11 +1,9 @@
-use crate::latlon::*;
-use crate::render::WorldRender;
-use crate::tectonics::utils::iterators::*;
-use crate::tectonics::utils::WorldTectonicsIndex;
-use bevy_ecs_tilemap::map::TilemapGridSize;
-use std::collections::HashMap;
+use crate::components::world::latlon::*;
+use crate::components::world::render::WorldRender;
+use crate::components::world::tectonics::utils::iterators::*;
+use crate::components::world::tectonics::utils::WorldTectonicsIndex;
+use bevy_ecs_tilemap::map::{TilemapGridSize, TilemapTileSize};
 use std::fmt::Debug;
-use std::time::Instant;
 
 pub mod height;
 pub mod plates;
@@ -57,7 +55,6 @@ where
                 // i.e. precision of 2 = -179.5 to 180.0
                 for lon_index in 1..=(LONGITUDE_RANGE as u32 * precision) as i32 {
                     let lon = (lon_index as f32) / precision as f32 - (LONGITUDE_RANGE / 2.);
-                    // println!("Lon: {}", lon);
 
                     let lat_lon_point = LatLonPoint::new(lat, lon);
                     let value = point_func(WorldTectonicsIndex::from(lat_lon_point));
@@ -95,11 +92,15 @@ where
     T: Debug + Clone,
 {
     fn texture_asset_name(&self) -> &str {
-        "pergamon_tiles.png"
+        "test_tile_diagonal.png"
     }
 
     fn tilemap_asset_size(&self) -> TilemapGridSize {
-        TilemapGridSize { x: 8. * 3., y: 3. }
+        TilemapGridSize { x: 12., y: 12. }
+    }
+
+    fn tile_size(&self) -> TilemapTileSize {
+        TilemapTileSize { x: 12., y: 12. }
     }
 
     fn precision(&self) -> u32 {

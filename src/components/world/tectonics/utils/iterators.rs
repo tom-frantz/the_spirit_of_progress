@@ -1,5 +1,5 @@
-use crate::tectonics::utils::WorldTectonicsIndex;
-use crate::{LatLonPoint, ValuePoint, WorldPoint, WorldPoints};
+use crate::components::world::latlon::ValuePoint;
+use crate::components::world::tectonics::WorldPoints;
 use std::fmt::Debug;
 
 #[derive(Debug, Clone)]

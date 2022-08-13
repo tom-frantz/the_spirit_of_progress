@@ -1,5 +1,7 @@
+use crate::camera::MainCamera;
+use crate::components::city::City;
+use crate::components::connection::Connection;
 use crate::ui::utils::get_cursor_location;
-use crate::{City, Connection, MainCamera};
 use bevy::ecs::entity::Entity;
 use bevy::prelude::*;
 

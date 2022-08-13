@@ -1,9 +1,8 @@
 use crate::ui::interaction::{Clickable, MapClickable, MapInteractionEvents};
-use crate::ui::theme::MapColour;
+use crate::ui::theme::{Colour, MenuColour};
 use crate::utils::rendering::ZIndex;
 use bevy::math::Vec3Swizzles;
 use bevy::prelude::*;
-use bevy::reflect::ReflectRef::Map;
 use bevy_prototype_lyon::draw::{DrawMode, FillMode};
 use bevy_prototype_lyon::entity::ShapeBundle;
 use bevy_prototype_lyon::prelude::{GeometryBuilder, RectangleOrigin};
@@ -28,7 +27,7 @@ impl City {
             map_clickable: MapClickable,
             shape: GeometryBuilder::build_as(
                 &city_shape,
-                DrawMode::Fill(FillMode::color(MapColour::Dark.into())),
+                DrawMode::Fill(FillMode::color(MenuColour::BlackPen.color())),
                 Transform::from_xyz(location.x, location.y, ZIndex::City.into()),
             ),
         }
@@ -37,7 +36,7 @@ impl City {
 
 impl Clickable for City {
     fn clicked(&self, self_transform: &Transform, cursor: Vec2) -> bool {
-        let mut difference = cursor - self_transform.translation.xy();
+        let difference = cursor - self_transform.translation.xy();
 
         difference.x >= 0.0
             && difference.x < CITY_SHAPE_SIZE

@@ -1,6 +1,6 @@
+use crate::components::city::City;
 use crate::ui::fonts::Typography;
 use crate::ui::primitives::sidebar::SIDEBAR_CONTENT_SIZE;
-use crate::City;
 use bevy::prelude::Val::*;
 use bevy::prelude::*;
 
@@ -15,7 +15,7 @@ pub fn render_city_info(
     });
     sidebar_content_node.spawn_bundle(TextBundle {
         style: Style {
-            border: Rect::all(Px(5.0)),
+            border: UiRect::all(Px(5.0)),
             size: Size::new(Px(SIDEBAR_CONTENT_SIZE), Auto),
             ..default()
         },

@@ -1,4 +1,4 @@
-use crate::ui::theme::MapColour;
+use crate::ui::theme::{Colour, Terrain};
 use crate::utils::rendering::ZIndex;
 use bevy::prelude::*;
 use bevy_prototype_lyon::entity::ShapeBundle;
@@ -13,7 +13,7 @@ pub fn create_map() -> ShapeBundle {
     };
     GeometryBuilder::build_as(
         &map_shape,
-        DrawMode::Fill(FillMode::color(MapColour::DarkGreen.into())),
+        DrawMode::Fill(FillMode::color(Terrain::SeaLevelLand.color())),
         Transform::from_xyz(0.0, 0.0, ZIndex::Map.into()),
     )
 }

@@ -1,5 +1,7 @@
-use crate::render::TileRender;
-use crate::{LatLonPoint, WorldPoints};
+use crate::components::world::latlon::LatLonPoint;
+use crate::components::world::render::TileRender;
+use crate::components::world::tectonics::WorldPoints;
+use bevy::prelude::Color;
 use bevy::utils::HashMap;
 use bevy_ecs_tilemap::prelude::*;
 
@@ -24,6 +26,7 @@ impl TileRender for PlatePoint {
         TileBundle {
             position,
             tilemap_id,
+            color: TileColor(Color::rgba(1., 0., 0., 0.5)),
             ..Default::default()
         }
     }

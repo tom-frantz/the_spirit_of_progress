@@ -1,11 +1,10 @@
 use crate::components::connection::utils::point_shortest_distance_to_line;
 use crate::ui::interaction::{Clickable, MapClickable, MapInteractionEvents};
-use crate::ui::theme::MapColour;
+use crate::ui::theme::{Colour, MenuColour};
 use crate::utils::rendering::ZIndex;
-use crate::Keyframes::Translation;
 use bevy::math::Vec3Swizzles;
 use bevy::prelude::*;
-use bevy_prototype_lyon::draw::{DrawMode, FillMode, StrokeMode};
+use bevy_prototype_lyon::draw::{DrawMode, StrokeMode};
 use bevy_prototype_lyon::entity::ShapeBundle;
 use bevy_prototype_lyon::prelude::GeometryBuilder;
 use bevy_prototype_lyon::shapes;
@@ -38,7 +37,7 @@ impl Connection {
             end_city_pos + Vec2::new(5.0, 5.0),
         );
 
-        let mut color: Color = MapColour::DarkOrange.into();
+        let mut color: Color = MenuColour::GreenPen.color();
         color.set_a(0.5);
 
         ConnectionBundle {
@@ -59,7 +58,7 @@ impl Connection {
 }
 
 impl Clickable for Connection {
-    fn clicked(&self, transform: &Transform, mouse: Vec2) -> bool {
+    fn clicked(&self, _transform: &Transform, mouse: Vec2) -> bool {
         point_shortest_distance_to_line(
             mouse - Vec2::new(5.0, 5.0),
             self.start_city_pos,

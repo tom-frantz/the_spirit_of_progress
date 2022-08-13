@@ -1,8 +1,7 @@
 use crate::ui::primitives::header::render_header;
-use crate::ui::theme::TypographyColour;
 use crate::ui::theme::SPACING;
+use crate::ui::theme::{Colour, MenuColour};
 use crate::ui::MainElements::Sidebar;
-use bevy::ecs::system::EntityCommands;
 use bevy::prelude::Val::*;
 use bevy::prelude::*;
 
@@ -29,11 +28,11 @@ pub const SIDEBAR_CONTENT_SIZE: f32 =
 
 fn background_bundle() -> NodeBundle {
     NodeBundle {
-        color: TypographyColour::BackgroundBorder.into(),
+        color: MenuColour::BorderBackground.ui_color(),
 
         style: Style {
             flex_direction: FlexDirection::ColumnReverse,
-            padding: Rect::all(Px(SIDEBAR_BACKGROUND_PADDING)),
+            padding: UiRect::all(Px(SIDEBAR_BACKGROUND_PADDING)),
             size: Size::new(Px(SIDEBAR_BACKGROUND_WIDTH), Percent(100.0)),
             ..default()
         },
@@ -43,14 +42,14 @@ fn background_bundle() -> NodeBundle {
 
 fn content_bundle() -> NodeBundle {
     NodeBundle {
-        color: TypographyColour::Background.into(),
+        color: MenuColour::Background.ui_color(),
         style: Style {
             size: Size::new(Percent(100.0), Auto),
             flex_grow: 1.0,
             flex_direction: FlexDirection::ColumnReverse,
             justify_content: JustifyContent::FlexStart,
             align_items: AlignItems::FlexStart,
-            padding: Rect::all(Px(SIDEBAR_CONTENT_PADDING)),
+            padding: UiRect::all(Px(SIDEBAR_CONTENT_PADDING)),
             ..default()
         },
         ..Default::default()
