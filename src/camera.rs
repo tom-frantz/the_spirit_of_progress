@@ -15,8 +15,6 @@ impl Plugin for CameraPlugin {
 }
 
 pub fn create_camera(mut commands: Commands) {
-    println!("DONE??");
-
     commands
         .spawn_bundle(Camera2dBundle::default())
         .insert(MainCamera);
@@ -27,19 +25,19 @@ pub fn camera_zoom_system(
     mut query: Query<&mut OrthographicProjection, With<MainCamera>>,
 ) {
     let mut transform = query.get_single_mut().unwrap();
-    let mut log_scale = transform.scale;
+    let mut scale = transform.scale;
 
     if keyboard_input.just_pressed(KeyCode::E) {
-        log_scale *= 2.;
+        scale *= 2.;
     }
 
     if keyboard_input.just_pressed(KeyCode::Q) {
-        log_scale /= 2.;
+        scale /= 2.;
     }
 
-    println!("{}", log_scale);
+    // println!("{}", log_scale);
 
-    transform.scale = log_scale
+    transform.scale = scale
 }
 
 pub fn camera_move_system(

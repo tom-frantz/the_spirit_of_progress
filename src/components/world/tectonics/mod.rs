@@ -73,8 +73,8 @@ where
         }
     }
 
-    pub fn iter(&self) -> WorldTectonicsIterator<T> {
-        WorldTectonicsIterator::new(self)
+    pub fn iter(&self) -> WorldPointsIterator<T> {
+        WorldPointsIterator::new(self)
     }
 
     pub fn precision_points_len(precision: u32) -> usize {
@@ -91,19 +91,7 @@ impl<T> WorldRender for WorldPoints<T>
 where
     T: Debug + Clone,
 {
-    fn texture_asset_name(&self) -> &str {
-        "test_tile_diagonal.png"
-    }
-
-    fn tilemap_asset_size(&self) -> TilemapGridSize {
-        TilemapGridSize { x: 12., y: 12. }
-    }
-
-    fn tile_size(&self) -> TilemapTileSize {
-        TilemapTileSize { x: 12., y: 12. }
-    }
-
     fn precision(&self) -> u32 {
-        2
+        self.precision
     }
 }

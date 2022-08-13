@@ -1,5 +1,7 @@
 use bevy::prelude::*;
 use bevy_ecs_tilemap::prelude::TileColor;
+use rand::distributions::Standard;
+use rand::prelude::*;
 
 pub const SPACING: f32 = 8.0;
 
@@ -122,6 +124,7 @@ impl Colour for IndustryColour2 {
     }
 }
 
+#[derive(Debug, Clone)]
 pub enum Agriculture {
     Pink,
     LightPurple,
@@ -142,6 +145,30 @@ pub enum Agriculture {
 
     PaleGreen,
     LightGreen,
+}
+
+impl Distribution<Agriculture> for Standard {
+    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> Agriculture {
+        match rng.gen_range(0..16) {
+            0 => Agriculture::Pink,
+            1 => Agriculture::LightPurple,
+            2 => Agriculture::Purple,
+            3 => Agriculture::DarkPurple,
+            4 => Agriculture::Green1,
+            5 => Agriculture::Green2,
+            6 => Agriculture::Green3,
+            7 => Agriculture::Green4,
+            8 => Agriculture::Green5,
+            9 => Agriculture::Grey,
+            10 => Agriculture::GreenYellow,
+            11 => Agriculture::Yellow,
+            12 => Agriculture::DarkGreenYellow,
+            13 => Agriculture::Brown,
+            14 => Agriculture::PaleGreen,
+            15 => Agriculture::LightGreen,
+            _ => panic!("Aaaaaa random failed?"),
+        }
+    }
 }
 
 impl Colour for Agriculture {

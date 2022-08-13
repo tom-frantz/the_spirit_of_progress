@@ -1,5 +1,6 @@
-use crate::components::world::render::TileRender;
+use crate::components::world::render::{TileRender, WorldRender};
 use crate::components::world::WorldPoints;
+use bevy::prelude::Color;
 use bevy_ecs_tilemap::prelude::*;
 
 #[derive(Debug, Clone)]
@@ -14,10 +15,13 @@ impl HeightPoint {
 }
 
 impl TileRender for HeightPoint {
-    fn bundle(&self, position: TilePos, tilemap_id: TilemapId) -> TileBundle {
+    type World = HeightMap;
+
+    fn bundle(&self, world: &Self::World, position: TilePos, tilemap_id: TilemapId) -> TileBundle {
         TileBundle {
             position,
             tilemap_id,
+            color: TileColor(Color::rgb(1., 0., 0.)),
             ..Default::default()
         }
     }
@@ -25,11 +29,17 @@ impl TileRender for HeightPoint {
 
 #[derive(Debug, Clone)]
 pub struct HeightMap {
-    world: WorldPoints<HeightPoint>,
+    pub world: WorldPoints<HeightPoint>,
 }
 
 impl HeightMap {
     pub fn new(world: WorldPoints<HeightPoint>) -> Self {
         HeightMap { world }
+    }
+}
+
+impl WorldRender for HeightMap {
+    fn precision(&self) -> u32 {
+        self.world.precision
     }
 }

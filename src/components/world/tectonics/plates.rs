@@ -1,6 +1,7 @@
-use crate::components::world::latlon::LatLonPoint;
-use crate::components::world::render::TileRender;
+use crate::components::world::latlon::{LatLonPoint, ValuePoint};
+use crate::components::world::render::{TileRender, WorldRender};
 use crate::components::world::tectonics::WorldPoints;
+use crate::ui::theme::{Agriculture, Colour};
 use bevy::prelude::Color;
 use bevy::utils::HashMap;
 use bevy_ecs_tilemap::prelude::*;
@@ -13,6 +14,7 @@ pub struct Plate {
     spread: f32,
     // How likely this plate will be the dominant one.
     strength: f32,
+    pub colour: Agriculture,
 }
 
 #[derive(Debug, Clone)]
@@ -22,11 +24,18 @@ pub struct PlatePoint {
 }
 
 impl TileRender for PlatePoint {
-    fn bundle(&self, position: TilePos, tilemap_id: TilemapId) -> TileBundle {
+    type World = TectonicPlates;
+
+    fn bundle(&self, world: &Self::World, position: TilePos, tilemap_id: TilemapId) -> TileBundle {
+        // println!(
+        //     "Bundle called! {:?}",
+        //     world.plates[&self.plate_id].colour.tile_color()
+        // );
+
         TileBundle {
             position,
             tilemap_id,
-            color: TileColor(Color::rgba(1., 0., 0., 0.5)),
+            color: world.plates[&self.plate_id].colour.tile_color(),
             ..Default::default()
         }
     }
@@ -39,7 +48,7 @@ impl PlatePoint {
 }
 
 pub struct TectonicPlates {
-    world: WorldPoints<PlatePoint>,
+    pub world: WorldPoints<PlatePoint>,
     plates: HashMap<u32, Plate>,
 }
 
@@ -58,6 +67,7 @@ impl TectonicPlates {
 
         for id in 0..major_plates {
             let point: LatLonPoint = LatLonPoint::random(precision);
+            let colour = rand::random();
 
             plates.insert(
                 id,
@@ -66,12 +76,14 @@ impl TectonicPlates {
                     origin: point,
                     spread: 50.0,
                     strength: 10.0,
+                    colour,
                 },
             );
         }
 
         for id in major_plates..(major_plates + minor_plates) {
             let point: LatLonPoint = LatLonPoint::random(precision);
+            let colour = rand::random();
 
             plates.insert(
                 id,
@@ -80,6 +92,7 @@ impl TectonicPlates {
                     origin: point,
                     spread: 10.0,
                     strength: 20.0,
+                    colour,
                 },
             );
         }
@@ -105,5 +118,11 @@ impl TectonicPlates {
             }),
             plates,
         }
+    }
+}
+
+impl WorldRender for TectonicPlates {
+    fn precision(&self) -> u32 {
+        self.world.precision
     }
 }

@@ -1,4 +1,6 @@
 use crate::components::world::latlon::ValuePoint;
+use crate::components::world::tectonics::height::{HeightMap, HeightPoint};
+use crate::components::world::tectonics::plates::{PlatePoint, TectonicPlates};
 use crate::components::world::tectonics::WorldPoints;
 use std::fmt::Debug;
 
@@ -10,7 +12,7 @@ enum WorldPointsIterCursor {
 }
 
 #[derive(Debug)]
-pub struct WorldTectonicsIterator<'a, T>
+pub struct WorldPointsIterator<'a, T>
 where
     T: Debug + Clone,
 {
@@ -18,7 +20,7 @@ where
     cursor: Option<WorldPointsIterCursor>,
 }
 
-impl<'a, T> WorldTectonicsIterator<'a, T>
+impl<'a, T> WorldPointsIterator<'a, T>
 where
     T: Debug + Clone,
 {
@@ -31,7 +33,7 @@ where
 }
 
 #[derive(Debug)]
-pub struct WorldTectonicsIntoIterator<T>
+pub struct WorldPointsIntoIterator<T>
 where
     T: Debug + Clone,
 {
@@ -39,7 +41,7 @@ where
     cursor: Option<WorldPointsIterCursor>,
 }
 
-impl<T> WorldTectonicsIntoIterator<T>
+impl<T> WorldPointsIntoIterator<T>
 where
     T: Debug + Clone,
 {
@@ -68,7 +70,7 @@ fn next_from_cursor(
     }
 }
 
-impl<'a, T> Iterator for WorldTectonicsIterator<'a, T>
+impl<'a, T> Iterator for WorldPointsIterator<'a, T>
 where
     T: Debug + Clone,
 {
@@ -92,7 +94,7 @@ where
     }
 }
 
-impl<T> Iterator for WorldTectonicsIntoIterator<T>
+impl<T> Iterator for WorldPointsIntoIterator<T>
 where
     T: Debug + Clone,
 {
@@ -122,10 +124,10 @@ where
     T: Debug + Clone,
 {
     type Item = ValuePoint<T>;
-    type IntoIter = WorldTectonicsIntoIterator<T>;
+    type IntoIter = WorldPointsIntoIterator<T>;
 
     fn into_iter(self) -> Self::IntoIter {
-        WorldTectonicsIntoIterator::new(self)
+        WorldPointsIntoIterator::new(self)
     }
 }
 
@@ -134,9 +136,27 @@ where
     T: Debug + Clone,
 {
     type Item = &'a ValuePoint<T>;
-    type IntoIter = WorldTectonicsIterator<'a, T>;
+    type IntoIter = WorldPointsIterator<'a, T>;
 
     fn into_iter(self) -> Self::IntoIter {
-        WorldTectonicsIterator::new(self)
+        WorldPointsIterator::new(self)
+    }
+}
+
+impl<'a> IntoIterator for &'a TectonicPlates {
+    type Item = &'a ValuePoint<PlatePoint>;
+    type IntoIter = WorldPointsIterator<'a, PlatePoint>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        WorldPointsIterator::new(&self.world)
+    }
+}
+
+impl<'a> IntoIterator for &'a HeightMap {
+    type Item = &'a ValuePoint<HeightPoint>;
+    type IntoIter = WorldPointsIterator<'a, HeightPoint>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        WorldPointsIterator::new(&self.world)
     }
 }
