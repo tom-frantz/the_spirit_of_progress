@@ -3,7 +3,7 @@ use bevy::render::settings::WgpuSettings;
 use bevy::ui::UiPlugin;
 use bevy_ecs_tilemap::TilemapPlugin;
 use bevy_prototype_lyon::prelude::*;
-use vads::camera::{camera_move_system, MainCamera};
+use vads::camera::CameraPlugin;
 use vads::components::city::City;
 use vads::components::connection::Connection;
 use vads::map::create_map;
@@ -15,19 +15,16 @@ fn main() {
         .add_plugin(ShapePlugin)
         .add_plugin(UiPlugin)
         .add_plugin(TilemapPlugin)
+        .add_plugin(CameraPlugin)
         .insert_resource(WgpuSettings {
             backends: Some(bevy::render::settings::Backends::DX12),
             ..Default::default()
         })
         .add_startup_system(setup_system)
-        .add_system(camera_move_system)
         .run();
 }
-//
+
 fn setup_system(mut commands: Commands) {
-    commands
-        .spawn_bundle(Camera2dBundle::default())
-        .insert(MainCamera);
     commands.spawn_bundle(create_map());
 
     let milbourne = commands
