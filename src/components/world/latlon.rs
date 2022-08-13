@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy_ecs_tilemap::tiles::TilePos;
 use rand::Rng;
 use std::fmt::Debug;
 use std::hash::{Hash, Hasher};
@@ -48,22 +49,29 @@ impl LatLonPoint {
     /// Distance via the central angle of a great circle segment.
     /// https://en.wikipedia.org/wiki/Great-circle_distance
     pub fn distance(&self, other: &LatLonPoint) -> f32 {
-        let sins = self.lat().sin() * other.lat().sin();
-        let coss = self.lat().cos() * other.lat().cos() * (self.lon() - other.lon()).cos();
-        f32::acos(sins + coss)
+        // let sins = self.lat().sin() * other.lat().sin();
+        // let coss = self.lat().cos() * other.lat().cos() * (self.lon() - other.lon()).cos();
+        // f32::acos(sins + coss)
+
+        ((self.lat() - other.lat()).powf(2.) + (self.lon() - other.lon()).powf(2.)).sqrt()
+
+        // let d_lat: f64 = (other.lat() - self.lat()).abs() as f64;
+        // let d_lon: f64 = (other.lon() - self.lon()).abs() as f64;
+        // let lat_1: f64 = self.lat().to_radians() as f64;
+        // let lat_2: f64 = self.lat().to_radians() as f64;
+        //
+        // let a: f64 = ((d_lat / 2.0).sin()) * ((d_lat / 2.0).sin())
+        //     + ((d_lon / 2.0).sin()) * ((d_lon / 2.0).sin()) * (lat_1.cos()) * (lat_2.cos());
+        // let c: f64 = 2.0 * ((a.sqrt()).atan2((1.0 - a).sqrt()));
+        //
+        // return c as f32;
     }
 
-    pub fn index(&self, precision: u32) -> usize {
-        // 90.0 - (90 to -90)
-        let delta_lat = (LATITUDE_RANGE / 2. - self.lat()) * precision as f32;
-        // (-179.5 to 180) + (180 - 0.5)
-        let delta_lon =
-            (self.lon() + ((LONGITUDE_RANGE / 2.) - (1. / precision as f32))) * precision as f32;
-
-        let lat_index = (delta_lat * (LONGITUDE_RANGE * precision as f32)) as usize;
-        let lon_index = delta_lon as usize;
-
-        lat_index + lon_index
+    pub fn tile_pos(self, precision: u32) -> TilePos {
+        TilePos {
+            y: ((self.lat() + (LATITUDE_RANGE / 2.)) * precision as f32) as u32,
+            x: ((self.lon() + (LONGITUDE_RANGE / 2.)) * precision as f32) as u32,
+        }
     }
 }
 

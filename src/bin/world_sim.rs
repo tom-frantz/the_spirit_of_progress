@@ -38,7 +38,7 @@ fn main() {
 }
 
 fn draw_height_map(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let world = HeightMap::new(WorldPoints::new(2, |_p| HeightPoint::new(0.)));
+    let world = TectonicPlates::new(2, 2, 6);
 
     draw_map(world, commands, asset_server)
 }

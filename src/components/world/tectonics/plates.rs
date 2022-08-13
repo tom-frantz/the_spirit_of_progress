@@ -1,7 +1,7 @@
 use crate::components::world::latlon::{LatLonPoint, ValuePoint};
 use crate::components::world::render::{TileRender, WorldRender};
 use crate::components::world::tectonics::WorldPoints;
-use crate::ui::theme::{Agriculture, Colour};
+use crate::ui::theme::{Agriculture, Colour, MenuColour};
 use bevy::prelude::Color;
 use bevy::utils::HashMap;
 use bevy_ecs_tilemap::prelude::*;
@@ -27,15 +27,19 @@ impl TileRender for PlatePoint {
     type World = TectonicPlates;
 
     fn bundle(&self, world: &Self::World, position: TilePos, tilemap_id: TilemapId) -> TileBundle {
-        // println!(
-        //     "Bundle called! {:?}",
-        //     world.plates[&self.plate_id].colour.tile_color()
-        // );
+        let mut color = world.plates[&self.plate_id].colour.tile_color();
+
+        for (_id, plate) in &world.plates {
+            let origin_pos = plate.origin.tile_pos(world.precision());
+            if origin_pos.x == position.x && origin_pos.y == position.y {
+                color = MenuColour::BlackPen.tile_color()
+            }
+        }
 
         TileBundle {
             position,
             tilemap_id,
-            color: world.plates[&self.plate_id].colour.tile_color(),
+            color,
             ..Default::default()
         }
     }
@@ -47,6 +51,7 @@ impl PlatePoint {
     }
 }
 
+#[derive(Debug)]
 pub struct TectonicPlates {
     pub world: WorldPoints<PlatePoint>,
     plates: HashMap<u32, Plate>,
@@ -97,27 +102,26 @@ impl TectonicPlates {
             );
         }
 
-        TectonicPlates {
-            world: WorldPoints::new(precision, |point| {
-                let lat_lon: LatLonPoint = point.into();
+        let world = WorldPoints::new(precision, |point| {
+            let lat_lon: LatLonPoint = point.into();
 
-                let mut min_distance: Option<(u32, f32)> = None;
-                for (id, plate) in plates.iter() {
-                    let distance = lat_lon.distance(&plate.origin);
+            let mut min_distance: Option<(u32, f32)> = None;
+            for (id, plate) in plates.iter() {
+                let distance = lat_lon.distance(&plate.origin);
 
-                    if let Some((id, current_min_distance)) = min_distance {
-                        if current_min_distance > distance {
-                            min_distance = Some((id.clone(), distance))
-                        }
-                    } else {
-                        min_distance = Some((*id, distance));
+                if let Some((_current_id, current_min_distance)) = min_distance {
+                    if current_min_distance > distance {
+                        min_distance = Some((id.clone(), distance))
                     }
+                } else {
+                    min_distance = Some((id.clone(), distance));
                 }
+            }
 
-                PlatePoint::new(min_distance.unwrap().0, 0.)
-            }),
-            plates,
-        }
+            PlatePoint::new(min_distance.unwrap().0, 0.)
+        });
+
+        TectonicPlates { world, plates }
     }
 }
 
