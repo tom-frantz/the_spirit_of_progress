@@ -48,23 +48,19 @@ impl LatLonPoint {
 
     /// Distance via the central angle of a great circle segment.
     /// https://en.wikipedia.org/wiki/Great-circle_distance
+    /// This isn't optimized for very small distances (f32 floating point errors may occur)
     pub fn distance(&self, other: &LatLonPoint) -> f32 {
-        // let sins = self.lat().sin() * other.lat().sin();
-        // let coss = self.lat().cos() * other.lat().cos() * (self.lon() - other.lon()).cos();
-        // f32::acos(sins + coss)
+        let lat1 = self.lat().to_radians();
+        let lon1 = self.lon().to_radians();
 
-        ((self.lat() - other.lat()).powf(2.) + (self.lon() - other.lon()).powf(2.)).sqrt()
+        let lat2 = other.lat().to_radians();
+        let lon2 = other.lon().to_radians();
 
-        // let d_lat: f64 = (other.lat() - self.lat()).abs() as f64;
-        // let d_lon: f64 = (other.lon() - self.lon()).abs() as f64;
-        // let lat_1: f64 = self.lat().to_radians() as f64;
-        // let lat_2: f64 = self.lat().to_radians() as f64;
-        //
-        // let a: f64 = ((d_lat / 2.0).sin()) * ((d_lat / 2.0).sin())
-        //     + ((d_lon / 2.0).sin()) * ((d_lon / 2.0).sin()) * (lat_1.cos()) * (lat_2.cos());
-        // let c: f64 = 2.0 * ((a.sqrt()).atan2((1.0 - a).sqrt()));
-        //
-        // return c as f32;
+        let lat_sin = lat1.sin() * lat2.sin();
+        let lat_cos = lat1.cos() * lat2.cos();
+        let delta_lon = (lon1 - lon2);
+
+        f32::acos(lat_sin + lat_cos * delta_lon.cos())
     }
 
     pub fn tile_pos(self, precision: u32) -> TilePos {
