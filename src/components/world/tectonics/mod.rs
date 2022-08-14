@@ -1,97 +1,109 @@
-use crate::components::world::latlon::*;
-use crate::components::world::render::WorldRender;
-use crate::components::world::tectonics::utils::iterators::*;
-use crate::components::world::tectonics::utils::WorldTectonicsIndex;
-use bevy_ecs_tilemap::map::{TilemapGridSize, TilemapTileSize};
-use std::fmt::Debug;
+use crate::components::world::latlon::LatLonPoint;
+use crate::components::world::tectonics::PlateType::*;
+use crate::components::world::WorldPoints;
+use crate::ui::theme::{Agriculture, Colour, IndustryColour, MenuColour};
+use bevy::prelude::Color;
+use bevy::utils::HashMap;
+use bevy_ecs_tilemap::prelude::*;
+use point::PlatePoint;
 
-pub mod height;
-pub mod plates;
-pub mod utils;
+pub mod point;
+pub mod render_modes;
 
 pub const DEGREE_STEP_INTERVAL: f32 = 0.5;
 
-#[derive(Debug, Clone)]
-pub struct WorldPoints<T>
-where
-    T: Debug + Clone,
-{
-    precision: u32,
-    north_pole_point: ValuePoint<T>,
-    south_pole_point: ValuePoint<T>,
-    points: Vec<ValuePoint<T>>,
+#[derive(Clone, Debug)]
+pub enum PlateType {
+    Oceanic,
+    Continental,
 }
 
-impl<T> WorldPoints<T>
-where
-    T: Debug + Clone,
-{
-    /// Create a new world, where each points value is determined by passing the lat/lon through a function
-    pub fn new<F>(precision: u32, point_func: F) -> Self
-    where
-        F: Fn(WorldTectonicsIndex) -> T,
-    {
-        let north_pole_point = ValuePoint::new(
-            WorldTectonicsIndex::NorthPole.into(),
-            point_func(WorldTectonicsIndex::NorthPole),
-        );
+#[derive(Debug, Clone)]
+pub struct Plate {
+    id: u32,
+    origin: LatLonPoint,
+    plate_type: PlateType,
+    pub colour: Color,
+}
 
-        let south_pole_point = ValuePoint::new(
-            WorldTectonicsIndex::SouthPole.into(),
-            point_func(WorldTectonicsIndex::SouthPole),
-        );
+#[derive(Debug, Clone)]
+pub struct TectonicPlates {
+    pub world: WorldPoints<PlatePoint>,
+    pub plates: HashMap<u32, Plate>,
+}
 
-        let points: Vec<ValuePoint<T>> = {
-            let mut point_vec =
-                Vec::with_capacity(WorldPoints::<T>::precision_points_len(precision));
+impl TectonicPlates {
+    /// Create a full set of new plates - to completion.
+    ///
+    /// General process on how to do such things
+    /// - Seed a bunch of random points
+    ///   (True random is fine, it's ok to have points next to each other I guess
+    /// - 'Grow' them based on some sort of parameter
+    /// - When generating the world, assign them to some points
+    /// - Make the currents based on this. Figure out what plates match and make most of the currents go in that direction
+    ///
+    pub fn new(precision: u32, major_plates: u32, minor_plates: u32) -> Self {
+        let mut plates = HashMap::new();
 
-            // i.e. precision of 2 => 89.5 to -89.5
-            for lat_index in 1..(LATITUDE_RANGE as u32 * precision) as u32 {
-                // @ 1 => 180. - .5 - 90 = 89.5
-                // @ 359 (last one) => 180. - 179.5 - 90. = -89.5
-                let lat =
-                    LATITUDE_RANGE - (lat_index as f32) / precision as f32 - (LATITUDE_RANGE / 2.);
+        let mut colours = IndustryColour::vec();
 
-                // i.e. precision of 2 = -179.5 to 180.0
-                for lon_index in 1..=(LONGITUDE_RANGE as u32 * precision) as i32 {
-                    let lon = (lon_index as f32) / precision as f32 - (LONGITUDE_RANGE / 2.);
+        for id in 0..major_plates {
+            let point: LatLonPoint = LatLonPoint::random(precision);
+            let colour = colours.remove(0).color();
+            if colours.len() == 0 {
+                colours = IndustryColour::vec();
+            }
 
-                    let lat_lon_point = LatLonPoint::new(lat, lon);
-                    let value = point_func(WorldTectonicsIndex::from(lat_lon_point));
+            plates.insert(
+                id,
+                Plate {
+                    id,
+                    origin: point,
+                    plate_type: Oceanic,
+                    colour,
+                },
+            );
+        }
 
-                    point_vec.push(ValuePoint::new(lat_lon_point, value));
+        for id in major_plates..(major_plates + minor_plates) {
+            let point: LatLonPoint = LatLonPoint::random(precision);
+            let colour = colours.remove(0).color();
+            if colours.len() == 0 {
+                colours = IndustryColour::vec();
+            }
+
+            let chance = if rand::random() { Continental } else { Oceanic };
+
+            plates.insert(
+                id,
+                Plate {
+                    id,
+                    origin: point,
+                    plate_type: Continental,
+                    colour,
+                },
+            );
+        }
+
+        let world = WorldPoints::new(precision, |point| {
+            let lat_lon: LatLonPoint = point.into();
+
+            let mut min_distance: Option<(u32, f32)> = None;
+            for (id, plate) in plates.iter() {
+                let distance = lat_lon.distance(&plate.origin);
+
+                if let Some((_current_id, current_min_distance)) = min_distance {
+                    if current_min_distance > distance {
+                        min_distance = Some((id.clone(), distance))
+                    }
+                } else {
+                    min_distance = Some((id.clone(), distance));
                 }
             }
-            point_vec
-        };
 
-        Self {
-            precision,
-            north_pole_point,
-            south_pole_point,
-            points,
-        }
-    }
+            PlatePoint::new(min_distance.unwrap().0, 0.)
+        });
 
-    pub fn iter(&self) -> WorldPointsIterator<T> {
-        WorldPointsIterator::new(self)
-    }
-
-    pub fn precision_points_len(precision: u32) -> usize {
-        (LATITUDE_RANGE as usize * precision as usize - 1)
-            * (LONGITUDE_RANGE as usize * precision as usize)
-    }
-
-    pub fn points_len(&self) -> usize {
-        WorldPoints::<T>::precision_points_len(self.precision)
-    }
-}
-
-impl<T> WorldRender for WorldPoints<T>
-where
-    T: Debug + Clone,
-{
-    fn precision(&self) -> u32 {
-        self.precision
+        TectonicPlates { world, plates }
     }
 }

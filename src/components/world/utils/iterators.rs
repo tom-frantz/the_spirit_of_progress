@@ -1,7 +1,8 @@
+use crate::components::world::height::{HeightMap, HeightPoint};
 use crate::components::world::latlon::ValuePoint;
-use crate::components::world::tectonics::height::{HeightMap, HeightPoint};
-use crate::components::world::tectonics::plates::{PlatePoint, TectonicPlates};
-use crate::components::world::tectonics::WorldPoints;
+use crate::components::world::tectonics::point::PlatePoint;
+use crate::components::world::tectonics::TectonicPlates;
+use crate::components::world::WorldPoints;
 use std::fmt::Debug;
 
 #[derive(Debug, Clone)]

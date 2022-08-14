@@ -4,6 +4,9 @@ use bevy::prelude::*;
 use bevy_ecs_tilemap::prelude::*;
 use std::fmt::Debug;
 
+#[derive(Component)]
+pub struct MainTileMap;
+
 pub trait WorldRender {
     // The handle to the asset to use for tiles
     fn texture_asset_name(&self) -> &str {
@@ -69,12 +72,17 @@ pub trait WorldRender {
 pub trait TileRender {
     type World;
 
-    fn bundle(&self, _world: &Self::World, position: TilePos, tilemap_id: TilemapId) -> TileBundle {
+    fn bundle(&self, world: &Self::World, position: TilePos, tilemap_id: TilemapId) -> TileBundle {
         TileBundle {
             position,
             tilemap_id,
+            color: self.color(world, position, tilemap_id),
             ..Default::default()
         }
+    }
+
+    fn color(&self, world: &Self::World, position: TilePos, tilemap_id: TilemapId) -> TileColor {
+        Default::default()
     }
 }
 
@@ -89,7 +97,7 @@ where
     }
 }
 
-pub fn draw_map<WORLD, TILE>(world: WORLD, mut commands: Commands, asset_server: Res<AssetServer>)
+pub fn draw_map<WORLD, TILE>(world: &WORLD, mut commands: Commands, asset_server: Res<AssetServer>)
 where
     WORLD: WorldRender,
     for<'a> &'a WORLD: IntoIterator<Item = &'a TILE>,
@@ -113,7 +121,8 @@ where
 
     commands
         .entity(tilemap_entity)
-        .insert_bundle(world.bundle(tile_storage, asset_server));
+        .insert_bundle(world.bundle(tile_storage, asset_server))
+        .insert(MainTileMap);
 }
 
 /// Use this when you're losing your mind.

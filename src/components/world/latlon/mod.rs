@@ -58,7 +58,7 @@ impl LatLonPoint {
 
         let lat_sin = lat1.sin() * lat2.sin();
         let lat_cos = lat1.cos() * lat2.cos();
-        let delta_lon = (lon1 - lon2);
+        let delta_lon = (lon1 - lon2).abs();
 
         f32::acos(lat_sin + lat_cos * delta_lon.cos())
     }

@@ -70,6 +70,23 @@ pub enum IndustryColour {
     Brown,
 }
 
+impl IndustryColour {
+    pub fn vec() -> Vec<IndustryColour> {
+        vec![
+            IndustryColour::LightPurple,
+            IndustryColour::Purple,
+            IndustryColour::LightRed,
+            IndustryColour::Red,
+            IndustryColour::LightBlue,
+            IndustryColour::Blue,
+            IndustryColour::Green,
+            IndustryColour::BlueGreen,
+            IndustryColour::PaleYellow,
+            IndustryColour::Brown,
+        ]
+    }
+}
+
 impl Colour for IndustryColour {
     fn hex(&self) -> String {
         String::from(match self {
@@ -84,6 +101,24 @@ impl Colour for IndustryColour {
             IndustryColour::PaleYellow => "E3D89F",
             IndustryColour::Brown => "C2A37D",
         })
+    }
+}
+
+impl Distribution<IndustryColour> for Standard {
+    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> IndustryColour {
+        match rng.gen_range(0..10) {
+            0 => IndustryColour::LightPurple,
+            1 => IndustryColour::Purple,
+            2 => IndustryColour::LightRed,
+            3 => IndustryColour::Red,
+            4 => IndustryColour::LightBlue,
+            5 => IndustryColour::Blue,
+            6 => IndustryColour::Green,
+            7 => IndustryColour::BlueGreen,
+            8 => IndustryColour::PaleYellow,
+            9 => IndustryColour::Brown,
+            _ => panic!("Aaaaaa random failed?"),
+        }
     }
 }
 
