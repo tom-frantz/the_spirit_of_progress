@@ -1,5 +1,5 @@
 use crate::components::world::height::HeightMap;
-use crate::components::world::render::draw_map;
+// use crate::components::world::render::draw_map;
 use crate::components::world::resources::GeographicWorldType::Height;
 use crate::components::world::tectonics::TectonicPlates;
 use bevy::asset::AssetServer;

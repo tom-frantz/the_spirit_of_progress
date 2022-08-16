@@ -143,21 +143,3 @@ where
         WorldPointsIterator::new(self)
     }
 }
-
-impl<'a> IntoIterator for &'a TectonicPlates {
-    type Item = &'a ValuePoint<PlatePoint>;
-    type IntoIter = WorldPointsIterator<'a, PlatePoint>;
-
-    fn into_iter(self) -> Self::IntoIter {
-        WorldPointsIterator::new(&self.world)
-    }
-}
-
-impl<'a> IntoIterator for &'a HeightMap {
-    type Item = &'a ValuePoint<HeightPoint>;
-    type IntoIter = WorldPointsIterator<'a, HeightPoint>;
-
-    fn into_iter(self) -> Self::IntoIter {
-        WorldPointsIterator::new(&self.world)
-    }
-}

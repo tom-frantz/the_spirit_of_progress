@@ -1,5 +1,4 @@
 use crate::components::world::latlon::{LatLonPoint, ValuePoint, LATITUDE_RANGE, LONGITUDE_RANGE};
-use crate::components::world::render::WorldRender;
 use std::fmt::Debug;
 use utils::iterators::WorldPointsIterator;
 use utils::WorldTectonicsIndex;
@@ -78,7 +77,7 @@ where
         }
     }
 
-    pub fn iter(&self) -> WorldPointsIterator<T> {
+    pub fn iter<'a>(&'a self) -> WorldPointsIterator<'a, T> {
         WorldPointsIterator::new(self)
     }
 
@@ -89,14 +88,5 @@ where
 
     pub fn points_len(&self) -> usize {
         WorldPoints::<T>::precision_points_len(self.precision)
-    }
-}
-
-impl<T> WorldRender for WorldPoints<T>
-where
-    T: Debug + Clone,
-{
-    fn precision(&self) -> u32 {
-        self.precision
     }
 }

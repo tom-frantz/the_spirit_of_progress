@@ -63,7 +63,7 @@ impl LatLonPoint {
         f32::acos(lat_sin + lat_cos * delta_lon.cos())
     }
 
-    pub fn tile_pos(self, precision: u32) -> TilePos {
+    pub fn tile_pos(&self, precision: u32) -> TilePos {
         TilePos {
             y: ((self.lat() + (LATITUDE_RANGE / 2.)) * precision as f32) as u32,
             x: ((self.lon() + (LONGITUDE_RANGE / 2.)) * precision as f32) as u32,
@@ -115,6 +115,19 @@ where
 }
 
 impl<T> WorldPoint for ValuePoint<T>
+where
+    T: Debug + Clone,
+{
+    fn latitude(&self) -> f32 {
+        self.point.latitude()
+    }
+
+    fn longitude(&self) -> f32 {
+        self.point.longitude()
+    }
+}
+
+impl<'a, T> WorldPoint for &'a ValuePoint<T>
 where
     T: Debug + Clone,
 {
