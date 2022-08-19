@@ -1,7 +1,10 @@
 use crate::components::world::latlon::ValuePoint;
+use crate::components::world::render::{RenderTheWorld, World, WorldMap};
+use bevy_ecs_tilemap::prelude::TileColor;
 // use crate::components::world::render::{TileRender, WorldRender};
 use crate::components::world::utils::iterators::WorldPointsIterator;
 use crate::components::world::WorldPoints;
+use crate::ui::theme::{Colour, Terrain};
 
 #[derive(Debug, Clone)]
 pub struct HeightPoint {
@@ -25,15 +28,21 @@ impl HeightMap {
     }
 }
 
-// impl WorldRender for HeightMap {
-//     fn precision(&self) -> u32 {
-//         self.world.precision
-//     }
-// }
-//
-// impl TileRender for HeightPoint {
-//     type World = HeightMap;
-// }
+impl<'a> World<'a> for HeightMap {
+    type Point = HeightPoint;
+
+    fn get_world(&self) -> &WorldPoints<Self::Point> {
+        &self.world
+    }
+}
+
+impl<'a> RenderTheWorld<'a> for HeightPoint {
+    type World = HeightMap;
+
+    fn colour(point: &<Self::World as WorldMap<'a>>::Point, world: &Self::World) -> TileColor {
+        Terrain::SeaLevelLand.tile_color()
+    }
+}
 
 impl<'a> IntoIterator for &'a HeightMap {
     type Item = &'a ValuePoint<HeightPoint>;

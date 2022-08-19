@@ -1,13 +1,11 @@
-use crate::components::world::latlon::{LatLonPoint, ValuePoint, LATITUDE_RANGE, LONGITUDE_RANGE};
+use crate::components::world::latlon::{LATITUDE_RANGE, LatLonPoint, LONGITUDE_RANGE, ValuePoint};
 use std::fmt::Debug;
 use utils::iterators::WorldPointsIterator;
 use utils::WorldTectonicsIndex;
 
 pub mod height;
 pub mod latlon;
-pub mod map_modes;
 pub mod render;
-pub mod resources;
 pub mod tectonics;
 pub mod utils;
 

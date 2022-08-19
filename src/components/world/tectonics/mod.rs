@@ -1,9 +1,9 @@
-use crate::components::world::latlon::{LatLonPoint, ValuePoint};
-use crate::components::world::render::{RenderTheWorld, WorldMap};
+use crate::components::world::latlon::LatLonPoint;
+use crate::components::world::render::{World, WorldMap};
 use crate::components::world::tectonics::PlateType::*;
-use crate::components::world::utils::iterators::{WorldPointsIntoIterator, WorldPointsIterator};
+use crate::components::world::utils::iterators::WorldPointsIterator;
 use crate::components::world::WorldPoints;
-use crate::ui::theme::{Agriculture, Colour, IndustryColour, MenuColour};
+use crate::ui::theme::{Colour, IndustryColour, MenuColour};
 use bevy::prelude::Color;
 use bevy::utils::HashMap;
 use bevy_ecs_tilemap::prelude::*;
@@ -110,32 +110,10 @@ impl TectonicPlates {
     }
 }
 
-impl<'a> WorldMap<'a> for TectonicPlates {
-    type PointsIterator = WorldPointsIterator<'a, PlatePoint>;
-    type Point = &'a ValuePoint<PlatePoint>;
+impl<'a> World<'a> for TectonicPlates {
+    type Point = PlatePoint;
 
-    fn iter_points(&'a self) -> Self::PointsIterator {
-        self.world.iter()
-    }
-
-    fn precision(&self) -> u32 {
-        self.world.precision
-    }
-}
-
-impl<'a> RenderTheWorld<'a> for PlatePoint {
-    type World = TectonicPlates;
-
-    fn get_tile_bundle(
-        point: &<Self::World as WorldMap>::Point,
-        world: &Self::World,
-        tilemap_id: TilemapId,
-    ) -> TileBundle {
-        TileBundle {
-            tilemap_id,
-            position: point.point.tile_pos(world.precision()),
-            color: TileColor(world.plates[&point.value.plate_id].colour),
-            ..Default::default()
-        }
+    fn get_world(&self) -> &WorldPoints<Self::Point> {
+        &self.world
     }
 }

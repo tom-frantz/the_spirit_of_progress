@@ -5,11 +5,10 @@ use bevy::ui::UiPlugin;
 use bevy_ecs_tilemap::TilemapPlugin;
 use vads::camera::CameraPlugin;
 use vads::components::world::latlon::{LATITUDE_RANGE, LONGITUDE_RANGE};
-// use vads::components::world::render::draw_map;
+use vads::components::world::render::plugin::WorldRenderPlugin;
 use vads::components::world::render::RenderTheWorld;
 use vads::components::world::tectonics::point::PlatePoint;
-use vads::components::world::tectonics::render_modes::TectonicPlatesTypes;
-use vads::components::world::tectonics::TectonicPlates;
+use vads::components::world::tectonics::{PlateType, TectonicPlates};
 use vads::components::world::{PIXEL_BUFFER, TECTONIC_PRECISION};
 
 fn main() {
@@ -30,30 +29,15 @@ fn main() {
         .add_plugin(UiPlugin)
         .add_plugin(CameraPlugin)
         .add_plugin(TilemapPlugin)
+        .add_plugin(WorldRenderPlugin)
         .insert_resource(ImageSettings::default_nearest())
         .add_startup_system(draw_height_map)
-        // .add_system(delete_all)
         // .add_startup_system(render::sanity_check)
         .run()
 }
 
-fn draw_height_map(mut commands: Commands, asset_server: Res<AssetServer>) {
+fn draw_height_map(commands: Commands, asset_server: Res<AssetServer>) {
     let world = TectonicPlates::new(2, 2, 6);
 
     PlatePoint::render_world(&world, commands, asset_server)
-
-    // let x = TectonicPlatesTypes(world);
-    // draw_map(&world, commands, asset_server)
 }
-
-// fn delete_all(
-//     mut commands: Commands,
-//     keyboard_input: Res<Input<KeyCode>>,
-//     tile_maps: Query<Entity, With<MainTileMap>>,
-// ) {
-//     if keyboard_input.just_pressed(KeyCode::Back) {
-//         for tile_map in tile_maps.iter() {
-//             commands.entity(tile_map).despawn_recursive();
-//         }
-//     }
-// }

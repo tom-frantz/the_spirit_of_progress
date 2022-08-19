@@ -6,6 +6,7 @@ use bevy_prototype_lyon::prelude::*;
 use vads::camera::CameraPlugin;
 use vads::components::city::City;
 use vads::components::connection::Connection;
+use vads::components::world::render::plugin::WorldRenderPlugin;
 use vads::map::create_map;
 
 fn main() {
@@ -16,6 +17,7 @@ fn main() {
         .add_plugin(UiPlugin)
         .add_plugin(TilemapPlugin)
         .add_plugin(CameraPlugin)
+        .add_plugin(WorldRenderPlugin)
         .insert_resource(WgpuSettings {
             backends: Some(bevy::render::settings::Backends::DX12),
             ..Default::default()

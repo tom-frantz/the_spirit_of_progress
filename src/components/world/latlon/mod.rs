@@ -26,6 +26,10 @@ pub trait WorldPoint {
     fn lon(&self) -> f32 {
         self.longitude()
     }
+
+    fn point(&self) -> LatLonPoint {
+        LatLonPoint::new(self.lat(), self.lon())
+    }
 }
 
 #[derive(PartialEq, Debug, Clone, Copy)]
