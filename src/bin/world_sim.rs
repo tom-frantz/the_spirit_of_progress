@@ -6,7 +6,8 @@ use bevy_ecs_tilemap::TilemapPlugin;
 use vads::camera::CameraPlugin;
 use vads::components::world::latlon::{LATITUDE_RANGE, LONGITUDE_RANGE};
 use vads::components::world::render::plugin::WorldRenderPlugin;
-use vads::components::world::render::RenderTheWorld;
+use vads::components::world::render::resources::GeographicWorld;
+use vads::components::world::render::{MainTileMap, RenderTheWorld};
 use vads::components::world::tectonics::point::PlatePoint;
 use vads::components::world::tectonics::{PlateType, TectonicPlates};
 use vads::components::world::{PIXEL_BUFFER, TECTONIC_PRECISION};
@@ -36,8 +37,11 @@ fn main() {
         .run()
 }
 
-fn draw_height_map(commands: Commands, asset_server: Res<AssetServer>) {
-    let world = TectonicPlates::new(2, 2, 6);
-
-    PlatePoint::render_world(&world, commands, asset_server)
+fn draw_height_map(
+    geo_world: Res<GeographicWorld>,
+    commands: Commands,
+    asset_server: Res<AssetServer>,
+    tile_maps: Query<Entity, With<MainTileMap>>,
+) {
+    geo_world.draw_world_type(commands, asset_server, tile_maps);
 }

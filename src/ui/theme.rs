@@ -141,6 +141,24 @@ pub enum IndustryColour2 {
     Green,
 }
 
+impl IndustryColour2 {
+    pub fn vec() -> Vec<IndustryColour2> {
+        vec![
+            IndustryColour2::LightRed,
+            IndustryColour2::Red,
+            IndustryColour2::LightBlue,
+            IndustryColour2::Blue,
+            IndustryColour2::DarkBlue,
+            IndustryColour2::Sepia,
+            IndustryColour2::LightPurple,
+            IndustryColour2::Purple,
+            IndustryColour2::LightYellow,
+            IndustryColour2::Yellow,
+            IndustryColour2::Green,
+        ]
+    }
+}
+
 impl Colour for IndustryColour2 {
     fn hex(&self) -> String {
         String::from(match self {

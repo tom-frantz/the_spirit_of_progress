@@ -73,6 +73,14 @@ impl LatLonPoint {
             x: ((self.lon() + (LONGITUDE_RANGE / 2.)) * precision as f32) as u32,
         }
     }
+
+    pub fn neighbours(&self, precision: u32) -> Vec<LatLonPoint> {
+        if self.lat() == 90. {
+        } else if self.lat() == -90. {
+            vec![]
+        }
+        vec![]
+    }
 }
 
 impl WorldPoint for LatLonPoint {

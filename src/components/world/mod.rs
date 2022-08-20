@@ -1,4 +1,7 @@
-use crate::components::world::latlon::{LATITUDE_RANGE, LatLonPoint, LONGITUDE_RANGE, ValuePoint};
+use crate::components::world::latlon::{LatLonPoint, ValuePoint, LATITUDE_RANGE, LONGITUDE_RANGE};
+use crate::components::world::utils::{
+    lat_index_range, lat_index_to_value, lat_range, lon_index_range, lon_index_to_value,
+};
 use std::fmt::Debug;
 use utils::iterators::WorldPointsIterator;
 use utils::WorldTectonicsIndex;
@@ -48,15 +51,14 @@ where
                 Vec::with_capacity(WorldPoints::<T>::precision_points_len(precision));
 
             // i.e. precision of 2 => 89.5 to -89.5
-            for lat_index in 1..(LATITUDE_RANGE as u32 * precision) as u32 {
+            for lat_index in lat_index_range(precision) {
                 // @ 1 => 180. - .5 - 90 = 89.5
                 // @ 359 (last one) => 180. - 179.5 - 90. = -89.5
-                let lat =
-                    LATITUDE_RANGE - (lat_index as f32) / precision as f32 - (LATITUDE_RANGE / 2.);
+                let lat = lat_index_to_value(lat_index, precision);
 
                 // i.e. precision of 2 = -179.5 to 180.0
-                for lon_index in 1..=(LONGITUDE_RANGE as u32 * precision) as i32 {
-                    let lon = (lon_index as f32) / precision as f32 - (LONGITUDE_RANGE / 2.);
+                for lon_index in lon_index_range(precision) {
+                    let lon = lon_index_to_value(lat_index, precision);
 
                     let lat_lon_point = LatLonPoint::new(lat, lon);
                     let value = point_func(WorldTectonicsIndex::from(lat_lon_point));

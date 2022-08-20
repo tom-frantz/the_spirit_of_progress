@@ -1,5 +1,8 @@
-use crate::components::world::latlon::{LatLonPoint, ValuePoint, WorldPoint};
+use crate::components::world::latlon::{
+    LatLonPoint, ValuePoint, WorldPoint, LATITUDE_RANGE, LONGITUDE_RANGE,
+};
 use std::fmt::Debug;
+use std::ops::{Range, RangeInclusive};
 
 pub mod iterators;
 
@@ -39,4 +42,20 @@ impl From<WorldTectonicsIndex> for LatLonPoint {
             WorldTectonicsIndex::Point(point) => point,
         }
     }
+}
+
+pub fn lat_index_range(precision: u32) -> Range<u32> {
+    1..(LATITUDE_RANGE as u32 * precision) as u32
+}
+
+pub fn lon_index_range(precision: u32) -> RangeInclusive<u32> {
+    1..=(LONGITUDE_RANGE as u32 * precision) as u32
+}
+
+pub fn lat_index_to_value(index: u32, precision: u32) -> f32 {
+    LATITUDE_RANGE - (index as f32) / precision as f32 - (LATITUDE_RANGE / 2.)
+}
+
+pub fn lon_index_to_value(index: u32, precision: u32) -> f32 {
+    (index as f32) / precision as f32 - (LONGITUDE_RANGE / 2.)
 }

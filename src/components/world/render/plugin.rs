@@ -11,7 +11,7 @@ impl Plugin for WorldRenderPlugin {
     fn build(&self, app: &mut App) {
         // TODO move these to a better spot
         let heightmap = HeightMap::new(WorldPoints::new(2, |_p| HeightPoint::new(0.0)));
-        let tectonics = TectonicPlates::new(2, 2, 6);
+        let tectonics = TectonicPlates::new(2, 2, 9);
 
         app.add_event::<MapModeEvent>()
             .insert_resource(GeographicWorld::new(heightmap, tectonics))
