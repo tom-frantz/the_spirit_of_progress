@@ -1,4 +1,5 @@
-use crate::components::world::latlon::LatLonPoint;
+use crate::components::world::floodfill::{FloodFill, FloodFillPriority};
+use crate::components::world::latlon::{LatLonPoint, ValuePoint};
 use crate::components::world::render::{World, WorldMap};
 use crate::components::world::tectonics::PlateType::*;
 use crate::components::world::utils::iterators::WorldPointsIterator;
@@ -50,24 +51,50 @@ impl TectonicPlates {
     pub fn new(precision: u32, major_plates: u32, minor_plates: u32) -> Self {
         let mut plates = Self::generate_plates(precision, major_plates, minor_plates);
 
-        let world = WorldPoints::new(precision, |point| {
-            let lat_lon: LatLonPoint = point.into();
+        let world = {
+            let mut world = WorldPoints::new_fill(precision, PlatePoint::new(0, 0.));
+            // A floodfill of ids of plates
+            let mut flood: FloodFill<u32> = FloodFill::new();
 
-            let mut min_distance: Option<(u32, f32)> = None;
             for (id, plate) in plates.iter() {
-                let weighted_distance = 1. / plate.size * lat_lon.distance(&plate.origin);
+                flood.insert(0., ValuePoint::new(plate.origin, *id))
+            }
 
-                if let Some((_current_id, current_min_distance)) = min_distance {
-                    if current_min_distance > weighted_distance {
-                        min_distance = Some((id.clone(), weighted_distance))
-                    }
-                } else {
-                    min_distance = Some((id.clone(), weighted_distance));
+            // let mut count = 0;
+
+            while let Some(next) = flood.next() {
+                // println!("Next! {:?}", count + 1);
+                // count += 1;
+                let ValuePoint { value, point } = next.point;
+                world.set(point, PlatePoint::new(value, 0.));
+
+                for neighbour in point.neighbours(precision).into_iter() {
+                    // println!("{:?}", neighbour);
+                    flood.insert(next.priority + 0.1, ValuePoint::new(neighbour, value))
                 }
             }
 
-            PlatePoint::new(min_distance.unwrap().0, 0.)
-        });
+            world
+        };
+
+        // let world = WorldPoints::new(precision, |point| {
+        //     let lat_lon: LatLonPoint = point.into();
+        //
+        //     let mut min_distance: Option<(u32, f32)> = None;
+        //     for (id, plate) in plates.iter() {
+        //         let weighted_distance = 1. / plate.size * lat_lon.distance(&plate.origin);
+        //
+        //         if let Some((_current_id, current_min_distance)) = min_distance {
+        //             if current_min_distance > weighted_distance {
+        //                 min_distance = Some((id.clone(), weighted_distance))
+        //             }
+        //         } else {
+        //             min_distance = Some((id.clone(), weighted_distance));
+        //         }
+        //     }
+        //
+        //     PlatePoint::new(min_distance.unwrap().0, 0.)
+        // });
 
         TectonicPlates { world, plates }
     }

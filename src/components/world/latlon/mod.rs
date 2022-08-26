@@ -1,3 +1,5 @@
+use crate::components::world::latlon::utils::wrap_lon;
+use crate::components::world::utils::{lon_index_range, lon_index_to_value};
 use bevy::prelude::*;
 use bevy_ecs_tilemap::tiles::TilePos;
 use rand::Rng;
@@ -76,10 +78,58 @@ impl LatLonPoint {
 
     pub fn neighbours(&self, precision: u32) -> Vec<LatLonPoint> {
         if self.lat() == 90. {
+            let mut points = Vec::new();
+
+            for lon in lon_index_range(precision) {
+                let lon_value = lon_index_to_value(lon, precision);
+                points.push(LatLonPoint::new(90. - 1. / precision as f32, lon_value))
+            }
+
+            points
         } else if self.lat() == -90. {
-            vec![]
+            let mut points = Vec::new();
+
+            for lon in lon_index_range(precision) {
+                let lon_value = lon_index_to_value(lon, precision);
+                points.push(LatLonPoint::new(-90. + 1. / precision as f32, lon_value))
+            }
+
+            points
+        } else {
+            let mut points: Vec<LatLonPoint> = Vec::new();
+            let step = 1. / precision as f32;
+            if self.lat() == 90. - step {
+                points.push(LatLonPoint::new(90., 0.))
+            } else {
+                points.push(LatLonPoint::new(
+                    self.lat() + step,
+                    wrap_lon(self.lon() - step),
+                ));
+                points.push(LatLonPoint::new(self.lat() + step, self.lon()));
+                points.push(LatLonPoint::new(
+                    self.lat() + step,
+                    wrap_lon(self.lon() + step),
+                ));
+            }
+            points.push(LatLonPoint::new(self.lat(), wrap_lon(self.lon() + step)));
+
+            if self.lat() == -90. + step {
+                points.push(LatLonPoint::new(-90., 0.))
+            } else {
+                points.push(LatLonPoint::new(
+                    self.lat() - step,
+                    wrap_lon(self.lon() - step),
+                ));
+                points.push(LatLonPoint::new(self.lat() - step, self.lon()));
+                points.push(LatLonPoint::new(
+                    self.lat() - step,
+                    wrap_lon(self.lon() + step),
+                ));
+            }
+            points.push(LatLonPoint::new(self.lat(), wrap_lon(self.lon() - step)));
+
+            points
         }
-        vec![]
     }
 }
 
