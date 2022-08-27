@@ -1,5 +1,3 @@
-#![feature(map_first_last)]
-
 use bevy::prelude::*;
 use bevy::render::settings::{Backends, WgpuSettings};
 use bevy::render::texture::ImageSettings;

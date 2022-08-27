@@ -8,7 +8,6 @@ use std::fmt::Debug;
 use utils::iterators::WorldPointsIterator;
 use utils::WorldTectonicsIndex;
 
-pub mod floodfill;
 pub mod height;
 pub mod latlon;
 pub mod render;

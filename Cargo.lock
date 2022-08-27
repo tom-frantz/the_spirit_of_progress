@@ -3003,7 +3003,6 @@ dependencies = [
  "bevy_prototype_lyon",
  "geoutils",
  "rand",
- "rustc-hash",
 ]
 
 [[package]]

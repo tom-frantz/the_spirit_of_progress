@@ -3,8 +3,6 @@ name = "vads"
 version = "0.1.0"
 edition = "2021"
 
-
-
 [lib]
 path = "src/lib.rs"
 name = "vads"
@@ -13,9 +11,6 @@ crate-type = ["lib"]
 [[bin]]
 path = "src/bin/world_sim.rs"
 name = "world_sim"
-[toolchain]
-channel = "nightly"
-
 
 [[bin]]
 path = "src/bin/vads.rs"
@@ -29,7 +24,6 @@ bevy_prototype_lyon = "0.6.0"
 bevy_ecs_tilemap = "0.7.0"
 rand = "0.8.5"
 geoutils = "0.5.1"
-rustc-hash = "1.1.0"
 
 # Enable only a small amount of optimization in debug mode
 [profile.dev]
