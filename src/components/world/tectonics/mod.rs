@@ -21,6 +21,7 @@ use std::collections::HashSet;
 use std::ptr::hash;
 
 pub mod plate;
+pub mod plugin;
 pub mod point;
 pub mod render_modes;
 
@@ -135,7 +136,7 @@ impl TectonicsMap {
         plates
     }
 
-    pub fn step(&self, heights: &HeightMap) -> (TectonicsMap, HeightMap) {
+    pub fn tick(&self, heights: &HeightMap) -> (TectonicsMap, HeightMap) {
         let lat_lon_step = 1. / self.world.precision as f32;
 
         let mut plate_movement_deltas: HashMap<u32, LatLonPoint> = HashMap::new();
@@ -167,6 +168,8 @@ impl TectonicsMap {
                 continue;
             }
 
+            println!("MOVEMENT {:?}", movement_delta);
+
             let dest_lat_lon = movement_delta + src_point;
             let dest_point = self.world.get(&dest_lat_lon);
 
@@ -183,41 +186,52 @@ impl TectonicsMap {
 
                 let boundary = PlateBoundary::new(src_plate, dest_plate);
 
-                match boundary.boundary_type() {
-                    PlateBoundaryType::Convergent(_relative_speed) => match src_plate.plate_type {
-                        Oceanic => match dest_plate.plate_type {
-                            Oceanic => {
-                                // Check which subducts, hence strategy.
-                                if src_plate.age >= dest_plate.age {
-                                    // src subducts. Reset
-                                } else {
-                                    // dest subducts. Takeover
-                                }
+                let mut next_dest_plate_point = next_tectonics_map.world.get_mut(&dest_lat_lon);
+                // match boundary.boundary_type() {
+                // Reset: The current owner of the point stays the owner.
+                // Takeover: The point moving onto the point becomes the owner (src becomes owner)
+                // PlateBoundaryType::Convergent(_relative_speed) =>
+                match src_plate.plate_type {
+                    Oceanic => match dest_plate.plate_type {
+                        Oceanic => {
+                            // Check which subducts, hence strategy.
+                            if src_plate.age >= dest_plate.age {
+                                // src subducts. Reset
+                            } else {
+                                // dest subducts. Takeover
+                                next_dest_plate_point.plate_id = src_plate.id;
+
+                                let current_height = height_point.height;
+                                next_height_map.world.get_mut(&src_point).value.height -=
+                                    current_height;
+                                next_height_map.world.get_mut(&dest_lat_lon).value.height +=
+                                    current_height;
                             }
-                            Continental => {
-                                // src (oceanic) subducts. Reset.
-                            }
-                        },
-                        Continental => match dest_plate.plate_type {
-                            Oceanic => {
-                                // dest (oceanic) subducts. Takeover.
-                            }
-                            Continental => {
-                                // don't move, just collision. Reset.
-                            }
-                        },
+                        }
+                        Continental => {
+                            // src (oceanic) subducts. Reset.
+                        }
                     },
-                    PlateBoundaryType::Divergent(_relative_speed) => match src_plate.plate_type {
-                        Oceanic => match dest_plate.plate_type {
-                            Oceanic => {}
-                            Continental => {}
-                        },
-                        Continental => match dest_plate.plate_type {
-                            Oceanic => {}
-                            Continental => {}
-                        },
+                    Continental => match dest_plate.plate_type {
+                        Oceanic => {
+                            // dest (oceanic) subducts. Takeover.
+                            next_dest_plate_point.plate_id = src_plate.id;
+
+                            let current_height = height_point.height;
+                            next_height_map.world.get_mut(&src_point).value.height -=
+                                current_height;
+                            next_height_map.world.get_mut(&dest_lat_lon).value.height +=
+                                current_height;
+                        }
+                        Continental => {
+                            // don't move, just collision. Nothing!
+                        }
                     },
-                    PlateBoundaryType::Transform => {}
+                    // };
+                    // PlateBoundaryType::Divergent(_relative_speed) => match src_plate.plate_type {
+                    //     panic!("WTF")
+                    // },
+                    // PlateBoundaryType::Transform => {}
                 }
             }
         }

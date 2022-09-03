@@ -9,6 +9,7 @@ use vads::components::world::render::plugin::WorldRenderPlugin;
 use vads::components::world::render::resources::GeographicWorld;
 use vads::components::world::render::{MainTileMap, RenderTheWorld};
 use vads::components::world::tectonics::plate::PlateType;
+use vads::components::world::tectonics::plugin::TectonicWorldSimPlugin;
 use vads::components::world::tectonics::point::PlatePoint;
 use vads::components::world::tectonics::TectonicsMap;
 use vads::components::world::{PIXEL_BUFFER, TECTONIC_PRECISION};
@@ -34,6 +35,7 @@ fn main() {
         .add_plugin(WorldRenderPlugin)
         .insert_resource(ImageSettings::default_nearest())
         .add_startup_system(draw_height_map)
+        .add_plugin(TectonicWorldSimPlugin)
         // .add_startup_system(render::sanity_check)
         .run()
 }

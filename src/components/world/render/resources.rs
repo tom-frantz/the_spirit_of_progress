@@ -12,8 +12,8 @@ use bevy::prelude::*;
 pub struct GeographicWorld {
     currently_viewing: ViewMode,
 
-    height_map: HeightMap,
-    tectonic_map: TectonicsMap,
+    pub height_map: HeightMap,
+    pub tectonic_map: TectonicsMap,
 }
 
 impl GeographicWorld {
@@ -24,6 +24,11 @@ impl GeographicWorld {
             height_map,
             tectonic_map,
         }
+    }
+
+    pub fn update(&mut self, height_map: HeightMap, tectonic_map: TectonicsMap) {
+        self.height_map = height_map;
+        self.tectonic_map = tectonic_map;
     }
 
     pub fn draw_world_type(

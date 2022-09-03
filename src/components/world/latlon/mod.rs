@@ -68,13 +68,13 @@ impl<'a, 'b> Add<&'a LatLonPoint> for &'b LatLonPoint {
 impl LatLonPoint {
     pub fn new(mut latitude: f32, longitude: f32) -> Self {
         if latitude > 90. {
-            latitude = 90. - (90. - latitude)
+            latitude = 90. - (latitude - 90.)
         } else if latitude < -90. {
-            latitude = -90. + (-90. - latitude)
+            latitude = -90. + (latitude + 90.)
         }
 
         // latitude should be fixed by above. if not, break this.
-        assert!(latitude <= 90.);
+        assert!(latitude <= 90., "{latitude}");
         assert!(latitude >= -90.);
 
         LatLonPoint {

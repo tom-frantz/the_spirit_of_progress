@@ -9,7 +9,7 @@ use bevy_ecs_tilemap::prelude::*;
 use std::fmt::Debug;
 
 pub mod events;
-pub mod helpers;
+mod helpers;
 pub mod plugin;
 pub mod resources;
 
