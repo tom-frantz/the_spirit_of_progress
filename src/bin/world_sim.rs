@@ -8,8 +8,9 @@ use vads::components::world::latlon::{LATITUDE_RANGE, LONGITUDE_RANGE};
 use vads::components::world::render::plugin::WorldRenderPlugin;
 use vads::components::world::render::resources::GeographicWorld;
 use vads::components::world::render::{MainTileMap, RenderTheWorld};
+use vads::components::world::tectonics::plate::PlateType;
 use vads::components::world::tectonics::point::PlatePoint;
-use vads::components::world::tectonics::{PlateType, TectonicPlates};
+use vads::components::world::tectonics::TectonicsMap;
 use vads::components::world::{PIXEL_BUFFER, TECTONIC_PRECISION};
 
 fn main() {

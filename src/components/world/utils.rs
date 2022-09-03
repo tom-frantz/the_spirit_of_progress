@@ -56,6 +56,18 @@ impl From<LatLonPoint> for WorldTectonicsIndex {
     }
 }
 
+impl From<&LatLonPoint> for WorldTectonicsIndex {
+    fn from(value_point: &LatLonPoint) -> Self {
+        if value_point.lat() == 90. {
+            WorldTectonicsIndex::NorthPole
+        } else if value_point.lat() == -90. {
+            WorldTectonicsIndex::SouthPole
+        } else {
+            WorldTectonicsIndex::Point(value_point.clone())
+        }
+    }
+}
+
 impl From<WorldTectonicsIndex> for LatLonPoint {
     fn from(index: WorldTectonicsIndex) -> Self {
         match index {

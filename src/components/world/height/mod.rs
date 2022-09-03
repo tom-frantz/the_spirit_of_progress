@@ -8,7 +8,7 @@ use crate::ui::theme::{Colour, Terrain};
 
 #[derive(Debug, Clone)]
 pub struct HeightPoint {
-    height: f32,
+    pub height: f32,
 }
 
 impl HeightPoint {

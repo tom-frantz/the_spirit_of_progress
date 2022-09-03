@@ -1,6 +1,7 @@
 use crate::components::world::latlon::{
     LatLonPoint, ValuePoint, WorldPoint, LATITUDE_RANGE, LONGITUDE_RANGE,
 };
+use crate::components::world::utils::iterators::MutWorldPointsIterator;
 use crate::components::world::utils::{
     lat_index_range, lat_index_to_value, lon_index_range, lon_index_to_value, precision_points_len,
 };
@@ -39,12 +40,12 @@ where
         F: Fn(WorldTectonicsIndex) -> T,
     {
         let north_pole_point = ValuePoint::new(
-            WorldTectonicsIndex::NorthPole.into(),
+            &WorldTectonicsIndex::NorthPole.into(),
             point_func(WorldTectonicsIndex::NorthPole),
         );
 
         let south_pole_point = ValuePoint::new(
-            WorldTectonicsIndex::SouthPole.into(),
+            &WorldTectonicsIndex::SouthPole.into(),
             point_func(WorldTectonicsIndex::SouthPole),
         );
 
@@ -64,7 +65,7 @@ where
                     let lat_lon_point = LatLonPoint::new(lat, lon);
                     let value = point_func(WorldTectonicsIndex::from(lat_lon_point));
 
-                    point_vec.push(ValuePoint::new(lat_lon_point, value));
+                    point_vec.push(ValuePoint::new(&lat_lon_point, value));
                 }
             }
             point_vec
@@ -93,14 +94,14 @@ where
                 let lat_lon_point = LatLonPoint::new(lat, lon);
                 let value = value.clone();
 
-                points.push(ValuePoint::new(lat_lon_point, value));
+                points.push(ValuePoint::new(&lat_lon_point, value));
             }
         }
 
         let north_pole_point =
-            ValuePoint::new(WorldTectonicsIndex::NorthPole.into(), value.clone());
+            ValuePoint::new(&WorldTectonicsIndex::NorthPole.into(), value.clone());
 
-        let south_pole_point = ValuePoint::new(WorldTectonicsIndex::SouthPole.into(), value);
+        let south_pole_point = ValuePoint::new(&WorldTectonicsIndex::SouthPole.into(), value);
 
         Self {
             precision,
@@ -110,11 +111,15 @@ where
         }
     }
 
-    pub fn iter<'a>(&'a self) -> WorldPointsIterator<'a, T> {
+    pub fn iter(&self) -> WorldPointsIterator<T> {
         WorldPointsIterator::new(self)
     }
 
-    pub fn get(&self, point: LatLonPoint) -> &ValuePoint<T> {
+    pub fn iter_mut(&mut self) -> MutWorldPointsIterator<T> {
+        MutWorldPointsIterator::new(self)
+    }
+
+    pub fn get(&self, point: &LatLonPoint) -> &ValuePoint<T> {
         let index = WorldTectonicsIndex::from(point);
         match &index {
             WorldTectonicsIndex::NorthPole => &self.south_pole_point,
@@ -123,7 +128,16 @@ where
         }
     }
 
-    pub fn set(&mut self, point: LatLonPoint, value: T) {
+    pub fn get_mut(&mut self, point: &LatLonPoint) -> &mut ValuePoint<T> {
+        let index = WorldTectonicsIndex::from(point);
+        match &index {
+            WorldTectonicsIndex::NorthPole => &mut self.south_pole_point,
+            WorldTectonicsIndex::SouthPole => &mut self.south_pole_point,
+            WorldTectonicsIndex::Point(_) => &mut self.points[index.vec_index(self.precision)],
+        }
+    }
+
+    pub fn set(&mut self, point: &LatLonPoint, value: T) {
         let index = WorldTectonicsIndex::from(point);
 
         match &index {

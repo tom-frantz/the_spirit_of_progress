@@ -5,6 +5,7 @@ use bevy_ecs_tilemap::tiles::TilePos;
 use rand::Rng;
 use std::fmt::Debug;
 use std::hash::{Hash, Hasher};
+use std::ops::{Add, Deref, DerefMut};
 
 pub mod utils;
 
@@ -35,11 +36,58 @@ pub trait WorldPoint {
 }
 
 #[derive(PartialEq, Debug, Clone, Copy)]
-pub struct LatLonPoint(Vec2);
+pub struct LatLonPoint {
+    latitude: f32,
+    longitude: f32,
+}
+
+impl Add<LatLonPoint> for LatLonPoint {
+    type Output = LatLonPoint;
+
+    fn add(self, rhs: LatLonPoint) -> Self::Output {
+        let mut lat = self.lat() + rhs.lat();
+        if lat > 90. {
+            lat = 90. - (90. - lat)
+        } else if lat < -90. {
+            lat = -90. + (-90. - lat)
+        }
+        let lon = wrap_lon(self.lon() + rhs.lon());
+
+        LatLonPoint::new(lat, lon)
+    }
+}
+
+impl<'a, 'b> Add<&'a LatLonPoint> for &'b LatLonPoint {
+    type Output = LatLonPoint;
+
+    fn add(self, rhs: &'a LatLonPoint) -> Self::Output {
+        LatLonPoint::new(self.lat() + rhs.lat(), self.lon() + rhs.lon())
+    }
+}
 
 impl LatLonPoint {
-    pub fn new(lat: f32, lon: f32) -> Self {
-        LatLonPoint(Vec2::new(lat, lon))
+    pub fn new(mut latitude: f32, longitude: f32) -> Self {
+        if latitude > 90. {
+            latitude = 90. - (90. - latitude)
+        } else if latitude < -90. {
+            latitude = -90. + (-90. - latitude)
+        }
+
+        // latitude should be fixed by above. if not, break this.
+        assert!(latitude <= 90.);
+        assert!(latitude >= -90.);
+
+        LatLonPoint {
+            latitude,
+            longitude: wrap_lon(longitude),
+        }
+    }
+
+    pub fn unbounded_new(latitude: f32, longitude: f32) -> Self {
+        LatLonPoint {
+            latitude,
+            longitude,
+        }
     }
 
     pub fn random(precision: u32) -> LatLonPoint {
@@ -135,17 +183,20 @@ impl LatLonPoint {
 
 impl WorldPoint for LatLonPoint {
     fn latitude(&self) -> f32 {
-        self.0.x
+        self.latitude
     }
 
     fn longitude(&self) -> f32 {
-        self.0.y
+        self.longitude
     }
 }
 
 impl From<Vec2> for LatLonPoint {
     fn from(vec2: Vec2) -> Self {
-        Self(vec2)
+        Self {
+            latitude: vec2.x,
+            longitude: vec2.y,
+        }
     }
 }
 
@@ -171,8 +222,31 @@ impl<T> ValuePoint<T>
 where
     T: Debug + Clone,
 {
-    pub fn new(point: LatLonPoint, value: T) -> Self {
-        Self { point, value }
+    pub fn new(point: &LatLonPoint, value: T) -> Self {
+        Self {
+            point: point.clone(),
+            value,
+        }
+    }
+}
+
+impl<T> Deref for ValuePoint<T>
+where
+    T: Debug + Clone,
+{
+    type Target = T;
+
+    fn deref(&self) -> &Self::Target {
+        &self.value
+    }
+}
+
+impl<T> DerefMut for ValuePoint<T>
+where
+    T: Debug + Clone,
+{
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.value
     }
 }
 

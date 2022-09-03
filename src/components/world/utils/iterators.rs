@@ -1,8 +1,9 @@
 use crate::components::world::height::{HeightMap, HeightPoint};
 use crate::components::world::latlon::ValuePoint;
 use crate::components::world::tectonics::point::PlatePoint;
-use crate::components::world::tectonics::TectonicPlates;
+use crate::components::world::tectonics::TectonicsMap;
 use crate::components::world::WorldPoints;
+use bevy::ui::Val;
 use std::fmt::Debug;
 
 #[derive(Debug, Clone)]
@@ -26,6 +27,26 @@ where
     T: Debug + Clone,
 {
     pub fn new(world: &'a WorldPoints<T>) -> Self {
+        Self {
+            world,
+            cursor: Some(WorldPointsIterCursor::NorthPole),
+        }
+    }
+}
+
+pub struct MutWorldPointsIterator<'a, T>
+where
+    T: Debug + Clone,
+{
+    world: &'a mut WorldPoints<T>,
+    cursor: Option<WorldPointsIterCursor>,
+}
+
+impl<'a, T> MutWorldPointsIterator<'a, T>
+where
+    T: Debug + Clone + 'a,
+{
+    pub fn new(world: &'a mut WorldPoints<T>) -> Self {
         Self {
             world,
             cursor: Some(WorldPointsIterCursor::NorthPole),
@@ -95,6 +116,40 @@ where
     }
 }
 
+impl<'iterator, T> Iterator for MutWorldPointsIterator<'iterator, T>
+where
+    T: Debug + Clone + 'iterator,
+{
+    type Item = &'iterator mut ValuePoint<T>;
+
+    fn next(self: &'_ mut MutWorldPointsIterator<'iterator, T>) -> Option<Self::Item> {
+        return if let Some(current_cursor) = &mut self.cursor {
+            let next = next_from_cursor(current_cursor, self.world.points_len());
+
+            // Better be damn sure I don't repeat a lookup c;
+            // https://stackoverflow.com/questions/61978903/how-do-i-create-mutable-iterator-over-struct-fields
+            let mut return_point: &'iterator mut ValuePoint<T> = unsafe {
+                match current_cursor {
+                    WorldPointsIterCursor::NorthPole => {
+                        &mut *(&mut self.world.north_pole_point as *mut _)
+                    }
+                    WorldPointsIterCursor::SouthPole => {
+                        &mut *(&mut self.world.south_pole_point as *mut _)
+                    }
+                    WorldPointsIterCursor::Point(index) => {
+                        &mut *(&mut self.world.points[*index] as *mut _)
+                    }
+                }
+            };
+
+            self.cursor = next;
+            Some(return_point)
+        } else {
+            None
+        };
+    }
+}
+
 impl<T> Iterator for WorldPointsIntoIterator<T>
 where
     T: Debug + Clone,
@@ -141,5 +196,17 @@ where
 
     fn into_iter(self) -> Self::IntoIter {
         WorldPointsIterator::new(self)
+    }
+}
+
+impl<'a, T> IntoIterator for &'a mut WorldPoints<T>
+where
+    T: Debug + Clone,
+{
+    type Item = &'a mut ValuePoint<T>;
+    type IntoIter = MutWorldPointsIterator<'a, T>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        MutWorldPointsIterator::new(self)
     }
 }

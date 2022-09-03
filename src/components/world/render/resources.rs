@@ -3,8 +3,9 @@ use crate::components::world::height::{HeightMap, HeightPoint};
 use crate::components::world::render::events::{MapModeEvent, ViewMode};
 use crate::components::world::render::helpers::delete_main_tile_map;
 use crate::components::world::render::{MainTileMap, RenderTheWorld};
+use crate::components::world::tectonics::plate::PlateType;
 use crate::components::world::tectonics::point::PlatePoint;
-use crate::components::world::tectonics::{PlateType, TectonicPlates};
+use crate::components::world::tectonics::TectonicsMap;
 use bevy::asset::AssetServer;
 use bevy::prelude::*;
 
@@ -12,11 +13,11 @@ pub struct GeographicWorld {
     currently_viewing: ViewMode,
 
     height_map: HeightMap,
-    tectonic_map: TectonicPlates,
+    tectonic_map: TectonicsMap,
 }
 
 impl GeographicWorld {
-    pub fn new(height_map: HeightMap, tectonic_map: TectonicPlates) -> Self {
+    pub fn new(height_map: HeightMap, tectonic_map: TectonicsMap) -> Self {
         GeographicWorld {
             currently_viewing: ViewMode::TectonicPlates,
 
