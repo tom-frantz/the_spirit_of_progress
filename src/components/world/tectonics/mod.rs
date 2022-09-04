@@ -74,7 +74,7 @@ impl TectonicsMap {
         minor_plates: u32,
     ) -> HashMap<u32, Plate> {
         let mut rng = rand::thread_rng();
-        let speed_rng: Uniform<i32> = Uniform::from(1..7);
+        let speed_rng: Uniform<i32> = Uniform::from(5..10);
 
         let mut sample_speed = move || speed_rng.sample(&mut rng);
 
@@ -133,6 +133,7 @@ impl TectonicsMap {
                 },
             );
         }
+        println!("{plates:#?}");
         plates
     }
 
@@ -146,8 +147,11 @@ impl TectonicsMap {
         let mut next_height_map: HeightMap = heights.clone();
 
         // Compute the movement for each plate
-        for (_, plate) in &mut next_tectonics_map.plates {
+        for (_id, plate) in &mut next_tectonics_map.plates {
             let movement = plate.tick();
+            if movement.vertical() != 0 || movement.horizontal() != 0 {
+                println!("Plate {_id} moved!");
+            }
             plate_movement_deltas.insert(plate.id, movement.to_point(self.precision()));
         }
 
@@ -168,13 +172,11 @@ impl TectonicsMap {
                 continue;
             }
 
-            println!("MOVEMENT {:?}", movement_delta);
-
             let dest_lat_lon = movement_delta + src_point;
             let dest_point = self.world.get(&dest_lat_lon);
 
             // Check what type of collision occurs after movement.
-            if dest_point.value.plate_id == plate_point.plate_id {
+            if dest_point.plate_id == plate_point.plate_id {
                 // Just add in the new one, subtract the current; not going to matter
                 let current_height = height_point.height;
                 next_height_map.world.get_mut(&src_point).value.height -= current_height;

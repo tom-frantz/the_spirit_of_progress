@@ -26,7 +26,7 @@ impl WorldTectonicsIndex {
                 let step = 1. / f32_precision;
 
                 let lat_index = ((point.lat() - 90. + step).abs() * f32_precision) as usize
-                    * (LONGITUDE_RANGE as usize * precision as usize - 1);
+                    * (LONGITUDE_RANGE as usize * precision as usize);
                 let lon_index = (point.lon() + 180.) * f32_precision - 1.;
 
                 return lat_index + lon_index as usize;
@@ -96,15 +96,37 @@ pub fn lon_index_to_value(index: u32, precision: u32) -> f32 {
     (index as f32) / precision as f32 - (LONGITUDE_RANGE / 2.)
 }
 
-// pub fn lat_value_to_index(value: f32, precision: u32) -> u32 {
-//
-// }
-//
-// pub fn lon_value_to_index(value: f32, precision: u32) -> u32 {
-//
-// }
-
 pub fn precision_points_len(precision: u32) -> usize {
     (LATITUDE_RANGE as usize * precision as usize - 1)
         * (LONGITUDE_RANGE as usize * precision as usize)
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::components::world::latlon::LatLonPoint;
+    use crate::components::world::utils::{
+        lat_index_range, lat_index_to_value, lon_index_range, lon_index_to_value,
+        WorldTectonicsIndex,
+    };
+    use crate::components::world::WorldPoints;
+
+    #[test]
+    fn testing() {
+        let precision = 2;
+        let world: WorldPoints<usize> = WorldPoints::new(precision, |p| match p {
+            WorldTectonicsIndex::NorthPole => 0,
+            WorldTectonicsIndex::SouthPole => 0,
+            WorldTectonicsIndex::Point(_) => p.vec_index(precision),
+        });
+        for lat in lat_index_range(precision) {
+            for lon in lon_index_range(precision) {
+                let lat_value = lat_index_to_value(lat, precision);
+                let lon_value = lon_index_to_value(lon, precision);
+
+                let expected = LatLonPoint::new(lat_value, lon_value);
+                let actual = world.get(&expected);
+                assert_eq!(expected, actual.point);
+            }
+        }
+    }
 }

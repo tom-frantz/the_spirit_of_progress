@@ -7,6 +7,10 @@ pub enum PlateBoundaryType {
     Transform,
 }
 
+pub enum ConvergentBoundary {}
+
+pub enum DivergentBoundary {}
+
 impl PlateBoundaryType {
     pub fn new(src_plate: &Plate, dest_plate: &Plate) -> Self {
         let plate_vec_difference = src_plate.plate_drift_speed() - dest_plate.plate_drift_speed();
@@ -21,6 +25,8 @@ impl PlateBoundaryType {
             PlateBoundaryType::Divergent(delta_speed)
         }
     }
+
+    // pub
 }
 
 #[derive(Clone, Debug)]

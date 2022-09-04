@@ -175,7 +175,7 @@ mod test {
             _ => 0.0,
         });
 
-        let test_point = world.get(LatLonPoint::new(82.5, 11.5));
+        let test_point = world.get(&LatLonPoint::new(82.5, 11.5));
         assert_eq!(test_point.value, 10.);
     }
 }

@@ -10,7 +10,7 @@ pub struct WorldRenderPlugin;
 impl Plugin for WorldRenderPlugin {
     fn build(&self, app: &mut App) {
         // TODO move these to a better spot
-        let heightmap = HeightMap::new(WorldPoints::new(2, |_p| HeightPoint::new(0.0)));
+        let heightmap = HeightMap::new(WorldPoints::new(2, |_p| HeightPoint::new(9.0)));
         let tectonics = TectonicsMap::new(2, 2, 9);
 
         app.add_event::<MapModeEvent>()

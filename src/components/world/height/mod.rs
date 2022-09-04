@@ -40,7 +40,43 @@ impl<'a> RenderTheWorld<'a> for HeightPoint {
     type World = HeightMap;
 
     fn colour(point: &<Self::World as WorldMap<'a>>::Point, world: &Self::World) -> TileColor {
-        Terrain::SeaLevelLand.tile_color()
+        let colour = if point.height < 1. {
+            Terrain::Sea6
+        } else if point.height < 2. {
+            Terrain::Sea5
+        } else if point.height < 3. {
+            Terrain::Sea4
+        } else if point.height < 4. {
+            Terrain::Sea3
+        } else if point.height < 5. {
+            Terrain::Sea2
+        } else if point.height < 6. {
+            Terrain::Sea1
+        } else if point.height < 7. {
+            Terrain::SeaLevelWater
+        } else if point.height < 8. {
+            Terrain::SeaLevelLand
+        } else if point.height < 9. {
+            Terrain::Land1
+        } else if point.height < 10. {
+            Terrain::Land2
+        } else if point.height < 11. {
+            Terrain::Land3
+        } else if point.height < 12. {
+            Terrain::Land4
+        } else if point.height < 13. {
+            Terrain::Land5
+        } else if point.height < 14. {
+            Terrain::Land6
+        } else if point.height < 15. {
+            Terrain::Land7
+        } else if point.height < 16. {
+            Terrain::Land8
+        } else {
+            Terrain::Land9
+        };
+
+        colour.tile_color()
     }
 }
 
