@@ -1,7 +1,4 @@
-pub mod components;
-pub mod map;
+mod game;
 
 pub mod camera;
 pub mod ui;
-
-pub mod utils;
