@@ -13,6 +13,10 @@ path = "src/bin/world_sim.rs"
 name = "world_sim"
 
 [[bin]]
+path = "src/bin/hexworld_shaders.rs"
+name = "hexworld_shaders"
+
+[[bin]]
 path = "src/bin/the_spirit_of_progress.rs"
 name = "the_spirit_of_progress"
 
