@@ -15,5 +15,10 @@ fn main() {
             backends: Some(bevy::render::settings::Backends::DX12),
             ..Default::default()
         })
+        .add_startup_system(init)
         .run();
+}
+
+fn init(mut commands: Commands) {
+    commands.spawn_bundle(Camera2dBundle::default());
 }

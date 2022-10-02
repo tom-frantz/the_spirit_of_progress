@@ -14,15 +14,20 @@ fn main() {
 
             ..default()
         })
+        .insert_resource(Msaa { samples: 1 })
         .insert_resource(WgpuSettings {
             backends: Some(Backends::DX12),
             ..Default::default()
         })
-        .insert_resource(Msaa { samples: 4 })
         .add_plugins(DefaultPlugins)
         .add_plugin(UiPlugin)
         .add_plugin(RenderPlugin)
         .insert_resource(ImageSettings::default_nearest())
+        .add_startup_system(init)
         // .insert_plugin()
         .run()
+}
+
+fn init(mut commands: Commands) {
+    commands.spawn_bundle(Camera2dBundle::default());
 }
