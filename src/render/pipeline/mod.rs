@@ -1,9 +1,9 @@
-use crate::render::shader::ORTHOGRAPHIC_HEXAGON_SHADER;
 use bevy::render::render_resource::{
     ColorWrites, Face, FrontFace, MultisampleState, PolygonMode, PrimitiveState, PrimitiveTopology,
 };
 use bevy::{
     prelude::*,
+    reflect::TypeUuid,
     render::{
         render_resource::{
             BlendComponent, BlendFactor, BlendOperation, BlendState, ColorTargetState,
@@ -21,16 +21,23 @@ pub const ORTHOGRAPHIC_HEXAGON_FRAGMENT_SHADER_HANDLE: HandleUntyped =
 
 pub struct OrthographicHexagonPipeline {}
 
+impl FromWorld for OrthographicHexagonPipeline {
+    fn from_world(world: &mut World) -> Self {
+        println!("CREATING PIPELINE FROM WORLD!");
+        OrthographicHexagonPipeline {}
+    }
+}
+
 impl SpecializedRenderPipeline for OrthographicHexagonPipeline {
     type Key = ();
 
     fn specialize(&self, key: Self::Key) -> RenderPipelineDescriptor {
-        let shader = ORTHOGRAPHIC_HEXAGON_SHADER;
+        println!("SPECIALIZING PIPELINE!");
         let formats = vec![
             // Position
-            VertexFormat::Float32x4,
+            VertexFormat::Float32x2,
             // Uv
-            VertexFormat::Float32x4,
+            // VertexFormat::Float32x4,
             // Color
             VertexFormat::Float32x4,
         ];
@@ -38,17 +45,19 @@ impl SpecializedRenderPipeline for OrthographicHexagonPipeline {
         let vertex_layout =
             VertexBufferLayout::from_vertex_formats(VertexStepMode::Vertex, formats);
 
-        RenderPipelineDescriptor {
+        println!("VERTEX LAYOUUT {vertex_layout:?}");
+
+        let x = RenderPipelineDescriptor {
             vertex: VertexState {
                 shader: ORTHOGRAPHIC_HEXAGON_VERTEX_SHADER_HANDLE.typed::<Shader>(),
-                entry_point: "vertex_main".into(),
+                entry_point: "vs_main".into(),
                 shader_defs: vec![],
                 buffers: vec![vertex_layout],
             },
             fragment: Some(FragmentState {
                 shader: ORTHOGRAPHIC_HEXAGON_FRAGMENT_SHADER_HANDLE.typed::<Shader>(),
-                shader_defs,
-                entry_point: "fragment_main".into(),
+                shader_defs: vec![],
+                entry_point: "fs_main".into(),
                 targets: vec![Some(ColorTargetState {
                     format: TextureFormat::bevy_default(),
                     blend: Some(BlendState {
@@ -66,13 +75,7 @@ impl SpecializedRenderPipeline for OrthographicHexagonPipeline {
                     write_mask: ColorWrites::ALL,
                 })],
             }),
-            // TODO
-            layout: Some(vec![
-                self.view_layout.clone(),
-                self.mesh_layout.clone(),
-                self.uniform_layout.clone(),
-                self.material_layout.clone(),
-            ]),
+            layout: Some(vec![]),
             primitive: PrimitiveState {
                 conservative: false,
                 cull_mode: Some(Face::Back),
@@ -84,11 +87,15 @@ impl SpecializedRenderPipeline for OrthographicHexagonPipeline {
             },
             depth_stencil: None,
             multisample: MultisampleState {
-                count: 0,
+                count: 1,
                 mask: !0,
                 alpha_to_coverage_enabled: false,
             },
             label: Some("orthographic_hexagon_pipeline".into()),
-        }
+        };
+
+        println!("PIPELINE {x:?}");
+
+        x
     }
 }
