@@ -1,9 +1,9 @@
-use s2::cellid::CellID;
+use h3ron::{collections::indexvec::IndexVec, H3Cell, Index as CellIndex};
 use std::fmt::Debug;
-use std::ops::{Deref, DerefMut};
+use std::ops::{Deref, DerefMut, Index, IndexMut};
 
-pub const APPROX_FIVE_KM_SQUARE_LEVEL: u64 = 12;
-pub const APPROX_ONE_KM_SQUARE_LEVEL: u64 = 13;
+pub const APPROX_FIVE_KM_SQUARE_RESOLUTION: u8 = 7; // 5.161293360
+pub const APPROX_ONE_KM_SQUARE_RESOLUTION: u8 = 8; // 0.737327598
 
 #[derive(Debug)]
 pub enum CellData<T>
@@ -11,7 +11,7 @@ where
     T: Debug,
 {
     Data(T),
-    ChildrenData(Box<[Cell<T>; 4]>),
+    ChildrenData(Vec<Cell<T>>),
 }
 
 impl<T> Clone for CellData<T>
@@ -31,7 +31,7 @@ pub struct Cell<T>
 where
     T: Debug,
 {
-    id: CellID,
+    id: H3Cell,
     data: CellData<T>,
 }
 
@@ -39,8 +39,8 @@ impl<T> Cell<T>
 where
     T: Debug,
 {
-    pub fn new(id: CellID, data: T) -> Self {
-        assert!(id.level() <= APPROX_ONE_KM_SQUARE_LEVEL);
+    pub fn new(id: H3Cell, data: T) -> Self {
+        assert!(id.resolution() <= APPROX_ONE_KM_SQUARE_RESOLUTION);
 
         Cell {
             id,
@@ -48,51 +48,64 @@ where
         }
     }
 
-    pub fn new_with_cell_data(id: CellID, data: CellData<T>) -> Self {
-        assert!(id.level() <= APPROX_ONE_KM_SQUARE_LEVEL);
+    pub fn new_with_cell_data(id: H3Cell, data: CellData<T>) -> Self {
+        assert!(id.resolution() <= APPROX_ONE_KM_SQUARE_RESOLUTION);
 
         Cell { id, data }
     }
 
-    // Can assume that `cell_id` is valid
-    pub fn get(&self, cell_id: CellID) -> &Cell<T> {
-        let self_level = self.id.level();
-
-        if self_level == cell_id.level() {
-            return &self;
-        } else if self_level < cell_id.level() {
-            // If the target cell is further down the hierarchy,
-            return if let CellData::ChildrenData(children_data) = &self.data {
-                // ... and there are children cells further down the hierarchy, continue recursively
-                let children_level = cell_id.child_position(self_level);
-                &children_data[children_level as usize].get(cell_id)
-            } else {
-                // ... but the data at this level is homogenous, return data.
-                &self
-            };
-        } else {
-            panic!("The recursion has gone further than the cell!!!")
-        }
+    pub fn id(&self) -> H3Cell {
+        self.id
     }
 
-    pub fn get_mut(&mut self, cell_id: CellID) -> &mut Cell<T> {
-        let self_level = self.id.level();
+    // Can assume that `cell_id` is valid
+    pub fn get(&self, cell_id: H3Cell) -> &Cell<T> {
+        let self_resolution = self.id.resolution();
 
-        if self_level == cell_id.level() {
-            return self;
-        } else if self_level < cell_id.level() {
-            // If the target `cell_id` is further down the hierarchy than `self` ...
-            if let CellData::Data(_) = &mut self.data {
-                // ... but the data is the same from here.
-                return self;
-            } else if let CellData::ChildrenData(children_data) = &mut self.data {
-                // ... and the data forks continuing down
-                return children_data[cell_id.child_position(self_level) as usize].get_mut(cell_id);
-            } else {
-                panic!("There shouldn't be another enum here!!!")
-            };
-        } else {
-            panic!("The recursion has gone further than the cell!!!")
+        return match cell_id.resolution() {
+            self_resolution => self,
+            _ => match &self.data {
+                // return self if this is as far as the data goes
+                CellData::Data(_) => self,
+                // If the data continues, go deeper
+                CellData::ChildrenData(children_cells) => {
+                    for cell in children_cells {
+                        if cell.id.contains(&cell_id).expect("Cell was invalid") {
+                            return cell.get(cell_id);
+                        }
+                    }
+                    panic!("Valid cell used but could not find a sub cell that contains it.")
+                }
+            },
+        };
+    }
+
+    pub fn get_mut(&mut self, cell_id: H3Cell) -> &mut Cell<T> {
+        let self_resolution = self.id.resolution();
+
+        match cell_id.resolution() {
+            // Handle at the correct resolution
+            x if self_resolution == x => self,
+            _ => {
+                // Handle if the data ends here. (incorrect resolution)
+                if let CellData::Data(_) = self.data {
+                    return self;
+                }
+
+                match &mut self.data {
+                    // Handle if the data keeps going down. (incorrect resolution)
+                    CellData::ChildrenData(children_cells) => {
+                        for cell in children_cells {
+                            if cell.id.contains(&cell_id).expect("Cell was invalid") {
+                                return cell.get_mut(cell_id);
+                            }
+                        }
+                        panic!("Valid cell used but could not find a sub cell that contains it.")
+                    }
+                    // Don't use `_` here incase I add extra variations to `CellData`
+                    CellData::Data(_) => panic!("This should never happen; It's covered above."),
+                }
+            }
         }
     }
 }
@@ -114,6 +127,30 @@ where
 {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.data
+    }
+}
+
+impl<T> Index<H3Cell> for Cell<T>
+where
+    T: Debug,
+{
+    type Output = Cell<T>;
+
+    fn index(&self, index: H3Cell) -> &Self::Output {
+        assert!(index.is_valid());
+
+        self.get(index)
+    }
+}
+
+impl<T> IndexMut<H3Cell> for Cell<T>
+where
+    T: Debug,
+{
+    fn index_mut(&mut self, index: H3Cell) -> &mut Self::Output {
+        assert!(index.is_valid());
+
+        self.get_mut(index)
     }
 }
 
