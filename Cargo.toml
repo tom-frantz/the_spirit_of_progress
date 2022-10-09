@@ -28,7 +28,7 @@ bevy_prototype_lyon = "0.6.0"
 bevy_ecs_tilemap = "0.7.0"
 rand = "0.8.5"
 geoutils = "0.5.1"
-s2 = "0.0.10"
+h3ron = "0.15.1"
 
 # Enable only a small amount of optimization in debug mode
 [profile.dev]

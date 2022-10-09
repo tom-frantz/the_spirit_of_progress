@@ -1,6 +1,6 @@
 extern crate core;
 
-mod game;
+pub mod game;
 
 pub mod camera;
 pub mod render;

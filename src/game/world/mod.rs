@@ -1,4 +1,4 @@
-pub use self::collections::{Cell, CellData, World};
+pub use self::collections::{Cell, CellData, HexWorld};
 
 mod collections;
 
