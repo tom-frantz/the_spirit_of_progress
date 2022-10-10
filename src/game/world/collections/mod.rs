@@ -1,6 +1,6 @@
 use self::cell::APPROX_ONE_KM_SQUARE_RESOLUTION;
 pub use self::{
-    cell::{Cell, CellData},
+    cell::{CellData, HexWorldCell},
     iterator::WorldIter,
 };
 use bevy::prelude::Component;
@@ -15,18 +15,32 @@ pub mod cell;
 pub mod iterator;
 
 #[derive(Debug, Component)]
-pub struct HexWorld<T>
+pub struct HexWorldData<T>
 where
     T: Debug,
 {
-    data: Vec<Cell<T>>,
+    data: Vec<HexWorldCell<T>>,
 }
 
-impl<T> HexWorld<T>
+impl<T> HexWorldData<T>
 where
     T: Debug,
 {
-    pub fn get(&self, cell_id: H3Cell) -> &Cell<T> {
+    pub fn new_from_cells<F>(mut new_func: F) -> Self
+    where
+        F: FnMut(H3Cell) -> T,
+    {
+        let res0_cells_vec = res0_cells();
+
+        HexWorldData {
+            data: res0_cells_vec
+                .into_iter()
+                .map(|c| HexWorldCell::new(c, new_func(c)))
+                .collect(),
+        }
+    }
+
+    pub fn get(&self, cell_id: H3Cell) -> &HexWorldCell<T> {
         assert!(cell_id.is_valid());
 
         match cell_id.resolution() {
@@ -49,7 +63,7 @@ where
         }
     }
 
-    pub fn get_mut(&mut self, cell_id: H3Cell) -> &mut Cell<T> {
+    pub fn get_mut(&mut self, cell_id: H3Cell) -> &mut HexWorldCell<T> {
         assert!(cell_id.is_valid());
 
         match cell_id.resolution() {
@@ -79,18 +93,18 @@ where
     }
 }
 
-impl<T> Index<H3Cell> for HexWorld<T>
+impl<T> Index<H3Cell> for HexWorldData<T>
 where
     T: Debug,
 {
-    type Output = Cell<T>;
+    type Output = HexWorldCell<T>;
 
     fn index(&self, index: H3Cell) -> &Self::Output {
         self.get(index)
     }
 }
 
-impl<T> IndexMut<H3Cell> for HexWorld<T>
+impl<T> IndexMut<H3Cell> for HexWorldData<T>
 where
     T: Debug,
 {
@@ -99,28 +113,28 @@ where
     }
 }
 
-impl<T> Default for HexWorld<T>
+impl<T> Default for HexWorldData<T>
 where
     T: Default + Debug,
 {
     fn default() -> Self {
         let res0_cells_vec = res0_cells();
 
-        HexWorld {
+        HexWorldData {
             data: res0_cells_vec
                 .into_iter()
-                .map(|c| Cell::new(c, T::default()))
+                .map(|c| HexWorldCell::new(c, T::default()))
                 .collect(),
         }
     }
 }
 
-impl<T> Clone for HexWorld<T>
+impl<T> Clone for HexWorldData<T>
 where
     T: Clone + Debug,
 {
     fn clone(&self) -> Self {
-        HexWorld {
+        HexWorldData {
             data: self.data.clone(),
         }
     }
@@ -132,7 +146,7 @@ mod tests {
 
     #[test]
     fn test_world() {
-        let world: HexWorld<f64> = HexWorld::default();
+        let world: HexWorldData<f64> = HexWorldData::default();
 
         println!("{world:?}");
         assert_eq!(world.data.len(), 122)

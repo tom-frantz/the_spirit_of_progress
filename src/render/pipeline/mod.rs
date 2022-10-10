@@ -32,7 +32,7 @@ impl SpecializedRenderPipeline for OrthographicHexagonPipeline {
     type Key = ();
 
     fn specialize(&self, key: Self::Key) -> RenderPipelineDescriptor {
-        println!("SPECIALIZING PIPELINE!");
+        // println!("SPECIALIZING PIPELINE!");
         let formats = vec![
             // Position
             VertexFormat::Float32x2,
@@ -45,7 +45,7 @@ impl SpecializedRenderPipeline for OrthographicHexagonPipeline {
         let vertex_layout =
             VertexBufferLayout::from_vertex_formats(VertexStepMode::Vertex, formats);
 
-        println!("VERTEX LAYOUUT {vertex_layout:?}");
+        // println!("VERTEX LAYOUUT {vertex_layout:?}");
 
         let x = RenderPipelineDescriptor {
             vertex: VertexState {
@@ -94,7 +94,7 @@ impl SpecializedRenderPipeline for OrthographicHexagonPipeline {
             label: Some("orthographic_hexagon_pipeline".into()),
         };
 
-        println!("PIPELINE {x:?}");
+        // println!("PIPELINE {x:?}");
 
         x
     }

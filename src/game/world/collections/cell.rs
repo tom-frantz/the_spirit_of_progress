@@ -11,7 +11,7 @@ where
     T: Debug,
 {
     Data(T),
-    ChildrenData(Vec<Cell<T>>),
+    ChildrenData(Vec<HexWorldCell<T>>),
 }
 
 impl<T> Clone for CellData<T>
@@ -27,7 +27,7 @@ where
 }
 
 #[derive(Debug)]
-pub struct Cell<T>
+pub struct HexWorldCell<T>
 where
     T: Debug,
 {
@@ -35,14 +35,14 @@ where
     data: CellData<T>,
 }
 
-impl<T> Cell<T>
+impl<T> HexWorldCell<T>
 where
     T: Debug,
 {
     pub fn new(id: H3Cell, data: T) -> Self {
         assert!(id.resolution() <= APPROX_ONE_KM_SQUARE_RESOLUTION);
 
-        Cell {
+        HexWorldCell {
             id,
             data: CellData::Data(data),
         }
@@ -51,19 +51,22 @@ where
     pub fn new_with_cell_data(id: H3Cell, data: CellData<T>) -> Self {
         assert!(id.resolution() <= APPROX_ONE_KM_SQUARE_RESOLUTION);
 
-        Cell { id, data }
+        HexWorldCell { id, data }
     }
 
     pub fn id(&self) -> H3Cell {
         self.id
     }
+    pub fn data(&self) -> &CellData<T> {
+        return &self.data;
+    }
 
     // Can assume that `cell_id` is valid
-    pub fn get(&self, cell_id: H3Cell) -> &Cell<T> {
+    pub fn get(&self, cell_id: H3Cell) -> &HexWorldCell<T> {
         let self_resolution = self.id.resolution();
 
         return match cell_id.resolution() {
-            self_resolution => self,
+            res if res == self_resolution => self,
             _ => match &self.data {
                 // return self if this is as far as the data goes
                 CellData::Data(_) => self,
@@ -80,7 +83,7 @@ where
         };
     }
 
-    pub fn get_mut(&mut self, cell_id: H3Cell) -> &mut Cell<T> {
+    pub fn get_mut(&mut self, cell_id: H3Cell) -> &mut HexWorldCell<T> {
         let self_resolution = self.id.resolution();
 
         match cell_id.resolution() {
@@ -110,7 +113,7 @@ where
     }
 }
 
-impl<T> Deref for Cell<T>
+impl<T> Deref for HexWorldCell<T>
 where
     T: Debug,
 {
@@ -121,7 +124,7 @@ where
     }
 }
 
-impl<T> DerefMut for Cell<T>
+impl<T> DerefMut for HexWorldCell<T>
 where
     T: Debug,
 {
@@ -130,11 +133,11 @@ where
     }
 }
 
-impl<T> Index<H3Cell> for Cell<T>
+impl<T> Index<H3Cell> for HexWorldCell<T>
 where
     T: Debug,
 {
-    type Output = Cell<T>;
+    type Output = HexWorldCell<T>;
 
     fn index(&self, index: H3Cell) -> &Self::Output {
         assert!(index.is_valid());
@@ -143,7 +146,7 @@ where
     }
 }
 
-impl<T> IndexMut<H3Cell> for Cell<T>
+impl<T> IndexMut<H3Cell> for HexWorldCell<T>
 where
     T: Debug,
 {
@@ -154,12 +157,12 @@ where
     }
 }
 
-impl<T> Clone for Cell<T>
+impl<T> Clone for HexWorldCell<T>
 where
     T: Clone + Debug,
 {
     fn clone(&self) -> Self {
-        Cell {
+        HexWorldCell {
             id: self.id,
             data: self.data.clone(),
         }
