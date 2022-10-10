@@ -27,6 +27,9 @@ use bevy::{
     },
     utils::FloatOrd,
 };
+use extract::extract;
+use prepare::prepare;
+use queue::queue;
 
 mod pipeline;
 mod shader;
@@ -35,6 +38,8 @@ mod utils;
 mod extract;
 mod prepare;
 mod queue;
+
+pub mod traits;
 
 pub struct RenderPlugin;
 
@@ -54,9 +59,9 @@ impl Plugin for RenderPlugin {
 
         let render_app = app.sub_app_mut(RenderApp);
         render_app
-            .add_system_to_stage(RenderStage::Extract, extract::extract)
-            .add_system_to_stage(RenderStage::Prepare, prepare::prepare)
-            .add_system_to_stage(RenderStage::Queue, queue::queue)
+            .add_system_to_stage(RenderStage::Extract, extract)
+            .add_system_to_stage(RenderStage::Prepare, prepare)
+            .add_system_to_stage(RenderStage::Queue, queue)
             .init_resource::<OrthographicHexagonPipeline>()
             .init_resource::<SpecializedRenderPipelines<OrthographicHexagonPipeline>>();
 
@@ -107,7 +112,7 @@ impl Hexagon {
 struct HexWorld(pub u8, GpuMesh);
 
 #[derive(Component, Debug)]
-struct HexWorldId(u8);
+pub struct HexWorldId(u8);
 impl HexWorld {
     pub fn new(id: u8, gpu_mesh: GpuMesh) -> Self {
         HexWorld(id, gpu_mesh)
@@ -157,7 +162,6 @@ impl RenderCommand<Transparent2d> for DrawHexWorld {
                 pass.draw_indexed(0..*count, 0, 0..1);
             }
             GpuBufferInfo::NonIndexed { vertex_count } => {
-                panic!("wowza");
                 pass.draw(0..*vertex_count, 0..1);
             }
         }
