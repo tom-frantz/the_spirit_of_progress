@@ -1,9 +1,10 @@
-use crate::render::traits::CellRender;
+use crate::render::traits::{CellRender, QueryCellRender};
 use bevy::prelude::*;
+use h3ron::H3Cell;
 
 use super::HexWorldData;
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct TectonicsData {
     colour: Color,
 }
@@ -14,8 +15,14 @@ impl CellRender for TectonicsData {
     }
 }
 
-#[derive(Component, Debug)]
+#[derive(Component, Debug, Clone)]
 pub struct WorldTectonicsData(HexWorldData<TectonicsData>);
+
+impl QueryCellRender for WorldTectonicsData {
+    fn cell_colour(&self, cell_id: H3Cell) -> Color {
+        self.0.cell_colour(cell_id)
+    }
+}
 
 impl Default for WorldTectonicsData {
     fn default() -> Self {
