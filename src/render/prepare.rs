@@ -1,6 +1,17 @@
-use crate::render::{HexWorld, HexWorldId, Hexagon};
+use crate::{
+    game::world::{
+        elevation::{ElevationData, WorldElevationData},
+        tectonics::WorldTectonicsData,
+        HexWorldMapMode,
+    },
+    render::{
+        extract::{ExtractedHexWorld, ExtractedHexWorldData, ExtractedHexWorldMapMode},
+        traits::QueryCellRender,
+        HexWorld, HexWorldId,
+    },
+};
 use bevy::{
-    prelude::{Commands, Mesh, Res},
+    prelude::*,
     render::{
         mesh::{
             GpuBufferInfo, GpuMesh, Indices, MeshVertexAttribute, PrimitiveTopology,
@@ -10,6 +21,7 @@ use bevy::{
         renderer::RenderDevice,
     },
 };
+use h3ron::{res0_cell_count, res0_cells, ToCoordinate, ToPolygon};
 
 pub const ATTRIBUTE_POSITION: MeshVertexAttribute =
     MeshVertexAttribute::new("Position", 184657321, VertexFormat::Float32x2);
@@ -17,30 +29,67 @@ pub const ATTRIBUTE_POSITION: MeshVertexAttribute =
 pub const ATTRIBUTE_COLOR: MeshVertexAttribute =
     MeshVertexAttribute::new("Color", 218479653, VertexFormat::Float32x4);
 
-pub fn prepare(mut commands: Commands, render_device: Res<RenderDevice>) {
-    let mut tiles = Vec::new();
+pub fn prepare(
+    mut commands: Commands,
+    render_device: Res<RenderDevice>,
+    hex_world: Query<(
+        &ExtractedHexWorld,
+        &ExtractedHexWorldMapMode,
+        Option<&ExtractedHexWorldData<WorldElevationData>>,
+        Option<&ExtractedHexWorldData<WorldTectonicsData>>,
+    )>,
+) {
+    // let mut tiles = Vec::new();
 
     // Store data somewhere before it's converted for the GPU
     let mut positions: Vec<[f32; 2]> = Vec::new();
     let mut colours: Vec<[f32; 4]> = Vec::new();
     let mut indices: Vec<u16> = Vec::new();
 
-    for index in 0..=1 {
-        let hex = Hexagon::from_center([0.0 + index as f32 * 0.4, 0.0]);
+    for (_hex_world, map_mode, elevation_data, tectonics_data) in hex_world.iter() {
+        // Find what data we have based on the map mode.
+        let hex_world_data: &dyn QueryCellRender = match map_mode.0 {
+            HexWorldMapMode::Elevation => elevation_data.unwrap(),
+            HexWorldMapMode::Tectonics => tectonics_data.unwrap(),
+        };
 
-        for vertex in &hex.vertices {
-            positions.push(*vertex);
-            // println!("{vertex:?}");
-            colours.push([0.8, 0.8, 0.3, 1.0])
+        let mut offset: u16 = 0;
+
+        // TODO Change this to be dependent on the zoom
+        for res0_cell in res0_cells().iter() {
+            for cell in res0_cell.get_children(2).unwrap().iter() {
+                let center = cell.to_coordinate().unwrap();
+                if center.x < -160. || center.x > 160. || center.y < -60. || center.y > 60. {
+                    continue;
+                }
+
+                // Get the primitive points to use.
+                let poly = cell.to_polygon().expect("Should be legit lmao");
+                // Skip the first: The first and last point are the same, to close the line string.
+                // By skipping the first, you don't have a duplicate point/triangle in your buffer
+                let line_str = poly.exterior().points().skip(1);
+                let amount_of_vertices: u16 = line_str.len() as u16;
+
+                for point in line_str {
+                    // For each point, insert data into the buffers.
+                    positions.push([point.x() as f32 / 180.0, point.y() as f32 / 90.0]);
+                    colours.push(hex_world_data.cell_colour(cell).as_rgba_f32());
+                }
+
+                for last_vertex_index in 2..amount_of_vertices {
+                    // last_vertex_index = 2: offset, offset + 1, offset + 2
+                    // last_vertex_index = 3: offset, offset + 2, offset + 1
+                    // etc.
+                    indices.extend([
+                        0 + offset,
+                        last_vertex_index + offset - 1,
+                        last_vertex_index + offset,
+                    ])
+                }
+
+                offset += amount_of_vertices;
+            }
         }
-
-        // the `+ 5` is tied to the (temporary) iterator that starts at `-5`
-        for index in hex.indices((index) as u16 * 6) {
-            indices.extend(index);
-        }
-
-        tiles.push(hex);
-        // commands.spawn().insert(hex);
     }
 
     // Create a mesh to get data from, for the render device.
@@ -87,4 +136,37 @@ pub fn prepare(mut commands: Commands, render_device: Res<RenderDevice>) {
 
     commands.insert_resource(HexWorld::new(0, gpu_mesh));
     commands.spawn().insert(HexWorldId(0));
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use h3ron::{res0_cells, ToPolygon};
+
+    #[test]
+    fn test() {
+        for cell in res0_cells().iter() {
+            // Get the primitive points to use.
+            let poly = cell.to_polygon().expect("Should be legit lmao");
+            let line_str = poly.exterior();
+            println!("{line_str:?}\n");
+        }
+    }
+
+    #[test]
+    fn geometry() {
+        for res0_cell in res0_cells().iter() {
+            for sub_cell in res0_cell.get_children(1).unwrap().iter() {
+                let poly = sub_cell.to_polygon().unwrap();
+
+                let number_of_vertices = poly.exterior().points().skip(1).len();
+                println!("{}", number_of_vertices);
+                if res0_cell.is_pentagon() {
+                    assert_eq!(number_of_vertices, 5)
+                } else {
+                    assert_eq!(number_of_vertices, 6)
+                }
+            }
+        }
+    }
 }

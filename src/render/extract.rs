@@ -1,14 +1,43 @@
 use crate::{
-    game::world::{tectonics::WorldTectonicsData, HexWorld, HexWorldData},
+    game::world::{HexWorld, HexWorldData, HexWorldMapMode, HexWorldQuery},
     render::traits::QueryCellRender,
 };
-use bevy::prelude::*;
-use bevy::render::Extract;
+use bevy::{prelude::*, render::Extract};
+use h3ron::H3Cell;
 
-pub fn extract(hex_world: Extract<Query<(Entity, &HexWorld, &WorldTectonicsData)>>) {
-    println!("Hey this should be happening?! EXTRACT");
+#[derive(Component)]
+pub struct ExtractedHexWorld(pub HexWorld);
+#[derive(Component)]
+pub struct ExtractedHexWorldMapMode(pub HexWorldMapMode);
+#[derive(Component)]
+pub struct ExtractedHexWorldData<T>(pub T)
+where
+    T: QueryCellRender;
 
-    for (entity, hex_world, tectonics_data) in hex_world.iter() {
-        println!("{entity:?} {hex_world:?} {tectonics_data:?}")
+impl<T> QueryCellRender for ExtractedHexWorldData<T>
+where
+    T: QueryCellRender,
+{
+    fn cell_colour(&self, cell_id: H3Cell) -> Color {
+        self.0.cell_colour(cell_id)
+    }
+}
+
+pub fn extract(mut commands: Commands, hex_world: Extract<HexWorldQuery>) {
+    for (entity, hex_world, map_mode, elevation_data, tectonics_data) in hex_world.iter() {
+        let mut entity_commands = commands.spawn();
+        entity_commands
+            .insert(ExtractedHexWorld(*hex_world))
+            .insert(ExtractedHexWorldMapMode(*map_mode));
+
+        match map_mode {
+            HexWorldMapMode::Elevation => {
+                println!("{elevation_data:?}");
+                entity_commands.insert(ExtractedHexWorldData(elevation_data.clone()));
+            }
+            HexWorldMapMode::Tectonics => {
+                entity_commands.insert(ExtractedHexWorldData(tectonics_data.clone()));
+            }
+        };
     }
 }

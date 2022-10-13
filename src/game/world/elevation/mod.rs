@@ -1,9 +1,11 @@
-use crate::render::traits::CellRender;
+use crate::game::world::tectonics::WorldTectonicsData;
+use crate::render::traits::{CellRender, QueryCellRender};
 use bevy::prelude::*;
+use h3ron::H3Cell;
 
 use super::HexWorldData;
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct ElevationData {}
 
 impl CellRender for ElevationData {
@@ -12,5 +14,11 @@ impl CellRender for ElevationData {
     }
 }
 
-#[derive(Component, Debug, Default)]
+#[derive(Component, Debug, Default, Clone)]
 pub struct WorldElevationData(HexWorldData<ElevationData>);
+
+impl QueryCellRender for WorldElevationData {
+    fn cell_colour(&self, cell_id: H3Cell) -> Color {
+        self.0.cell_colour(cell_id)
+    }
+}

@@ -71,43 +71,6 @@ impl Plugin for RenderPlugin {
 
 type LatLngVertex = [f32; 2];
 
-#[derive(Component, Debug, Clone, Copy)]
-struct Hexagon {
-    vertices: [LatLngVertex; 6],
-}
-
-impl Hexagon {
-    pub fn from_center(position: [f32; 2]) -> Self {
-        let radius: f32 = 0.2;
-        let cos_60: f32 = 60_f32.to_radians().cos();
-        let sin_60: f32 = 60_f32.to_radians().sin();
-
-        Hexagon {
-            vertices: [
-                [position[0] + radius * cos_60, position[1] + radius * sin_60],
-                [position[0] - radius * cos_60, position[1] + radius * sin_60],
-                [position[0] - radius, position[1]],
-                [position[0] - radius * cos_60, position[1] - radius * sin_60],
-                [position[0] + radius * cos_60, position[1] - radius * sin_60],
-                [position[0] + radius, position[1]],
-            ],
-        }
-    }
-
-    pub fn vertices(&self) -> [LatLngVertex; 6] {
-        self.vertices
-    }
-
-    pub fn indices(&self, adjustment: u16) -> [[u16; 3]; 4] {
-        [
-            [0 + adjustment, 1 + adjustment, 2 + adjustment],
-            [0 + adjustment, 2 + adjustment, 3 + adjustment],
-            [0 + adjustment, 3 + adjustment, 4 + adjustment],
-            [0 + adjustment, 4 + adjustment, 5 + adjustment],
-        ]
-    }
-}
-
 // TODO make this actually useful.
 struct HexWorld(pub u8, GpuMesh);
 
@@ -133,8 +96,6 @@ impl RenderCommand<Transparent2d> for DrawHexWorld {
         (pipeline_cache, hex_world_res, hex_world_query): SystemParamItem<'w, '_, Self::Param>,
         pass: &mut TrackedRenderPass<'w>,
     ) -> RenderCommandResult {
-        // println!("DRAWING!");
-
         if let Some(pipeline) = pipeline_cache
             .into_inner()
             .get_render_pipeline(item.pipeline)
@@ -150,7 +111,6 @@ impl RenderCommand<Transparent2d> for DrawHexWorld {
         let gpu_mesh: &GpuMesh = &hex_world_res.into_inner().1;
 
         // Set up the render pass with the data from the GPU mesh.
-        // println!("{:?}", gpu_mesh);
         pass.set_vertex_buffer(0, gpu_mesh.vertex_buffer.slice(..));
         match &gpu_mesh.buffer_info {
             GpuBufferInfo::Indexed {
