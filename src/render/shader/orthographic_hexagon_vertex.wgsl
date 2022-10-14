@@ -16,7 +16,12 @@ fn vs_main(
 ) -> VertexOutput {
     var out: VertexOutput;
     out.color = model.color;
-    out.clip_position = vec4<f32>(model.position, 0.1, 1.0);
+//    var x = sin(model.position.x * 3.14159274 * 0.5) * cos(model.position.y * 3.14159274 * 0.5);
+//    var y = sin(model.position.y * 3.14159274 * 0.5) * cos(model.positon.x * 3.14159274 * 0.5);
+    var x = sin(model.position.x * 3.14159274 * 0.5) * cos(model.position.y * 3.14159274 * 0.5);
+    var y = sin(model.position.y * 3.14159274 * 0.5);
+
+    out.clip_position = vec4<f32>(x, y, 0.1, 1.0);
     return out;
 }
 
