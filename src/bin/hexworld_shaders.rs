@@ -7,6 +7,7 @@ use bevy::{
     ui::UiPlugin,
 };
 use bevy_ecs_tilemap::TilemapPlugin;
+use the_spirit_of_progress::camera::CameraPlugin;
 use the_spirit_of_progress::{
     game::world::{HexWorld, HexWorldData},
     render::RenderPlugin,
@@ -29,6 +30,7 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_plugin(UiPlugin)
         .add_plugin(RenderPlugin)
+        .add_plugin(CameraPlugin)
         .insert_resource(ImageSettings::default_nearest())
         .add_startup_system(init)
         // .insert_plugin()
@@ -36,6 +38,5 @@ fn main() {
 }
 
 fn init(mut commands: Commands) {
-    commands.spawn_bundle(Camera2dBundle::default());
     commands.spawn_bundle(HexWorld::new());
 }

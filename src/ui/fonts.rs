@@ -1,4 +1,4 @@
-use crate::ui::theme::{Colour, MenuColour};
+use crate::ui::theme::{Colour, IndustryColour, MenuColour};
 use bevy::prelude::*;
 
 pub enum Typography {
@@ -11,17 +11,17 @@ pub enum Typography {
 impl Typography {
     const fn font_handle(&self) -> &str {
         match self {
-            Typography::Title => "fonts/Montserrat/Montserrat-Light.ttf",
-            Typography::Subtitle => "fonts/Montserrat/Montserrat-Light.ttf",
-            Typography::Body => "fonts/Montserrat/Montserrat-Light.ttf",
-            Typography::BodyBold => "fonts/Montserrat/Montserrat-Light.ttf",
+            Typography::Title => "fonts/Pixolde/Pixolde-Bold.ttf",
+            Typography::Subtitle => "fonts/Pixolde/Pixolde-Bold.ttf",
+            Typography::Body => "fonts/Pixolde/Pixolde.ttf",
+            Typography::BodyBold => "fonts/Pixolde/Pixolde-Bold.ttf",
         }
     }
 
     fn colour(&self) -> Color {
         match self {
-            Typography::Title => MenuColour::BluePen.color(),
-            Typography::Subtitle => MenuColour::BluePen.color(),
+            Typography::Title => IndustryColour::Purple.color(),
+            Typography::Subtitle => IndustryColour::Purple.color(),
             Typography::Body => MenuColour::BlackPen.color(),
             Typography::BodyBold => MenuColour::BlackPen.color(),
         }
@@ -31,8 +31,8 @@ impl Typography {
         match self {
             Typography::Title => 46.0,
             Typography::Subtitle => 34.0,
-            Typography::Body => 20.0,
-            Typography::BodyBold => 20.0,
+            Typography::Body => 16.0,
+            Typography::BodyBold => 16.0,
         }
     }
 

@@ -1,6 +1,10 @@
 use crate::ui::primitives::sidebar::render_sidebar;
 use crate::ui::primitives::UiPrimitivesPlugin;
+use crate::ui::screens::weapon_design::{WeaponDesignMode, WeaponDesignScreen};
+use crate::ui::screens::Screen;
 use bevy::prelude::*;
+
+mod screens;
 
 pub mod fonts;
 pub mod primitives;
@@ -21,6 +25,13 @@ pub struct LabelledTextBundle<Label: Component> {
     label: Label,
 }
 
+#[derive(Bundle)]
+pub struct LabelledButtonBundle<Label: Component> {
+    #[bundle]
+    node_bundle: ButtonBundle,
+    label: Label,
+}
+
 #[derive(Component, Debug)]
 pub enum MainElements {
     Sidebar,
@@ -33,9 +44,14 @@ impl Plugin for UiPlugin {
     fn build(&self, app: &mut App) {
         app
             // .add_event::<MapInteractionEvents>()
-            // .add_startup_system(render_root_ui)
             // .add_system(ui_click_event_consumer)
             // .add_system(click_event_generator)
+            .add_startup_system(weapon_design_screen_debug)
+            .add_system(WeaponDesignScreen::on_change)
             .add_plugin(UiPrimitivesPlugin);
     }
+}
+
+fn weapon_design_screen_debug(mut commands: Commands) {
+    commands.spawn().insert(WeaponDesignScreen::default());
 }

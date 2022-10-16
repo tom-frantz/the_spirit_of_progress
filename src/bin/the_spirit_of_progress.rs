@@ -1,24 +1,31 @@
-use bevy::prelude::*;
-use bevy::render::settings::WgpuSettings;
-use bevy::ui::UiPlugin;
-use bevy_ecs_tilemap::TilemapPlugin;
-use bevy_prototype_lyon::prelude::*;
+use bevy::{
+    prelude::*,
+    render::{settings::WgpuSettings, texture::ImageSettings},
+    ui::UiPlugin as BevyUiPlugin,
+};
+use the_spirit_of_progress::{
+    camera::CameraPlugin, game::world::HexWorld, render::RenderPlugin, ui::UiPlugin,
+};
 
 fn main() {
     App::new()
-        .insert_resource(Msaa { samples: 4 })
-        .add_plugins(DefaultPlugins)
-        .add_plugin(ShapePlugin)
-        .add_plugin(UiPlugin)
-        .add_plugin(TilemapPlugin)
+        // Bevy
+        .insert_resource(Msaa { samples: 1 })
         .insert_resource(WgpuSettings {
             backends: Some(bevy::render::settings::Backends::DX12),
             ..Default::default()
         })
+        .add_plugins(DefaultPlugins)
+        .add_plugin(BevyUiPlugin)
+        // Spirit of Progress
+        .add_plugin(UiPlugin)
+        .add_plugin(RenderPlugin)
+        .add_plugin(CameraPlugin)
+        .insert_resource(ImageSettings::default_nearest())
         .add_startup_system(init)
         .run();
 }
 
 fn init(mut commands: Commands) {
-    commands.spawn_bundle(Camera2dBundle::default());
+    commands.spawn_bundle(HexWorld::new());
 }
