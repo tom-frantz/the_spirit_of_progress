@@ -1,7 +1,7 @@
 use crate::ui::primitives::header::render_header;
 use crate::ui::theme::SPACING;
 use crate::ui::theme::{Colour, MenuColour};
-use crate::ui::MainElements::CenterBox;
+use crate::ui::RootElement::CenterBox;
 use bevy::prelude::Val::*;
 use bevy::prelude::*;
 

@@ -1,5 +1,5 @@
 use crate::camera::MainCamera;
-use crate::ui::MainElements;
+use crate::ui::RootElement;
 use bevy::prelude::*;
 use bevy::render::camera::RenderTarget;
 
@@ -36,7 +36,7 @@ pub fn get_cursor_location(
 
 pub fn clear_ui_elements(
     commands: &mut Commands,
-    q_ui_main_elements: &Query<Entity, With<MainElements>>,
+    q_ui_main_elements: &Query<Entity, With<RootElement>>,
 ) {
     for entity in q_ui_main_elements.iter() {
         commands.entity(entity).despawn_recursive();

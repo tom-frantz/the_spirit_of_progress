@@ -1,7 +1,7 @@
 use crate::ui::theme::SPACING;
 use crate::ui::theme::{Colour, MenuColour};
 use crate::ui::utils::clear_ui_elements;
-use crate::ui::MainElements;
+use crate::ui::RootElement;
 use bevy::prelude::Val::*;
 use bevy::prelude::*;
 use bevy::ui::UiRect;
@@ -16,7 +16,7 @@ impl HeaderButton {
     pub fn clicked(
         &self,
         commands: &mut Commands,
-        q_ui_main_elements: &Query<Entity, With<MainElements>>,
+        q_ui_main_elements: &Query<Entity, With<RootElement>>,
     ) {
         match self {
             HeaderButton::Expand => {}
@@ -30,7 +30,7 @@ const BUTTON_SIZE: f32 = 16.0;
 pub(super) fn on_header_button_click(
     interaction_query: Query<(&Interaction, &HeaderButton), (Changed<Interaction>, With<Button>)>,
     mut commands: Commands,
-    q_ui_main_elements: Query<Entity, With<MainElements>>,
+    q_ui_main_elements: Query<Entity, With<RootElement>>,
 ) {
     for (interaction, header_button) in &mut interaction_query.iter() {
         match interaction {

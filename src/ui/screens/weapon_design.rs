@@ -19,10 +19,14 @@ pub struct WeaponDesignScreen {
 }
 
 impl Screen for WeaponDesignScreen {
-    fn draw(commands: &mut Commands, asset_server: &AssetServer, entity: Entity, component: &Self) {
+    fn draw(
+        commands: &mut Commands,
+        asset_server: &AssetServer,
+        parent: &mut ChildBuilder,
+        entity: Entity,
+        component: &Self,
+    ) {
         println!("DRAWING!");
-        commands
-            .entity(entity)
-            .with_children(|parent| render_center_box(parent, |_| {}));
+        render_center_box(parent, |_| {});
     }
 }
