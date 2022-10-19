@@ -1,5 +1,6 @@
 use crate::ui::RootElement;
 use bevy::prelude::*;
+use crate::ui::primitives::root::get_root_node_bundle;
 
 pub mod weapon_design;
 
@@ -8,9 +9,8 @@ where
     Self: Component + Sized + Send,
 {
     fn draw(
-        commands: &mut Commands,
-        asset_server: &AssetServer,
         parent: &mut ChildBuilder,
+        asset_server: &AssetServer,
         entity: Entity,
         component: &Self,
     );
@@ -28,15 +28,25 @@ where
         for (entity, visibility, self_component) in screen_query.iter() {
             println!("HEY! THIS SHOULD BE CALLED");
             if visibility.is_visible {
-                let root_el = root_element_query.single();
+                let root_el_result = root_element_query.get_single();
 
-                Self::draw(
-                    &mut commands,
-                    &asset_server,
-                    root_el,
-                    entity,
-                    self_component,
-                )
+                let mut root_el = {
+                    if let Ok(parent_entity) = root_el_result {
+                        commands.entity(parent_entity)
+                    } else {
+                        commands.spawn_bundle(get_root_node_bundle())
+                    }
+                };
+
+                root_el.with_children(|child_builder| {
+                    Self::draw(
+                        child_builder,
+                        &asset_server,
+                        entity,
+                        self_component,
+                    )
+                });
+
             }
         }
     }

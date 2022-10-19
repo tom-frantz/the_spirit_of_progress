@@ -20,9 +20,8 @@ pub struct WeaponDesignScreen {
 
 impl Screen for WeaponDesignScreen {
     fn draw(
-        commands: &mut Commands,
-        asset_server: &AssetServer,
         parent: &mut ChildBuilder,
+        asset_server: &AssetServer,
         entity: Entity,
         component: &Self,
     ) {

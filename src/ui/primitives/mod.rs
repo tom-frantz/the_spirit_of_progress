@@ -2,6 +2,7 @@ use crate::ui::primitives::header::on_header_button_click;
 use bevy::prelude::*;
 
 pub mod header;
+pub mod root;
 
 pub mod center_box;
 pub mod sidebar;

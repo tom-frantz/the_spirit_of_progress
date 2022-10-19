@@ -39,6 +39,7 @@ pub type HexWorldQuery<'w, 's, 'c> = Query<
 #[derive(Bundle, Default)]
 pub struct HexWorldBundle {
     world: HexWorld,
+    transform: Transform,
     map_mode: HexWorldMapMode,
     elevations: WorldElevationData,
     tectonics: WorldTectonicsData,

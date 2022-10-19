@@ -28,7 +28,7 @@ fn background_bundle() -> NodeBundle {
         style: Style {
             flex_direction: FlexDirection::ColumnReverse,
             padding: UiRect::all(Px(SPACING)),
-            size: Size::new(Percent(CENTER_BOX_SIZE), Auto),
+            size: Size::new(Auto, Auto),
             margin: UiRect::all(Px(50.0)),
             flex_grow: 1.0,
             display: Display::Flex,

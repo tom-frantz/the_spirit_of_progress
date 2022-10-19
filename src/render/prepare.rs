@@ -57,7 +57,7 @@ pub fn prepare(
 
         // TODO Change this to be dependent on the zoom
         for res0_cell in res0_cells().iter() {
-            for cell in res0_cell.get_children(1).unwrap().iter() {
+            for cell in res0_cell.get_children(2).unwrap().iter() {
                 let center = cell.to_coordinate().unwrap();
                 if center.x < -160. || center.x > 160. {
                     continue;
@@ -70,24 +70,24 @@ pub fn prepare(
                 let line_str = poly.exterior().points().skip(1);
                 let amount_of_vertices: u16 = line_str.len() as u16;
 
-                // for point in line_str {
-                //     // For each point, insert data into the buffers.
-                //     positions.push([point.x() as f32 / 180.0, point.y() as f32 / 90.0]);
-                //     colours.push(hex_world_data.cell_colour(cell).as_rgba_f32());
-                // }
-                //
-                // for last_vertex_index in 2..amount_of_vertices {
-                //     // last_vertex_index = 2: offset, offset + 1, offset + 2
-                //     // last_vertex_index = 3: offset, offset + 2, offset + 1
-                //     // etc.
-                //     indices.extend([
-                //         0 + offset,
-                //         last_vertex_index + offset - 1,
-                //         last_vertex_index + offset,
-                //     ])
-                // }
-                //
-                // offset += amount_of_vertices;
+                for point in line_str {
+                    // For each point, insert data into the buffers.
+                    positions.push([point.x() as f32 / 180.0, point.y() as f32 / 90.0]);
+                    colours.push(hex_world_data.cell_colour(cell).as_rgba_f32());
+                }
+
+                for last_vertex_index in 2..amount_of_vertices {
+                    // last_vertex_index = 2: offset, offset + 1, offset + 2
+                    // last_vertex_index = 3: offset, offset + 2, offset + 1
+                    // etc.
+                    indices.extend([
+                        0 + offset,
+                        last_vertex_index + offset - 1,
+                        last_vertex_index + offset,
+                    ])
+                }
+
+                offset += amount_of_vertices;
             }
         }
     }

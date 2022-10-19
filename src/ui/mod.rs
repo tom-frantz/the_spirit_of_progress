@@ -51,7 +51,7 @@ impl Plugin for UiPlugin {
             // .add_event::<MapInteractionEvents>()
             // .add_system(ui_click_event_consumer)
             // .add_system(click_event_generator)
-            .add_startup_system(spawn_root_ui_node)
+            // .add_startup_system(spawn_root_ui_node)
             .add_system(WeaponDesignScreen::on_change)
             .add_plugin(UiPrimitivesPlugin)
             // Debugs

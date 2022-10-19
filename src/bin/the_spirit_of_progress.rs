@@ -11,10 +11,10 @@ fn main() {
     App::new()
         // Bevy
         .insert_resource(Msaa { samples: 1 })
-        .insert_resource(WgpuSettings {
-            backends: Some(bevy::render::settings::Backends::DX12),
-            ..Default::default()
-        })
+        // .insert_resource(WgpuSettings {
+        //     backends: Some(bevy::render::settings::Backends::DX12),
+        //     ..Default::default()
+        // })
         .add_plugins(DefaultPlugins)
         .add_plugin(BevyUiPlugin)
         // Spirit of Progress
