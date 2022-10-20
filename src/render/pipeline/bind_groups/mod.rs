@@ -1,5 +1,5 @@
+use crate::render::prepare::MeshUniform;
 use bevy::{
-    pbr::MeshUniform,
     prelude::*,
     render::{
         render_resource::{BindGroup, BindGroupLayout, BindingResource, DynamicUniformBuffer},

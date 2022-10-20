@@ -1,16 +1,24 @@
-use crate::render::draw::DrawHexWorld;
-use crate::render::pipeline::bind_groups::view::HexWorldViewBindGroup;
-use crate::render::pipeline::OrthographicHexagonPipeline;
-use crate::render::HexWorldChunk;
-use bevy::core_pipeline::core_2d::Transparent2d;
-use bevy::prelude::{Commands, Component, Entity, Query, Res, ResMut};
-use bevy::render::render_phase::{DrawFunctions, RenderPhase};
-use bevy::render::render_resource::{
-    BindGroup, BindGroupDescriptor, BindGroupEntry, PipelineCache, SpecializedRenderPipelines,
+use crate::render::pipeline::bind_groups::transform::HexWorldTransformBindGroup;
+use crate::render::{
+    draw::DrawHexWorld,
+    pipeline::{bind_groups::view::HexWorldViewBindGroup, OrthographicHexagonPipeline},
+    prepare::MeshUniform,
+    HexWorldChunk,
 };
-use bevy::render::renderer::RenderDevice;
-use bevy::render::view::{ExtractedView, ViewUniforms};
-use bevy::utils::FloatOrd;
+use bevy::{
+    core_pipeline::core_2d::Transparent2d,
+    prelude::{Commands, Component, Entity, Query, Res, ResMut},
+    render::{
+        render_phase::{DrawFunctions, RenderPhase},
+        render_resource::{
+            BindGroup, BindGroupDescriptor, BindGroupEntry, DynamicUniformBuffer, PipelineCache,
+            SpecializedRenderPipelines,
+        },
+        renderer::RenderDevice,
+        view::{ExtractedView, ViewUniforms},
+    },
+    utils::FloatOrd,
+};
 
 pub fn queue(
     mut commands: Commands,
@@ -28,9 +36,14 @@ pub fn queue(
     // The view ... uniforms? I don't know what this is but I think it's the screen?
     // (or probably mor accurately, each window)?
     view_uniforms: Res<ViewUniforms>,
+    transform_uniforms: Res<DynamicUniformBuffer<MeshUniform>>,
 
     mut prepared_hexagons: Query<(Entity, &HexWorldChunk)>,
 ) {
+    if let Some(binding) = transform_uniforms.binding() {
+        commands.insert_resource(HexWorldTransformBindGroup::new(&render_device, binding));
+    }
+
     if let Some(view_binding) = view_uniforms.uniforms.binding() {
         for (entity, _view, mut transparent_phase) in views.iter_mut() {
             commands
@@ -46,6 +59,8 @@ pub fn queue(
                 .unwrap();
 
             for (entity, _hex_world) in prepared_hexagons.iter() {
+                // commands.entity(entity).insert();
+
                 transparent_phase.add(Transparent2d {
                     entity,
                     pipeline: pipeline_id,

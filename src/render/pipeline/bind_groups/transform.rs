@@ -1,7 +1,7 @@
-use bevy::pbr::MeshUniform;
+use crate::render::prepare::MeshUniform;
 use bevy::render::render_resource::{
     BindGroupDescriptor, BindGroupEntry, BindGroupLayoutDescriptor, BindGroupLayoutEntry,
-    BindingType, BufferBindingType, DynamicUniformBuffer, ShaderStages,
+    BindingType, BufferBindingType, DynamicUniformBuffer, ShaderStages, ShaderType,
 };
 use bevy::render::view::ViewUniform;
 use bevy::{
@@ -12,9 +12,8 @@ use bevy::{
     },
 };
 
-#[derive(Component)]
 pub struct HexWorldTransformBindGroup {
-    value: BindGroup,
+    pub value: BindGroup,
 }
 
 impl HexWorldTransformBindGroup {
@@ -41,7 +40,7 @@ impl HexWorldTransformBindGroup {
         })
     }
 
-    fn get_bind_group_index
+    // fn get_bind_group_index
 
     fn create_bind_group_layout(render_device: &RenderDevice) -> BindGroupLayout {
         render_device.create_bind_group_layout(&BindGroupLayoutDescriptor {
@@ -53,7 +52,7 @@ impl HexWorldTransformBindGroup {
                     has_dynamic_offset: true,
                     // TODO: change this to ViewUniform::std140_size_static once crevice fixes this!
                     // Context: https://github.com/LPGhatguy/crevice/issues/29
-                    min_binding_size: Some(ViewUniform::min_size()),
+                    min_binding_size: Some(MeshUniform::min_size()),
                 },
                 count: None,
             }],

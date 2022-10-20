@@ -11,8 +11,6 @@ use crate::{
         HexWorld, HexWorldChunk,
     },
 };
-use bevy::render::extract_component::DynamicUniformIndex;
-use bevy::render::renderer::RenderQueue;
 use bevy::{
     prelude::*,
     render::{
@@ -21,13 +19,34 @@ use bevy::{
             VertexAttributeValues,
         },
         render_resource::{
-            BindGroup, BufferInitDescriptor, BufferUsages, DynamicUniformBuffer, VertexFormat,
+            BindGroup, BufferInitDescriptor, BufferUsages, DynamicUniformBuffer, ShaderType,
+            VertexFormat,
         },
-        renderer::RenderDevice,
+        renderer::{RenderDevice, RenderQueue},
         view::{ExtractedView, ViewUniforms},
     },
 };
 use h3ron::{res0_cell_count, res0_cells, ToCoordinate, ToPolygon};
+use std::marker::PhantomData;
+
+#[derive(ShaderType, Component, Clone)]
+pub struct MeshUniform {
+    pub transform: Mat4,
+}
+
+/// Stores the index of a uniform inside of [`ComponentUniforms`].
+#[derive(Component)]
+pub struct DynamicUniformIndex<C: Component> {
+    index: u32,
+    marker: PhantomData<C>,
+}
+
+impl<C: Component> DynamicUniformIndex<C> {
+    #[inline]
+    pub fn index(&self) -> u32 {
+        self.index
+    }
+}
 
 pub const ATTRIBUTE_POSITION: MeshVertexAttribute =
     MeshVertexAttribute::new("Position", 184657321, VertexFormat::Float32x2);
@@ -151,7 +170,12 @@ pub fn prepare(
         commands
             .spawn()
             .insert(HexWorldChunk(0, gpu_mesh))
-            .insert(DynamicUniformIndex::<Mesh> {});
+            .insert(DynamicUniformIndex::<MeshUniform> {
+                index: mesh_uniforms.push(MeshUniform {
+                    transform: transform.compute_matrix(),
+                }),
+                marker: Default::default(),
+            });
     }
 
     mesh_uniforms.write_buffer(&render_device, &render_queue);

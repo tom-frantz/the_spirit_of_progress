@@ -1,4 +1,6 @@
+use crate::render::pipeline::bind_groups::transform::HexWorldTransformBindGroup;
 use crate::render::pipeline::bind_groups::view::HexWorldViewBindGroup;
+use crate::render::prepare::{DynamicUniformIndex, MeshUniform};
 use crate::render::{HexWorld, HexWorldChunk};
 use bevy::{
     core_pipeline::core_2d::Transparent2d,
@@ -35,15 +37,24 @@ impl<const I: usize> RenderCommand<Transparent2d> for SetMeshViewBindGroup<I> {
 
 pub struct SetTransformBindGroup<const I: usize>;
 impl<const I: usize> RenderCommand<Transparent2d> for SetTransformBindGroup<I> {
-    type Param = SQuery<(Read<Transform>)>;
+    type Param = (
+        SRes<HexWorldTransformBindGroup>,
+        SQuery<(Read<DynamicUniformIndex<MeshUniform>>)>,
+    );
     #[inline]
     fn render<'w>(
         view: Entity,
         item: &Transparent2d,
-        view_query: SystemParamItem<'w, '_, Self::Param>,
+        (transform_bind_group, view_query): SystemParamItem<'w, '_, Self::Param>,
         pass: &mut TrackedRenderPass<'w>,
     ) -> RenderCommandResult {
-        // pass.set_bind_group(I, &, &[]);
+        let uniform_index: &DynamicUniformIndex<MeshUniform> = view_query.get(item.entity).unwrap();
+
+        pass.set_bind_group(
+            I,
+            &transform_bind_group.into_inner().value,
+            &[uniform_index.index()],
+        );
 
         RenderCommandResult::Success
     }

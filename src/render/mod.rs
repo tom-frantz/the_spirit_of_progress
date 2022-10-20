@@ -5,21 +5,27 @@ use self::{
     },
     shader::include_ortho_hex_shader,
 };
+use crate::render::prepare::{DynamicUniformIndex, MeshUniform};
+use bevy::render::render_resource::DynamicUniformBuffer;
 use bevy::{
     core_pipeline::core_2d::Transparent2d,
-    ecs::system::lifetimeless::{Read, SQuery, SRes},
-    ecs::system::SystemParamItem,
+    ecs::system::{
+        lifetimeless::{Read, SQuery, SRes},
+        SystemParamItem,
+    },
     prelude::*,
     render::{
-        mesh::PrimitiveTopology,
-        mesh::{GpuBufferInfo, GpuMesh, Indices, MeshVertexAttribute, VertexAttributeValues},
+        mesh::{
+            GpuBufferInfo, GpuMesh, Indices, MeshVertexAttribute, PrimitiveTopology,
+            VertexAttributeValues,
+        },
         render_phase::{
             AddRenderCommand, DrawFunctions, RenderCommand, RenderCommandResult, RenderPhase,
             TrackedRenderPass,
         },
-        render_resource::VertexFormat,
         render_resource::{
             BufferInitDescriptor, BufferUsages, PipelineCache, SpecializedRenderPipelines,
+            VertexFormat,
         },
         renderer::RenderDevice,
         view::ExtractedView,
@@ -65,7 +71,8 @@ impl Plugin for RenderPlugin {
             .add_system_to_stage(RenderStage::Prepare, prepare)
             .add_system_to_stage(RenderStage::Queue, queue)
             .init_resource::<OrthographicHexagonPipeline>()
-            .init_resource::<SpecializedRenderPipelines<OrthographicHexagonPipeline>>();
+            .init_resource::<SpecializedRenderPipelines<OrthographicHexagonPipeline>>()
+            .init_resource::<DynamicUniformBuffer<MeshUniform>>();
 
         render_app.add_render_command::<Transparent2d, DrawHexWorld>();
     }
