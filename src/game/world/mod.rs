@@ -11,14 +11,18 @@ pub mod tectonics;
 
 #[derive(Component, Debug, Copy, Clone)]
 pub struct HexWorld {
-    size: usize
+    size: usize,
 }
 
 impl Default for HexWorld {
     fn default() -> Self {
-        Self {
-            size: 400
-        }
+        Self { size: 1600 }
+    }
+}
+
+impl HexWorld {
+    pub fn size(&self) -> usize {
+        self.size
     }
 }
 

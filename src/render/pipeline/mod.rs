@@ -1,3 +1,4 @@
+use crate::render::pipeline::bind_groups::transform::HexWorldTransformBindGroup;
 use crate::render::pipeline::bind_groups::view::HexWorldViewBindGroup;
 use bevy::{
     prelude::*,
@@ -30,6 +31,7 @@ pub mod bind_groups;
 pub struct OrthographicHexagonPipeline {
     // The bind group layout for the view (window) information.
     pub view_layout: BindGroupLayout,
+    pub transform_layout: BindGroupLayout,
 }
 
 impl FromWorld for OrthographicHexagonPipeline {
@@ -39,8 +41,12 @@ impl FromWorld for OrthographicHexagonPipeline {
         let render_device = world.get_resource::<RenderDevice>().unwrap();
 
         let view_layout = HexWorldViewBindGroup::create_bind_group_layout(&render_device);
+        let transform_layout = HexWorldTransformBindGroup::create_bind_group_layout(&render_device);
 
-        OrthographicHexagonPipeline { view_layout }
+        OrthographicHexagonPipeline {
+            view_layout,
+            transform_layout,
+        }
     }
 }
 
@@ -86,7 +92,10 @@ impl SpecializedRenderPipeline for OrthographicHexagonPipeline {
                     write_mask: ColorWrites::ALL,
                 })],
             }),
-            layout: Some(vec![self.view_layout.clone()]),
+            layout: Some(vec![
+                self.view_layout.clone(),
+                self.transform_layout.clone(),
+            ]),
             primitive: PrimitiveState {
                 conservative: false,
                 cull_mode: Some(Face::Back),

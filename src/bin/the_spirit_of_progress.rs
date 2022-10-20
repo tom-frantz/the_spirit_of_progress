@@ -3,6 +3,7 @@ use bevy::{
     render::{settings::WgpuSettings, texture::ImageSettings},
     ui::UiPlugin as BevyUiPlugin,
 };
+use the_spirit_of_progress::ui::theme::{Colour, MenuColour};
 use the_spirit_of_progress::{
     camera::CameraPlugin, game::world::HexWorld, render::RenderPlugin, ui::UiPlugin,
 };
@@ -11,6 +12,7 @@ fn main() {
     App::new()
         // Bevy
         .insert_resource(Msaa { samples: 1 })
+        .insert_resource(ClearColor(MenuColour::BlackPen.color()))
         // .insert_resource(WgpuSettings {
         //     backends: Some(bevy::render::settings::Backends::DX12),
         //     ..Default::default()

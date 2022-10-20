@@ -14,6 +14,15 @@ struct View {
 @group(0) @binding(0)
 var<uniform> view: View;
 
+// I nicked this from bevy_ecs_tilemap and it doesn't work :sob:
+//#import bevy_sprite::mesh2d_view_bindings
+
+struct Mesh {
+    model: mat4x4<f32>,
+    size: f32,
+};
+@group(1) @binding(0)
+var<uniform> mesh: Mesh;
 
 struct VertexInput {
     @location(0) position: vec2<f32>,
@@ -34,6 +43,13 @@ fn vs_main(
 
     var x = sin((model.position.x / 180.0) * 3.14159274 * 0.5) * cos((model.position.y / 90.0) * 3.14159274 * 0.5);
     var y = sin((model.position.y / 90.0) * 3.14159274 * 0.5);
+
+    x = x * mesh.size / view.width;
+    y = y * mesh.size / view.height;
+
+//    var x_adj = 50.0 / view.width;
+//    var y_adj = 50.0 / 200.0;
+
 
     out.clip_position = vec4<f32>(x, y, 0.1, 1.0);
     return out;

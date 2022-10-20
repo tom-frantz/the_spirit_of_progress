@@ -32,6 +32,7 @@ use std::marker::PhantomData;
 #[derive(ShaderType, Component, Clone)]
 pub struct MeshUniform {
     pub transform: Mat4,
+    pub size: f32,
 }
 
 /// Stores the index of a uniform inside of [`ComponentUniforms`].
@@ -173,6 +174,7 @@ pub fn prepare(
             .insert(DynamicUniformIndex::<MeshUniform> {
                 index: mesh_uniforms.push(MeshUniform {
                     transform: transform.compute_matrix(),
+                    size: hex_world.0.size() as f32,
                 }),
                 marker: Default::default(),
             });

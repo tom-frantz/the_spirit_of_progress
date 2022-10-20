@@ -42,7 +42,7 @@ impl HexWorldTransformBindGroup {
 
     // fn get_bind_group_index
 
-    fn create_bind_group_layout(render_device: &RenderDevice) -> BindGroupLayout {
+    pub fn create_bind_group_layout(render_device: &RenderDevice) -> BindGroupLayout {
         render_device.create_bind_group_layout(&BindGroupLayoutDescriptor {
             entries: &[BindGroupLayoutEntry {
                 binding: 0,
