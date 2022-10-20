@@ -1,4 +1,3 @@
-use crate::game::world::tectonics::WorldTectonicsData;
 use crate::render::traits::{CellRender, QueryCellRender};
 use bevy::prelude::*;
 use h3ron::H3Cell;

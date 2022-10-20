@@ -1,16 +1,21 @@
-use bevy::render::render_resource::{
-    ColorWrites, Face, FrontFace, MultisampleState, PolygonMode, PrimitiveState, PrimitiveTopology,
-};
+use crate::render::pipeline::bind_groups::view::HexWorldViewBindGroup;
 use bevy::{
     prelude::*,
     reflect::TypeUuid,
     render::{
         render_resource::{
+            BindGroupLayout, BindGroupLayoutDescriptor, BindGroupLayoutEntry, BindingType,
+            BufferBindingType, ColorWrites, Face, FrontFace, MultisampleState, PolygonMode,
+            PrimitiveState, PrimitiveTopology, ShaderStages, ShaderType,
+        },
+        render_resource::{
             BlendComponent, BlendFactor, BlendOperation, BlendState, ColorTargetState,
             FragmentState, RenderPipelineDescriptor, SpecializedRenderPipeline, TextureFormat,
             VertexBufferLayout, VertexFormat, VertexState, VertexStepMode,
         },
+        renderer::RenderDevice,
         texture::BevyDefault,
+        view::ViewUniform,
     },
 };
 
@@ -19,12 +24,23 @@ pub const ORTHOGRAPHIC_HEXAGON_VERTEX_SHADER_HANDLE: HandleUntyped =
 pub const ORTHOGRAPHIC_HEXAGON_FRAGMENT_SHADER_HANDLE: HandleUntyped =
     HandleUntyped::weak_from_u64(Shader::TYPE_UUID, 1321874116519816237);
 
-pub struct OrthographicHexagonPipeline {}
+pub mod bind_groups;
+
+#[derive(Clone)]
+pub struct OrthographicHexagonPipeline {
+    // The bind group layout for the view (window) information.
+    pub view_layout: BindGroupLayout,
+}
 
 impl FromWorld for OrthographicHexagonPipeline {
     fn from_world(world: &mut World) -> Self {
-        println!("CREATING PIPELINE FROM WORLD!");
-        OrthographicHexagonPipeline {}
+        debug!("CREATING PIPELINE FROM WORLD!");
+        let world = world.cell();
+        let render_device = world.get_resource::<RenderDevice>().unwrap();
+
+        let view_layout = HexWorldViewBindGroup::create_bind_group_layout(&render_device);
+
+        OrthographicHexagonPipeline { view_layout }
     }
 }
 
@@ -32,12 +48,9 @@ impl SpecializedRenderPipeline for OrthographicHexagonPipeline {
     type Key = ();
 
     fn specialize(&self, key: Self::Key) -> RenderPipelineDescriptor {
-        // println!("SPECIALIZING PIPELINE!");
         let formats = vec![
             // Position
             VertexFormat::Float32x2,
-            // Uv
-            // VertexFormat::Float32x4,
             // Color
             VertexFormat::Float32x4,
         ];
@@ -45,9 +58,7 @@ impl SpecializedRenderPipeline for OrthographicHexagonPipeline {
         let vertex_layout =
             VertexBufferLayout::from_vertex_formats(VertexStepMode::Vertex, formats);
 
-        // println!("VERTEX LAYOUUT {vertex_layout:?}");
-
-        let x = RenderPipelineDescriptor {
+        RenderPipelineDescriptor {
             vertex: VertexState {
                 shader: ORTHOGRAPHIC_HEXAGON_VERTEX_SHADER_HANDLE.typed::<Shader>(),
                 entry_point: "vs_main".into(),
@@ -75,7 +86,7 @@ impl SpecializedRenderPipeline for OrthographicHexagonPipeline {
                     write_mask: ColorWrites::ALL,
                 })],
             }),
-            layout: Some(vec![]),
+            layout: Some(vec![self.view_layout.clone()]),
             primitive: PrimitiveState {
                 conservative: false,
                 cull_mode: Some(Face::Back),
@@ -92,10 +103,6 @@ impl SpecializedRenderPipeline for OrthographicHexagonPipeline {
                 alpha_to_coverage_enabled: false,
             },
             label: Some("orthographic_hexagon_pipeline".into()),
-        };
-
-        // println!("PIPELINE {x:?}");
-
-        x
+        }
     }
 }

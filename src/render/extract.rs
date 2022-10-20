@@ -24,10 +24,11 @@ where
 }
 
 pub fn extract(mut commands: Commands, hex_world: Extract<HexWorldQuery>) {
-    for (entity, hex_world, map_mode, elevation_data, tectonics_data) in hex_world.iter() {
+    for (entity, hex_world, transform, map_mode, elevation_data, tectonics_data) in hex_world.iter() {
         let mut entity_commands = commands.spawn();
         entity_commands
             .insert(ExtractedHexWorld(*hex_world))
+            .insert(transform.clone())
             .insert(ExtractedHexWorldMapMode(*map_mode));
 
         match map_mode {

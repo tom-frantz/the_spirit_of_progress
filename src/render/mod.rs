@@ -27,10 +27,12 @@ use bevy::{
     },
     utils::FloatOrd,
 };
+use draw::DrawHexWorld;
 use extract::extract;
 use prepare::prepare;
 use queue::queue;
 
+mod draw;
 mod pipeline;
 mod shader;
 mod utils;
@@ -72,60 +74,12 @@ impl Plugin for RenderPlugin {
 type LatLngVertex = [f32; 2];
 
 // TODO make this actually useful.
-struct HexWorld(pub u8, GpuMesh);
+pub struct HexWorld(pub u8, GpuMesh);
 
 #[derive(Component, Debug)]
-pub struct HexWorldId(u8);
+pub struct HexWorldChunk(pub u8, GpuMesh);
 impl HexWorld {
     pub fn new(id: u8, gpu_mesh: GpuMesh) -> Self {
         HexWorld(id, gpu_mesh)
-    }
-}
-
-struct DrawHexWorld;
-impl RenderCommand<Transparent2d> for DrawHexWorld {
-    type Param = (
-        SRes<PipelineCache>,
-        SRes<HexWorld>,
-        SQuery<(Read<HexWorldId>)>,
-    );
-
-    fn render<'w>(
-        _view: Entity,
-        item: &Transparent2d,
-        (pipeline_cache, hex_world_res, hex_world_query): SystemParamItem<'w, '_, Self::Param>,
-        pass: &mut TrackedRenderPass<'w>,
-    ) -> RenderCommandResult {
-        if let Some(pipeline) = pipeline_cache
-            .into_inner()
-            .get_render_pipeline(item.pipeline)
-        {
-            pass.set_render_pipeline(pipeline);
-        } else {
-            return RenderCommandResult::Failure;
-        }
-
-        let (_hex_world_id) = hex_world_query.get(item.entity).unwrap();
-
-        // Get the gpu mesh from the prepare stage.
-        let gpu_mesh: &GpuMesh = &hex_world_res.into_inner().1;
-
-        // Set up the render pass with the data from the GPU mesh.
-        pass.set_vertex_buffer(0, gpu_mesh.vertex_buffer.slice(..));
-        match &gpu_mesh.buffer_info {
-            GpuBufferInfo::Indexed {
-                buffer,
-                index_format,
-                count,
-            } => {
-                pass.set_index_buffer(buffer.slice(..), 0, *index_format);
-                pass.draw_indexed(0..*count, 0, 0..1);
-            }
-            GpuBufferInfo::NonIndexed { vertex_count } => {
-                pass.draw(0..*vertex_count, 0..1);
-            }
-        }
-
-        RenderCommandResult::Success
     }
 }

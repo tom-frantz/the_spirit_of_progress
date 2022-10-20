@@ -9,8 +9,18 @@ mod collections;
 pub mod elevation;
 pub mod tectonics;
 
-#[derive(Component, Debug, Default, Copy, Clone)]
-pub struct HexWorld;
+#[derive(Component, Debug, Copy, Clone)]
+pub struct HexWorld {
+    size: usize
+}
+
+impl Default for HexWorld {
+    fn default() -> Self {
+        Self {
+            size: 400
+        }
+    }
+}
 
 #[derive(Component, Debug, Copy, Clone)]
 pub enum HexWorldMapMode {
@@ -30,6 +40,7 @@ pub type HexWorldQuery<'w, 's, 'c> = Query<
     (
         Entity,
         &'c HexWorld,
+        &'c Transform,
         &'c HexWorldMapMode,
         &'c WorldElevationData,
         &'c WorldTectonicsData,

@@ -6,10 +6,13 @@ use crate::{
     },
     render::{
         extract::{ExtractedHexWorld, ExtractedHexWorldData, ExtractedHexWorldMapMode},
+        pipeline::bind_groups::{transform::HexWorldTransformBindGroup, MeshUniformBuffer},
         traits::QueryCellRender,
-        HexWorld, HexWorldId,
+        HexWorld, HexWorldChunk,
     },
 };
+use bevy::render::extract_component::DynamicUniformIndex;
+use bevy::render::renderer::RenderQueue;
 use bevy::{
     prelude::*,
     render::{
@@ -17,8 +20,11 @@ use bevy::{
             GpuBufferInfo, GpuMesh, Indices, MeshVertexAttribute, PrimitiveTopology,
             VertexAttributeValues,
         },
-        render_resource::{BufferInitDescriptor, BufferUsages, VertexFormat},
+        render_resource::{
+            BindGroup, BufferInitDescriptor, BufferUsages, DynamicUniformBuffer, VertexFormat,
+        },
         renderer::RenderDevice,
+        view::{ExtractedView, ViewUniforms},
     },
 };
 use h3ron::{res0_cell_count, res0_cells, ToCoordinate, ToPolygon};
@@ -31,22 +37,30 @@ pub const ATTRIBUTE_COLOR: MeshVertexAttribute =
 
 pub fn prepare(
     mut commands: Commands,
+
+    // Uniform buffers
+    mut mesh_uniforms: ResMut<MeshUniformBuffer>,
+
+    // The GPU device that we're using
     render_device: Res<RenderDevice>,
+    render_queue: Res<RenderQueue>,
+
     hex_world: Query<(
         &ExtractedHexWorld,
+        &Transform,
         &ExtractedHexWorldMapMode,
         Option<&ExtractedHexWorldData<WorldElevationData>>,
         Option<&ExtractedHexWorldData<WorldTectonicsData>>,
     )>,
 ) {
-    // let mut tiles = Vec::new();
+    mesh_uniforms.clear();
+    // For each hex world
+    for (hex_world, transform, map_mode, elevation_data, tectonics_data) in hex_world.iter() {
+        // Store data somewhere before it's converted for the GPU
+        let mut positions: Vec<[f32; 2]> = Vec::new();
+        let mut colours: Vec<[f32; 4]> = Vec::new();
+        let mut indices: Vec<u16> = Vec::new();
 
-    // Store data somewhere before it's converted for the GPU
-    let mut positions: Vec<[f32; 2]> = Vec::new();
-    let mut colours: Vec<[f32; 4]> = Vec::new();
-    let mut indices: Vec<u16> = Vec::new();
-
-    for (_hex_world, map_mode, elevation_data, tectonics_data) in hex_world.iter() {
         // Find what data we have based on the map mode.
         let hex_world_data: &dyn QueryCellRender = match map_mode.0 {
             HexWorldMapMode::Elevation => elevation_data.unwrap(),
@@ -72,7 +86,9 @@ pub fn prepare(
 
                 for point in line_str {
                     // For each point, insert data into the buffers.
-                    positions.push([point.x() as f32 / 180.0, point.y() as f32 / 90.0]);
+
+                    // Transform to local coordinates based on transform / size
+                    positions.push([point.x() as f32, point.y() as f32]);
                     colours.push(hex_world_data.cell_colour(cell).as_rgba_f32());
                 }
 
@@ -90,52 +106,55 @@ pub fn prepare(
                 offset += amount_of_vertices;
             }
         }
+        // Create a mesh to get data from, for the render device.
+        let mut mesh = Mesh::new(PrimitiveTopology::TriangleList);
+
+        // Insert data into the mesh, so that it can then be sent to the GPU
+        mesh.insert_attribute(
+            ATTRIBUTE_POSITION,
+            VertexAttributeValues::Float32x2(positions),
+        );
+        mesh.insert_attribute(ATTRIBUTE_COLOR, VertexAttributeValues::Float32x4(colours));
+        mesh.set_indices(Some(Indices::U16(indices)));
+
+        // Create the buffers with data for the GPU
+        let vertex_buffer_data = mesh.get_vertex_buffer_data();
+        let vertex_buffer = render_device.create_buffer_with_data(&BufferInitDescriptor {
+            label: Some("hex_buffer"),
+            contents: &vertex_buffer_data,
+            usage: BufferUsages::VERTEX,
+        });
+
+        let buffer_info = mesh.get_index_buffer_bytes().map_or(
+            GpuBufferInfo::NonIndexed {
+                vertex_count: mesh.count_vertices() as u32,
+            },
+            |data| GpuBufferInfo::Indexed {
+                buffer: render_device.create_buffer_with_data(&BufferInitDescriptor {
+                    usage: BufferUsages::INDEX,
+                    contents: data,
+                    label: Some("Mesh Index Buffer"),
+                }),
+                count: mesh.indices().unwrap().len() as u32,
+                index_format: mesh.indices().unwrap().into(),
+            },
+        );
+
+        // Finalize the shape of this for the GPU. This will be used in the draw function!
+        let gpu_mesh = GpuMesh {
+            vertex_buffer,
+            buffer_info,
+            primitive_topology: PrimitiveTopology::TriangleList,
+            layout: mesh.get_mesh_vertex_buffer_layout(),
+        };
+
+        commands
+            .spawn()
+            .insert(HexWorldChunk(0, gpu_mesh))
+            .insert(DynamicUniformIndex::<Mesh> {});
     }
 
-    // Create a mesh to get data from, for the render device.
-    let mut mesh = Mesh::new(PrimitiveTopology::TriangleList);
-
-    // Insert data into the mesh, so that it can then be sent to the GPU
-    mesh.insert_attribute(
-        ATTRIBUTE_POSITION,
-        VertexAttributeValues::Float32x2(positions),
-    );
-    mesh.insert_attribute(ATTRIBUTE_COLOR, VertexAttributeValues::Float32x4(colours));
-    mesh.set_indices(Some(Indices::U16(indices)));
-
-    // Create the buffers with data for the GPU
-    let vertex_buffer_data = mesh.get_vertex_buffer_data();
-    let vertex_buffer = render_device.create_buffer_with_data(&BufferInitDescriptor {
-        label: Some("hex_buffer"),
-        contents: &vertex_buffer_data,
-        usage: BufferUsages::VERTEX,
-    });
-
-    let buffer_info = mesh.get_index_buffer_bytes().map_or(
-        GpuBufferInfo::NonIndexed {
-            vertex_count: mesh.count_vertices() as u32,
-        },
-        |data| GpuBufferInfo::Indexed {
-            buffer: render_device.create_buffer_with_data(&BufferInitDescriptor {
-                usage: BufferUsages::INDEX,
-                contents: data,
-                label: Some("Mesh Index Buffer"),
-            }),
-            count: mesh.indices().unwrap().len() as u32,
-            index_format: mesh.indices().unwrap().into(),
-        },
-    );
-
-    // Finalize the shape of this for the GPU. This will be used in the draw function!
-    let gpu_mesh = GpuMesh {
-        vertex_buffer,
-        buffer_info,
-        primitive_topology: PrimitiveTopology::TriangleList,
-        layout: mesh.get_mesh_vertex_buffer_layout(),
-    };
-
-    commands.insert_resource(HexWorld::new(0, gpu_mesh));
-    commands.spawn().insert(HexWorldId(0));
+    mesh_uniforms.write_buffer(&render_device, &render_queue);
 }
 
 #[cfg(test)]
