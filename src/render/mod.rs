@@ -81,7 +81,7 @@ impl Plugin for RenderPlugin {
 type LatLngVertex = [f32; 2];
 
 // TODO make this actually useful.
-pub struct HexWorld(pub u8, GpuMesh);
+pub(self) struct HexWorld(pub u8, GpuMesh);
 
 #[derive(Component, Debug)]
 pub struct HexWorldChunk(pub u8, GpuMesh);

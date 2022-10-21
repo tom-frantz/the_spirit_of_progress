@@ -1,4 +1,12 @@
+use crate::game::world::HexWorld;
 use bevy::prelude::*;
+use std::f32::consts::PI;
+
+const ZOOM_OUT_KEYCODE: KeyCode = KeyCode::X;
+const ZOOM_IN_KEYCODE: KeyCode = KeyCode::Z;
+
+const ROTATE_X_KEYCODE: KeyCode = KeyCode::Q;
+const ROTATE_COUNTER_X_KEYCODE: KeyCode = KeyCode::E;
 
 #[derive(Component)]
 pub struct MainCamera;
@@ -10,6 +18,7 @@ impl Plugin for CameraPlugin {
     fn build(&self, app: &mut App) {
         app.add_startup_system(create_camera)
             .add_system(camera_move_system)
+            .add_system(camera_rotate_system)
             .add_system(camera_zoom_system);
     }
 }
@@ -27,17 +36,34 @@ pub fn camera_zoom_system(
     let mut transform = query.get_single_mut().unwrap();
     let mut scale = transform.scale;
 
-    if keyboard_input.just_pressed(KeyCode::E) {
+    if keyboard_input.just_pressed(ZOOM_OUT_KEYCODE) {
         scale *= 2.;
     }
 
-    if keyboard_input.just_pressed(KeyCode::Q) {
+    if keyboard_input.just_pressed(ZOOM_IN_KEYCODE) {
         scale /= 2.;
     }
 
-    // println!("{}", log_scale);
+    // println!("{}", scale);
 
     transform.scale = scale
+}
+
+pub fn camera_rotate_system(
+    keyboard_input: Res<Input<KeyCode>>,
+    mut query: Query<(&mut Transform), With<HexWorld>>,
+) {
+    let mut transform = query.get_single_mut().unwrap();
+
+    if keyboard_input.pressed(ROTATE_X_KEYCODE) {
+        transform.rotate_y(PI / 60.);
+    }
+
+    if keyboard_input.pressed(ROTATE_COUNTER_X_KEYCODE) {
+        transform.rotate_y(-PI / 60.);
+    }
+
+    println!("{:?}", transform.rotation);
 }
 
 pub fn camera_move_system(

@@ -117,8 +117,8 @@ pub fn prepare(
                     // last_vertex_index = 3: offset, offset + 2, offset + 1
                     // etc.
                     indices.extend([
-                        0 + offset,
                         last_vertex_index + offset - 1,
+                        0 + offset,
                         last_vertex_index + offset,
                     ])
                 }

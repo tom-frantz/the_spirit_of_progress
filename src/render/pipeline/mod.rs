@@ -98,7 +98,7 @@ impl SpecializedRenderPipeline for OrthographicHexagonPipeline {
             ]),
             primitive: PrimitiveState {
                 conservative: false,
-                cull_mode: Some(Face::Back),
+                cull_mode: None,
                 front_face: FrontFace::Ccw,
                 polygon_mode: PolygonMode::Fill,
                 strip_index_format: None,

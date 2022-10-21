@@ -63,6 +63,7 @@ pub struct HexWorldBundle {
 impl HexWorld {
     pub fn new() -> HexWorldBundle {
         HexWorldBundle {
+            transform: Transform::from_translation(Vec3::new(0., 0., 500.)),
             ..Default::default()
         }
     }

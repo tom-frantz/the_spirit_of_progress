@@ -43,14 +43,18 @@ fn vs_main(
 
     var x = sin((model.position.x / 180.0) * 3.14159274 * 0.5) * cos((model.position.y / 90.0) * 3.14159274 * 0.5);
     var y = sin((model.position.y / 90.0) * 3.14159274 * 0.5);
+    var z = cos((model.position.x / 180.0) * 3.14159274 * 0.5) * cos((model.position.y / 90.0) * 3.14159274 * 0.5);
 
-    x = x * mesh.size / view.width;
-    y = y * mesh.size / view.height;
+    x = x * mesh.size / 8.0;
+    y = y * mesh.size / 8.0;
+    z = z * mesh.size / 8.0;
 
 //    var x_adj = 50.0 / view.width;
 //    var y_adj = 50.0 / 200.0;
 
 
-    out.clip_position = vec4<f32>(x, y, 0.1, 1.0);
+    out.clip_position = vec4<f32>(x, y, z, 1.0);
+    out.clip_position = mesh.model * out.clip_position;
+    out.clip_position = view.view_proj * out.clip_position;
     return out;
 }
