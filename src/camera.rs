@@ -1,6 +1,7 @@
 use crate::game::world::HexWorld;
 use bevy::prelude::*;
 use std::f32::consts::PI;
+use std::f64::consts::TAU;
 
 const ZOOM_OUT_KEYCODE: KeyCode = KeyCode::X;
 const ZOOM_IN_KEYCODE: KeyCode = KeyCode::Z;
@@ -55,15 +56,14 @@ pub fn camera_rotate_system(
 ) {
     let mut transform = query.get_single_mut().unwrap();
 
+    let speed = TAU as f32 / 60. / 4.;
     if keyboard_input.pressed(ROTATE_X_KEYCODE) {
-        transform.rotate_y(PI / 60.);
+        transform.rotate_y(speed);
     }
 
     if keyboard_input.pressed(ROTATE_COUNTER_X_KEYCODE) {
-        transform.rotate_y(-PI / 60.);
+        transform.rotate_y(-speed);
     }
-
-    println!("{:?}", transform.rotation);
 }
 
 pub fn camera_move_system(

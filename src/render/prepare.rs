@@ -27,6 +27,7 @@ use bevy::{
     },
 };
 use h3ron::{res0_cell_count, res0_cells, ToCoordinate, ToPolygon};
+use std::cmp::Ordering;
 use std::marker::PhantomData;
 
 #[derive(ShaderType, Component, Clone)]
@@ -92,11 +93,6 @@ pub fn prepare(
         // TODO Change this to be dependent on the zoom
         for res0_cell in res0_cells().iter() {
             for cell in res0_cell.get_children(2).unwrap().iter() {
-                let center = cell.to_coordinate().unwrap();
-                if center.x < -160. || center.x > 160. {
-                    continue;
-                }
-
                 // Get the primitive points to use.
                 let poly = cell.to_polygon().expect("Should be legit lmao");
                 // Skip the first: The first and last point are the same, to close the line string.

@@ -41,9 +41,19 @@ fn vs_main(
     var out: VertexOutput;
     out.color = model.color;
 
-    var x = sin((model.position.x / 180.0) * 3.14159274 * 0.5) * cos((model.position.y / 90.0) * 3.14159274 * 0.5);
-    var y = sin((model.position.y / 90.0) * 3.14159274 * 0.5);
-    var z = cos((model.position.x / 180.0) * 3.14159274 * 0.5) * cos((model.position.y / 90.0) * 3.14159274 * 0.5);
+    var pi = 3.14159274;
+
+    var lat = model.position.y;
+    var lon = model.position.x;
+
+    var cosLat = cos(lat * pi / 180.0);
+    var sinLat = sin(lat * pi / 180.0);
+    var cosLon = cos(lon * pi / 180.0);
+    var sinLon = sin(lon * pi / 180.0);
+
+    var x = cosLat * cosLon;
+    var y = cosLat * sinLon;
+    var z = sinLat;
 
     x = x * mesh.size / 8.0;
     y = y * mesh.size / 8.0;
