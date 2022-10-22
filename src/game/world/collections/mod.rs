@@ -8,7 +8,6 @@ use h3ron::{res0_cells, H3Cell, Index as H3Index};
 use std::{
     fmt::Debug,
     ops::{Index, IndexMut},
-    process::id,
 };
 
 pub mod cell;

@@ -1,18 +1,17 @@
-use crate::render::pipeline::bind_groups::transform::HexWorldTransformBindGroup;
-use crate::render::pipeline::bind_groups::view::HexWorldViewBindGroup;
+use crate::render::pipeline::bind_groups::{
+    transform::HexWorldTransformBindGroup, view::HexWorldViewBindGroup,
+};
 use bevy::{
     prelude::*,
     reflect::TypeUuid,
     render::{
         render_resource::{
-            BindGroupLayout, BindGroupLayoutDescriptor, BindGroupLayoutEntry, BindingType,
-            BufferBindingType, ColorWrites, Face, FrontFace, MultisampleState, PolygonMode,
-            PrimitiveState, PrimitiveTopology, ShaderStages, ShaderType,
-        },
-        render_resource::{
-            BlendComponent, BlendFactor, BlendOperation, BlendState, ColorTargetState,
-            FragmentState, RenderPipelineDescriptor, SpecializedRenderPipeline, TextureFormat,
-            VertexBufferLayout, VertexFormat, VertexState, VertexStepMode,
+            BindGroupLayout, BindGroupLayoutEntry, BindingType, BlendComponent, BlendFactor,
+            BlendOperation, BlendState, BufferBindingType, ColorTargetState, ColorWrites, Face,
+            FragmentState, FrontFace, MultisampleState, PolygonMode, PrimitiveState,
+            PrimitiveTopology, RenderPipelineDescriptor, ShaderStages, ShaderType,
+            SpecializedRenderPipeline, TextureFormat, VertexBufferLayout, VertexFormat,
+            VertexState, VertexStepMode,
         },
         renderer::RenderDevice,
         texture::BevyDefault,
@@ -53,7 +52,7 @@ impl FromWorld for OrthographicHexagonPipeline {
 impl SpecializedRenderPipeline for OrthographicHexagonPipeline {
     type Key = ();
 
-    fn specialize(&self, key: Self::Key) -> RenderPipelineDescriptor {
+    fn specialize(&self, _key: Self::Key) -> RenderPipelineDescriptor {
         let formats = vec![
             // Position
             VertexFormat::Float32x2,

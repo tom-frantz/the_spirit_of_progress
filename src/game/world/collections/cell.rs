@@ -1,8 +1,8 @@
-use h3ron::{collections::indexvec::IndexVec, H3Cell, Index as CellIndex};
+use h3ron::{H3Cell, Index as CellIndex};
 use std::fmt::Debug;
 use std::ops::{Deref, DerefMut, Index, IndexMut};
 
-pub const APPROX_FIVE_KM_SQUARE_RESOLUTION: u8 = 7; // 5.161293360
+pub const _APPROX_FIVE_KM_SQUARE_RESOLUTION: u8 = 7; // 5.161293360
 pub const APPROX_ONE_KM_SQUARE_RESOLUTION: u8 = 8; // 0.737327598
 
 #[derive(Debug)]

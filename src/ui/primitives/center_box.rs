@@ -1,9 +1,9 @@
-use crate::ui::primitives::header::render_header;
-use crate::ui::theme::SPACING;
-use crate::ui::theme::{Colour, MenuColour};
-use crate::ui::RootElement::CenterBox;
-use bevy::prelude::Val::*;
-use bevy::prelude::*;
+use crate::ui::{
+    primitives::header::render_header,
+    theme::{Colour, MenuColour, SPACING},
+    RootElement::CenterBox,
+};
+use bevy::prelude::{Val::*, *};
 
 pub fn render_center_box<T>(parent: &mut ChildBuilder, spawn_children: T)
 where
@@ -21,7 +21,7 @@ where
 }
 
 fn background_bundle() -> NodeBundle {
-    const CENTER_BOX_SIZE: f32 = 80.0;
+    const _CENTER_BOX_SIZE: f32 = 80.0;
     NodeBundle {
         color: MenuColour::BorderBackground.ui_color(),
 

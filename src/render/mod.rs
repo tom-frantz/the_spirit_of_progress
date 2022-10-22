@@ -5,12 +5,11 @@ use self::{
     },
     shader::include_ortho_hex_shader,
 };
-use crate::render::prepare::{DynamicUniformIndex, MeshUniform};
-use bevy::render::render_resource::DynamicUniformBuffer;
+use crate::render::prepare::MeshUniform;
 use bevy::{
     core_pipeline::core_2d::Transparent2d,
     ecs::system::{
-        lifetimeless::{Read, SQuery, SRes},
+        lifetimeless::{SQuery, SRes},
         SystemParamItem,
     },
     prelude::*,
@@ -24,8 +23,8 @@ use bevy::{
             TrackedRenderPass,
         },
         render_resource::{
-            BufferInitDescriptor, BufferUsages, PipelineCache, SpecializedRenderPipelines,
-            VertexFormat,
+            BufferInitDescriptor, BufferUsages, DynamicUniformBuffer, PipelineCache,
+            SpecializedRenderPipelines, VertexFormat,
         },
         renderer::RenderDevice,
         view::ExtractedView,
@@ -77,8 +76,6 @@ impl Plugin for RenderPlugin {
         render_app.add_render_command::<Transparent2d, DrawHexWorld>();
     }
 }
-
-type LatLngVertex = [f32; 2];
 
 // TODO make this actually useful.
 pub(self) struct HexWorld(pub u8, GpuMesh);

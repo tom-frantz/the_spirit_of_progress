@@ -1,10 +1,12 @@
-use crate::ui::primitives::sidebar::render_sidebar;
-use crate::ui::primitives::UiPrimitivesPlugin;
-use crate::ui::screens::weapon_design::{WeaponDesignMode, WeaponDesignScreen};
-use crate::ui::screens::Screen;
-use crate::ui::theme::{MenuColour, SPACING};
-use bevy::prelude::Val::{Auto, Percent, Px};
-use bevy::prelude::*;
+use crate::ui::{
+    primitives::UiPrimitivesPlugin,
+    screens::{weapon_design::WeaponDesignScreen, Screen},
+    theme::SPACING,
+};
+use bevy::prelude::{
+    Val::{Auto, Percent, Px},
+    *,
+};
 
 mod screens;
 

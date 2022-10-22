@@ -1,7 +1,9 @@
-use crate::render::pipeline::bind_groups::transform::HexWorldTransformBindGroup;
-use crate::render::pipeline::bind_groups::view::HexWorldViewBindGroup;
-use crate::render::prepare::{DynamicUniformIndex, MeshUniform};
-use crate::render::{HexWorld, HexWorldChunk};
+use crate::render::{
+    pipeline::bind_groups::{transform::HexWorldTransformBindGroup, view::HexWorldViewBindGroup},
+    prepare::{DynamicUniformIndex, MeshUniform},
+    HexWorldChunk,
+};
+
 use bevy::{
     core_pipeline::core_2d::Transparent2d,
     ecs::system::{
@@ -39,11 +41,11 @@ pub struct SetTransformBindGroup<const I: usize>;
 impl<const I: usize> RenderCommand<Transparent2d> for SetTransformBindGroup<I> {
     type Param = (
         SRes<HexWorldTransformBindGroup>,
-        SQuery<(Read<DynamicUniformIndex<MeshUniform>>)>,
+        SQuery<Read<DynamicUniformIndex<MeshUniform>>>,
     );
     #[inline]
     fn render<'w>(
-        view: Entity,
+        _view: Entity,
         item: &Transparent2d,
         (transform_bind_group, view_query): SystemParamItem<'w, '_, Self::Param>,
         pass: &mut TrackedRenderPass<'w>,
@@ -64,7 +66,7 @@ pub type DrawHexWorld = (SetMeshViewBindGroup<0>, SetTransformBindGroup<1>, Draw
 
 pub struct DrawMesh;
 impl RenderCommand<Transparent2d> for DrawMesh {
-    type Param = (SRes<PipelineCache>, SQuery<(Read<HexWorldChunk>)>);
+    type Param = (SRes<PipelineCache>, SQuery<Read<HexWorldChunk>>);
 
     fn render<'w>(
         _view: Entity,
@@ -81,7 +83,7 @@ impl RenderCommand<Transparent2d> for DrawMesh {
             return RenderCommandResult::Failure;
         }
 
-        for (hex_world) in hex_world_query.iter_inner() {
+        for hex_world in hex_world_query.iter_inner() {
             // Get the gpu mesh from the prepare stage.
             let gpu_mesh: &GpuMesh = &hex_world.1;
 

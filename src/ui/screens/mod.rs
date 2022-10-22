@@ -1,6 +1,5 @@
-use crate::ui::RootElement;
+use crate::ui::{primitives::root::get_root_node_bundle, RootElement};
 use bevy::prelude::*;
-use crate::ui::primitives::root::get_root_node_bundle;
 
 pub mod weapon_design;
 
@@ -19,10 +18,10 @@ where
         mut commands: Commands,
         asset_server: Res<AssetServer>,
 
-        root_element_query: Query<(Entity), (&RootElement)>,
+        root_element_query: Query<Entity, &RootElement>,
         screen_query: Query<
             (Entity, &Visibility, &mut Self),
-            (Or<(Changed<Self>, Changed<Visibility>)>),
+            Or<(Changed<Self>, Changed<Visibility>)>,
         >,
     ) {
         for (entity, visibility, self_component) in screen_query.iter() {
@@ -39,14 +38,8 @@ where
                 };
 
                 root_el.with_children(|child_builder| {
-                    Self::draw(
-                        child_builder,
-                        &asset_server,
-                        entity,
-                        self_component,
-                    )
+                    Self::draw(child_builder, &asset_server, entity, self_component)
                 });
-
             }
         }
     }

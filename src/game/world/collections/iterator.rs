@@ -1,4 +1,4 @@
-use super::{CellData, HexWorldCell, HexWorldData};
+use super::{HexWorldCell, HexWorldData};
 use h3ron::H3Cell;
 use std::fmt::Debug;
 
