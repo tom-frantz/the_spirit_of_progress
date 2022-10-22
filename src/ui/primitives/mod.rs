@@ -7,6 +7,8 @@ pub mod root;
 pub mod center_box;
 pub mod sidebar;
 
+pub mod ui_box;
+
 pub struct UiPrimitivesPlugin;
 
 impl Plugin for UiPrimitivesPlugin {

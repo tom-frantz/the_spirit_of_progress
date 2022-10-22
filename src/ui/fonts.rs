@@ -11,8 +11,8 @@ pub enum Typography {
 impl Typography {
     const fn font_handle(&self) -> &str {
         match self {
-            Typography::Title => "fonts/Pixolde/Pixolde-Bold.ttf",
-            Typography::Subtitle => "fonts/Pixolde/Pixolde-Bold.ttf",
+            Typography::Title => "fonts/Pixolde/Pixolde.ttf",
+            Typography::Subtitle => "fonts/Pixolde/Pixolde.ttf",
             Typography::Body => "fonts/Pixolde/Pixolde.ttf",
             Typography::BodyBold => "fonts/Pixolde/Pixolde-Bold.ttf",
         }
@@ -28,15 +28,26 @@ impl Typography {
     }
 
     fn font_size(&self) -> f32 {
+        let RES_SCALING = 1.5;
         match self {
-            Typography::Title => 46.0,
-            Typography::Subtitle => 34.0,
-            Typography::Body => 16.0,
-            Typography::BodyBold => 16.0,
+            Typography::Title => 46.0 * RES_SCALING,
+            Typography::Subtitle => 32.0 * RES_SCALING,
+            Typography::Body => 16.0 * RES_SCALING,
+            Typography::BodyBold => 16.0 * RES_SCALING,
         }
     }
 
-    pub fn with_section<S>(&self, section: S, asset_server: &AssetServer) -> Text
+    pub fn with_section<S>(&self, section: S, asset_server: &AssetServer) -> TextBundle
+    where
+        S: Into<String>,
+    {
+        TextBundle {
+            text: self.text_section(section, asset_server),
+            ..default()
+        }
+    }
+
+    pub fn text_section<S>(&self, section: S, asset_server: &AssetServer) -> Text
     where
         S: Into<String>,
     {

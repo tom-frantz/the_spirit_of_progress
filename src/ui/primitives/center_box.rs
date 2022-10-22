@@ -5,7 +5,12 @@ use crate::ui::{
 };
 use bevy::prelude::{Val::*, *};
 
-pub fn render_center_box<T>(parent: &mut ChildBuilder, spawn_children: T)
+#[derive(Default)]
+pub struct CenterBoxProps {
+    pub bare: bool,
+}
+
+pub fn render_center_box<T>(props: CenterBoxProps, parent: &mut ChildBuilder, spawn_children: T)
 where
     T: FnOnce(&mut ChildBuilder) -> (),
 {
@@ -13,9 +18,9 @@ where
         .spawn_bundle(background_bundle())
         .insert(CenterBox)
         .with_children(|center_box| {
-            render_header(center_box);
+            // render_header(center_box);
             center_box
-                .spawn_bundle(content_bundle())
+                .spawn_bundle(content_bundle(props.bare))
                 .with_children(spawn_children);
         });
 }
@@ -38,12 +43,19 @@ fn background_bundle() -> NodeBundle {
     }
 }
 
-fn content_bundle() -> NodeBundle {
+fn content_bundle(bare: bool) -> NodeBundle {
+    let color = if bare {
+        UiColor::from(Color::NONE)
+    } else {
+        MenuColour::Background.ui_color()
+    };
+
     NodeBundle {
-        color: MenuColour::Background.ui_color(),
+        color,
         style: Style {
+            padding: UiRect::all(Px(8.)),
             flex_direction: FlexDirection::ColumnReverse,
-            justify_content: JustifyContent::FlexStart,
+            align_items: AlignItems::FlexStart,
             size: Size::new(Percent(100.0), Auto),
             flex_grow: 1.0,
             ..default()

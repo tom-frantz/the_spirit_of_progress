@@ -1,3 +1,4 @@
+use crate::ui::theme::{Colour, Terrain};
 use crate::{
     game::world::{elevation::WorldElevationData, tectonics::WorldTectonicsData, HexWorldMapMode},
     render::{
@@ -81,6 +82,30 @@ pub fn prepare(
 
         let mut offset: u16 = 0;
 
+        // TEMP: Hack to make interesting colours
+        let random_colours = || {
+            vec![
+                Terrain::Sea6,
+                Terrain::Sea5,
+                Terrain::Sea4,
+                Terrain::Sea3,
+                Terrain::Sea2,
+                Terrain::Sea1,
+                Terrain::SeaLevelWater,
+                Terrain::SeaLevelLand,
+                Terrain::Land1,
+                Terrain::Land2,
+                Terrain::Land3,
+                Terrain::Land4,
+                Terrain::Land5,
+                Terrain::Land6,
+                Terrain::Land7,
+                Terrain::Land8,
+                Terrain::Land9,
+            ]
+        };
+        let mut current_colours = random_colours();
+
         // TODO Change this to be dependent on the zoom
         for res0_cell in res0_cells().iter() {
             for cell in res0_cell.get_children(2).unwrap().iter() {
@@ -91,12 +116,24 @@ pub fn prepare(
                 let line_str = poly.exterior().points().skip(1);
                 let amount_of_vertices: u16 = line_str.len() as u16;
 
+                // TEMP: Hack to make interesting colours.
+                let mut colour = current_colours.pop();
+                let colour = match colour {
+                    Some(colour) => colour,
+                    None => {
+                        current_colours = random_colours();
+                        current_colours.pop().unwrap()
+                    }
+                };
+
                 for point in line_str {
                     // For each point, insert data into the buffers.
 
                     // Transform to local coordinates based on transform / size
                     positions.push([point.x() as f32, point.y() as f32]);
-                    colours.push(hex_world_data.cell_colour(cell).as_rgba_f32());
+
+                    colours.push(colour.color().as_rgba_f32());
+                    // colours.push(hex_world_data.cell_colour(cell).as_rgba_f32());
                 }
 
                 for last_vertex_index in 2..amount_of_vertices {
