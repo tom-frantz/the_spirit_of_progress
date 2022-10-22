@@ -1,14 +1,10 @@
 use crate::{
-    game::world::{
-        elevation::{ElevationData, WorldElevationData},
-        tectonics::WorldTectonicsData,
-        HexWorldMapMode,
-    },
+    game::world::{elevation::WorldElevationData, tectonics::WorldTectonicsData, HexWorldMapMode},
     render::{
         extract::{ExtractedHexWorld, ExtractedHexWorldData, ExtractedHexWorldMapMode},
-        pipeline::bind_groups::{transform::HexWorldTransformBindGroup, MeshUniformBuffer},
+        pipeline::bind_groups::MeshUniformBuffer,
         traits::QueryCellRender,
-        HexWorld, HexWorldChunk,
+        HexWorldChunk,
     },
 };
 use bevy::{
@@ -18,16 +14,11 @@ use bevy::{
             GpuBufferInfo, GpuMesh, Indices, MeshVertexAttribute, PrimitiveTopology,
             VertexAttributeValues,
         },
-        render_resource::{
-            BindGroup, BufferInitDescriptor, BufferUsages, DynamicUniformBuffer, ShaderType,
-            VertexFormat,
-        },
+        render_resource::{BufferInitDescriptor, BufferUsages, ShaderType, VertexFormat},
         renderer::{RenderDevice, RenderQueue},
-        view::{ExtractedView, ViewUniforms},
     },
 };
-use h3ron::{res0_cell_count, res0_cells, ToCoordinate, ToPolygon};
-use std::cmp::Ordering;
+use h3ron::{res0_cells, ToPolygon};
 use std::marker::PhantomData;
 
 #[derive(ShaderType, Component, Clone)]

@@ -1,12 +1,8 @@
 use crate::ui::{
     primitives::UiPrimitivesPlugin,
     screens::{weapon_design::WeaponDesignScreen, Screen},
-    theme::SPACING,
 };
-use bevy::prelude::{
-    Val::{Auto, Percent, Px},
-    *,
-};
+use bevy::prelude::{Val::*, *};
 
 mod screens;
 
@@ -65,7 +61,6 @@ fn spawn_root_ui_node(mut commands: Commands) {
     commands
         .spawn_bundle(NodeBundle {
             color: UiColor::from(Color::NONE),
-
             style: Style {
                 flex_direction: FlexDirection::ColumnReverse,
                 padding: UiRect::all(Px(0.)),

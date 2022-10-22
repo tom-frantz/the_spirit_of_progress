@@ -1,6 +1,5 @@
 use crate::game::world::HexWorld;
-use bevy::prelude::*;
-use bevy::time::FixedTimestep;
+use bevy::{prelude::*, time::FixedTimestep};
 use std::f64::consts::TAU;
 
 const TIMESTEP_1_PER_SECOND: f64 = 60.0 / 60.0;
@@ -129,7 +128,7 @@ pub fn camera_move_system(
 }
 
 fn debug_camera_state(mut query: Query<&mut Transform, With<HexWorld>>) {
-    let mut transform = query.get_single_mut().unwrap();
+    let transform = query.get_single_mut().unwrap();
 
     println!("Up: {:#?}, Down: {:#?}", transform.up(), transform.down());
 }

@@ -1,6 +1,6 @@
 use bevy::prelude::Shader;
 
-pub const ORTHOGRAPHIC_HEXAGON_VERTEX_SHADER: &str = "ORTHOGRAPHIC_HEXAGON_SHADER";
+pub const _ORTHOGRAPHIC_HEXAGON_VERTEX_SHADER: &str = "ORTHOGRAPHIC_HEXAGON_SHADER";
 
 pub struct HexShaders {
     pub vertex: Shader,

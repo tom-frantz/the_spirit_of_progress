@@ -44,7 +44,6 @@ fn content_bundle() -> NodeBundle {
         style: Style {
             flex_direction: FlexDirection::ColumnReverse,
             justify_content: JustifyContent::FlexStart,
-            align_items
             size: Size::new(Percent(100.0), Auto),
             flex_grow: 1.0,
             ..default()

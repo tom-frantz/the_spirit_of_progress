@@ -1,19 +1,18 @@
-use crate::render::pipeline::bind_groups::transform::HexWorldTransformBindGroup;
 use crate::render::{
     draw::DrawHexWorld,
-    pipeline::{bind_groups::view::HexWorldViewBindGroup, OrthographicHexagonPipeline},
+    pipeline::{
+        bind_groups::{transform::HexWorldTransformBindGroup, view::HexWorldViewBindGroup},
+        OrthographicHexagonPipeline,
+    },
     prepare::MeshUniform,
     HexWorldChunk,
 };
 use bevy::{
     core_pipeline::core_2d::Transparent2d,
-    prelude::{Commands, Component, Entity, Query, Res, ResMut},
+    prelude::{Commands, Entity, Query, Res, ResMut},
     render::{
         render_phase::{DrawFunctions, RenderPhase},
-        render_resource::{
-            BindGroup, BindGroupDescriptor, BindGroupEntry, DynamicUniformBuffer, PipelineCache,
-            SpecializedRenderPipelines,
-        },
+        render_resource::{DynamicUniformBuffer, PipelineCache, SpecializedRenderPipelines},
         renderer::RenderDevice,
         view::{ExtractedView, ViewUniforms},
     },
@@ -38,7 +37,7 @@ pub fn queue(
     view_uniforms: Res<ViewUniforms>,
     transform_uniforms: Res<DynamicUniformBuffer<MeshUniform>>,
 
-    mut prepared_hexagons: Query<(Entity, &HexWorldChunk)>,
+    prepared_hexagons: Query<(Entity, &HexWorldChunk)>,
 ) {
     if let Some(binding) = transform_uniforms.binding() {
         commands.insert_resource(HexWorldTransformBindGroup::new(&render_device, binding));

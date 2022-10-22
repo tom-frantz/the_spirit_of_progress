@@ -1,5 +1,7 @@
-use crate::render::traits::{CellRender, QueryCellRender};
-use crate::ui::theme::{Colour, Terrain};
+use crate::{
+    render::traits::{CellRender, QueryCellRender},
+    ui::theme::{Colour, Terrain},
+};
 use bevy::prelude::*;
 use h3ron::H3Cell;
 
@@ -50,7 +52,7 @@ impl Default for WorldTectonicsData {
         };
 
         let mut colours = random_colours();
-        let data = HexWorldData::new_from_cells(|cell_id| {
+        let data = HexWorldData::new_from_cells(|_cell_id| {
             let colour = colours.pop();
 
             if let Some(industry_colour) = colour {

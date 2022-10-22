@@ -1,7 +1,6 @@
 pub use self::collections::{CellData, HexWorldCell, HexWorldData};
 
-use self::elevation::WorldElevationData;
-use self::tectonics::WorldTectonicsData;
+use self::{elevation::WorldElevationData, tectonics::WorldTectonicsData};
 use bevy::prelude::*;
 
 mod collections;
@@ -71,7 +70,5 @@ impl HexWorld {
 
 pub struct WorldPlugin;
 impl Plugin for WorldPlugin {
-    fn build(&self, app: &mut App) {
-        app;
-    }
+    fn build(&self, _app: &mut App) {}
 }

@@ -6,16 +6,14 @@ use bevy::{
     reflect::TypeUuid,
     render::{
         render_resource::{
-            BindGroupLayout, BindGroupLayoutEntry, BindingType, BlendComponent, BlendFactor,
-            BlendOperation, BlendState, BufferBindingType, ColorTargetState, ColorWrites, Face,
-            FragmentState, FrontFace, MultisampleState, PolygonMode, PrimitiveState,
-            PrimitiveTopology, RenderPipelineDescriptor, ShaderStages, ShaderType,
+            BindGroupLayout, BlendComponent, BlendFactor, BlendOperation, BlendState,
+            ColorTargetState, ColorWrites, Face, FragmentState, FrontFace, MultisampleState,
+            PolygonMode, PrimitiveState, PrimitiveTopology, RenderPipelineDescriptor,
             SpecializedRenderPipeline, TextureFormat, VertexBufferLayout, VertexFormat,
             VertexState, VertexStepMode,
         },
         renderer::RenderDevice,
         texture::BevyDefault,
-        view::ViewUniform,
     },
 };
 

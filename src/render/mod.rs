@@ -8,29 +8,13 @@ use self::{
 use crate::render::prepare::MeshUniform;
 use bevy::{
     core_pipeline::core_2d::Transparent2d,
-    ecs::system::{
-        lifetimeless::{SQuery, SRes},
-        SystemParamItem,
-    },
     prelude::*,
     render::{
-        mesh::{
-            GpuBufferInfo, GpuMesh, Indices, MeshVertexAttribute, PrimitiveTopology,
-            VertexAttributeValues,
-        },
-        render_phase::{
-            AddRenderCommand, DrawFunctions, RenderCommand, RenderCommandResult, RenderPhase,
-            TrackedRenderPass,
-        },
-        render_resource::{
-            BufferInitDescriptor, BufferUsages, DynamicUniformBuffer, PipelineCache,
-            SpecializedRenderPipelines, VertexFormat,
-        },
-        renderer::RenderDevice,
-        view::ExtractedView,
+        mesh::GpuMesh,
+        render_phase::AddRenderCommand,
+        render_resource::{DynamicUniformBuffer, SpecializedRenderPipelines},
         RenderApp, RenderStage,
     },
-    utils::FloatOrd,
 };
 use draw::DrawHexWorld;
 use extract::extract;
@@ -40,7 +24,6 @@ use queue::queue;
 mod draw;
 mod pipeline;
 mod shader;
-mod utils;
 
 mod extract;
 mod prepare;
@@ -83,7 +66,7 @@ pub(self) struct HexWorld(pub u8, GpuMesh);
 #[derive(Component, Debug)]
 pub struct HexWorldChunk(pub u8, GpuMesh);
 impl HexWorld {
-    pub fn new(id: u8, gpu_mesh: GpuMesh) -> Self {
+    pub fn _new(id: u8, gpu_mesh: GpuMesh) -> Self {
         HexWorld(id, gpu_mesh)
     }
 }

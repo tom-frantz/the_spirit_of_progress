@@ -1,5 +1,5 @@
 use crate::{
-    game::world::{HexWorld, HexWorldData, HexWorldMapMode, HexWorldQuery},
+    game::world::{HexWorld, HexWorldMapMode, HexWorldQuery},
     render::traits::QueryCellRender,
 };
 use bevy::{prelude::*, render::Extract};
@@ -24,7 +24,9 @@ where
 }
 
 pub fn extract(mut commands: Commands, hex_world: Extract<HexWorldQuery>) {
-    for (entity, hex_world, transform, map_mode, elevation_data, tectonics_data) in hex_world.iter() {
+    for (_entity, hex_world, transform, map_mode, elevation_data, tectonics_data) in
+        hex_world.iter()
+    {
         let mut entity_commands = commands.spawn();
         entity_commands
             .insert(ExtractedHexWorld(*hex_world))

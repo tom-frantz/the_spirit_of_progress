@@ -1,15 +1,11 @@
 use crate::render::prepare::MeshUniform;
-use bevy::render::render_resource::{
-    BindGroupDescriptor, BindGroupEntry, BindGroupLayoutDescriptor, BindGroupLayoutEntry,
-    BindingType, BufferBindingType, DynamicUniformBuffer, ShaderStages, ShaderType,
-};
-use bevy::render::view::ViewUniform;
-use bevy::{
-    prelude::*,
-    render::{
-        render_resource::{BindGroup, BindGroupLayout, BindingResource},
-        renderer::RenderDevice,
+use bevy::render::{
+    render_resource::{
+        BindGroup, BindGroupDescriptor, BindGroupEntry, BindGroupLayout, BindGroupLayoutDescriptor,
+        BindGroupLayoutEntry, BindingResource, BindingType, BufferBindingType, ShaderStages,
+        ShaderType,
     },
+    renderer::RenderDevice,
 };
 
 pub struct HexWorldTransformBindGroup {

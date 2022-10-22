@@ -1,11 +1,12 @@
-use bevy::{
-    prelude::*,
-    render::{settings::WgpuSettings, texture::ImageSettings},
-    ui::UiPlugin as BevyUiPlugin,
-};
-use the_spirit_of_progress::ui::theme::{Colour, MenuColour};
+use bevy::{prelude::*, render::texture::ImageSettings, ui::UiPlugin as BevyUiPlugin};
 use the_spirit_of_progress::{
-    camera::CameraPlugin, game::world::HexWorld, render::RenderPlugin, ui::UiPlugin,
+    camera::CameraPlugin,
+    game::world::HexWorld,
+    render::RenderPlugin,
+    ui::{
+        theme::{Colour, MenuColour},
+        UiPlugin,
+    },
 };
 
 fn main() {

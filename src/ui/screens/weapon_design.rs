@@ -1,7 +1,9 @@
-use crate::ui::fonts::Typography;
-use crate::ui::primitives::center_box::render_center_box;
-use crate::ui::screens::Screen;
-use crate::ui::theme::{Colour, IndustryColour};
+use crate::ui::{
+    fonts::Typography,
+    primitives::center_box::render_center_box,
+    screens::Screen,
+    theme::{Colour, IndustryColour},
+};
 use bevy::prelude::*;
 
 #[derive(Debug, Clone)]
@@ -24,10 +26,9 @@ impl Screen for WeaponDesignScreen {
     fn draw(
         parent: &mut ChildBuilder,
         asset_server: &AssetServer,
-        entity: Entity,
-        component: &Self,
+        _entity: Entity,
+        _component: &Self,
     ) {
-        println!("DRAWING!");
         render_center_box(parent, |center_box| {
             center_box
                 .spawn_bundle(NodeBundle {
