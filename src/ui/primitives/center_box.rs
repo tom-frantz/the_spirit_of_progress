@@ -42,6 +42,9 @@ fn content_bundle() -> NodeBundle {
     NodeBundle {
         color: MenuColour::Background.ui_color(),
         style: Style {
+            flex_direction: FlexDirection::ColumnReverse,
+            justify_content: JustifyContent::FlexStart,
+            align_items
             size: Size::new(Percent(100.0), Auto),
             flex_grow: 1.0,
             ..default()

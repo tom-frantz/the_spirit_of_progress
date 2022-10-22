@@ -90,8 +90,8 @@ impl IndustryColour {
 impl Colour for IndustryColour {
     fn hex(&self) -> String {
         String::from(match self {
-            IndustryColour::LightPurple => "8B9880",
-            IndustryColour::Purple => "8B9880",
+            IndustryColour::LightPurple => "D7ABB3",
+            IndustryColour::Purple => "8C435A",
             IndustryColour::LightRed => "E0966E",
             IndustryColour::Red => "DA594A",
             IndustryColour::LightBlue => "A5B1AD",
