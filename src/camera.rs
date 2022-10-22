@@ -1,6 +1,9 @@
 use crate::game::world::HexWorld;
 use bevy::prelude::*;
+use bevy::time::FixedTimestep;
 use std::f64::consts::TAU;
+
+const TIMESTEP_1_PER_SECOND: f64 = 60.0 / 60.0;
 
 const ZOOM_OUT_KEYCODE: KeyCode = KeyCode::X;
 const ZOOM_IN_KEYCODE: KeyCode = KeyCode::Z;
@@ -21,6 +24,9 @@ impl Plugin for CameraPlugin {
     fn build(&self, app: &mut App) {
         app.add_startup_system(create_camera)
             // .add_system(camera_move_system)
+            .add_system_set(
+                SystemSet::new().with_run_criteria(FixedTimestep::step(TIMESTEP_1_PER_SECOND)), // .with_system(debug_camera_state),
+            )
             .add_system(camera_rotate_system)
             .add_system(camera_zoom_system);
     }
@@ -61,11 +67,10 @@ pub fn camera_rotate_system(
     let scale = camera_query.get_single().unwrap().scale;
 
     let speed = TAU as f32 / 60. / 4. * scale;
-    let local_y = transform.local_y().y;
-    println!("Local: {local_y}");
+    let prev_y = transform.local_y().y;
 
     if keyboard_input.pressed(ROTATE_LON_KEYCODE) {
-        transform.rotate_local_y(speed)
+        transform.rotate_local_y(speed);
     }
 
     if keyboard_input.pressed(ROTATE_COUNTER_LON_KEYCODE) {
@@ -74,10 +79,23 @@ pub fn camera_rotate_system(
 
     if keyboard_input.pressed(ROTATE_LAT_KEYCODE) {
         transform.rotate_x(-speed);
+
+        // HACK: Correct the rotation after the fact.
+        // Quaternions are weird yo.
+        let current_y = transform.local_y().y;
+        if current_y < prev_y && current_y < 0. {
+            transform.rotate_x(speed);
+        }
     }
 
     if keyboard_input.pressed(ROTATE_COUNTER_LAT_KEYCODE) {
         transform.rotate_x(speed);
+
+        // Correct after the fact
+        let current_y = transform.local_y().y;
+        if current_y < prev_y && current_y < 0. {
+            transform.rotate_x(-speed);
+        }
     }
 }
 
@@ -108,4 +126,10 @@ pub fn camera_move_system(
     }
 
     transform.translation += Vec3::splat(time.delta().as_millis() as f32) * movement.translation
+}
+
+fn debug_camera_state(mut query: Query<&mut Transform, With<HexWorld>>) {
+    let mut transform = query.get_single_mut().unwrap();
+
+    println!("Up: {:#?}, Down: {:#?}", transform.up(), transform.down());
 }
