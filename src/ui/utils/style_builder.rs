@@ -4,7 +4,9 @@ use bevy::prelude::*;
 pub struct StyleBuilder {
     flex_grow: bool,
     flex_direction: FlexDirection,
+
     align_items: AlignItems,
+    align_self: AlignSelf,
     justify_content: JustifyContent,
 
     size: Size<Val>,
@@ -25,12 +27,23 @@ impl StyleBuilder {
         Style {
             flex_grow: if self.flex_grow { 1.0 } else { 0.0 },
             flex_direction: self.flex_direction,
+
             align_items: self.align_items,
+            align_self: self.align_self,
+
             justify_content: self.justify_content,
 
             size: self.size,
             margin: self.margin,
             padding: self.padding,
+            ..default()
+        }
+    }
+
+    pub fn build_clear_node_bundle(&mut self) -> NodeBundle {
+        NodeBundle {
+            color: Color::NONE.into(),
+            style: self.build(),
             ..default()
         }
     }
@@ -59,6 +72,11 @@ impl StyleBuilder {
         self.align_items = align_items;
         self
     }
+    pub fn align_self(&mut self, align_self: AlignSelf) -> &mut Self {
+        self.align_self = align_self;
+        self
+    }
+
     pub fn justify_content(&mut self, justify_content: JustifyContent) -> &mut Self {
         self.justify_content = justify_content;
         self
