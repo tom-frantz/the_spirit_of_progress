@@ -1,7 +1,6 @@
 use bevy::prelude::*;
 use bevy_ecs_tilemap::prelude::TileColor;
-use rand::distributions::Standard;
-use rand::prelude::*;
+use rand::{distributions::Standard, prelude::*};
 
 pub const SPACING: f32 = 8.0;
 

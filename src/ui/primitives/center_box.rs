@@ -1,7 +1,7 @@
 use crate::ui::{
     primitives::header::render_header,
-    theme::{Colour, MenuColour, SPACING},
-    RootElement::CenterBox,
+    theme::{Colour, IndustryColour, MenuColour, SPACING},
+    utils::style_builder::StyleBuilder,
 };
 use bevy::prelude::{Val::*, *};
 
@@ -15,14 +15,30 @@ where
     T: FnOnce(&mut ChildBuilder) -> (),
 {
     parent
-        .spawn_bundle(background_bundle())
-        .insert(CenterBox)
-        .with_children(|center_box| {
-            // render_header(center_box);
-            center_box
-                .spawn_bundle(content_bundle(props.bare))
-                .with_children(spawn_children);
+        .spawn_bundle(border_bundle())
+        .with_children(|border_bundle| {
+            border_bundle
+                .spawn_bundle(background_bundle())
+                .with_children(|center_box| {
+                    render_header(center_box);
+                    center_box
+                        .spawn_bundle(content_bundle(props.bare))
+                        .with_children(spawn_children);
+                });
         });
+}
+
+fn border_bundle() -> NodeBundle {
+    NodeBundle {
+        color: IndustryColour::Purple.ui_color(),
+        style: StyleBuilder::new()
+            .padding(Px(SPACING))
+            .flex_grow(true)
+            .size(Auto, Auto)
+            .column()
+            .build(),
+        ..default()
+    }
 }
 
 fn background_bundle() -> NodeBundle {
@@ -33,8 +49,7 @@ fn background_bundle() -> NodeBundle {
         style: Style {
             flex_direction: FlexDirection::ColumnReverse,
             padding: UiRect::all(Px(SPACING)),
-            size: Size::new(Auto, Auto),
-            margin: UiRect::all(Px(50.0)),
+            size: Size::new(Percent(100.), Percent(100.)),
             flex_grow: 1.0,
             display: Display::Flex,
             ..default()
@@ -53,7 +68,7 @@ fn content_bundle(bare: bool) -> NodeBundle {
     NodeBundle {
         color,
         style: Style {
-            padding: UiRect::all(Px(8.)),
+            // padding: UiRect::all(Px(8.)),
             flex_direction: FlexDirection::ColumnReverse,
             align_items: AlignItems::FlexStart,
             size: Size::new(Percent(100.0), Auto),

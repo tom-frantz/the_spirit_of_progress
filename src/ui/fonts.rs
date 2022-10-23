@@ -1,6 +1,8 @@
 use crate::ui::theme::{Colour, IndustryColour, MenuColour};
 use bevy::prelude::*;
 
+const RES_SCALING: f32 = 1.5;
+
 pub enum Typography {
     Title,
     Subtitle,
@@ -28,7 +30,6 @@ impl Typography {
     }
 
     fn font_size(&self) -> f32 {
-        let RES_SCALING = 1.5;
         match self {
             Typography::Title => 46.0 * RES_SCALING,
             Typography::Subtitle => 32.0 * RES_SCALING,

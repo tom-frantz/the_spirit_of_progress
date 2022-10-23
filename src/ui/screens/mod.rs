@@ -1,7 +1,18 @@
-use crate::ui::{primitives::root::get_root_node_bundle, RootElement};
+use crate::ui::primitives::root::{RootElement, RootElementBundle};
 use bevy::prelude::*;
 
 pub mod weapon_design;
+
+type ChangedScreenQuery<'world, 'state, 'q_component, ScreenType> = Query<
+    'world,
+    'state,
+    (
+        Entity,
+        &'q_component Visibility,
+        &'q_component mut ScreenType,
+    ),
+    Or<(Changed<ScreenType>, Changed<Visibility>)>,
+>;
 
 pub trait Screen
 where
@@ -19,13 +30,9 @@ where
         asset_server: Res<AssetServer>,
 
         root_element_query: Query<Entity, &RootElement>,
-        screen_query: Query<
-            (Entity, &Visibility, &mut Self),
-            Or<(Changed<Self>, Changed<Visibility>)>,
-        >,
+        screen_query: ChangedScreenQuery<Self>,
     ) {
         for (entity, visibility, self_component) in screen_query.iter() {
-            println!("HEY! THIS SHOULD BE CALLED");
             if visibility.is_visible {
                 let root_el_result = root_element_query.get_single();
 
@@ -33,7 +40,7 @@ where
                     if let Ok(parent_entity) = root_el_result {
                         commands.entity(parent_entity)
                     } else {
-                        commands.spawn_bundle(get_root_node_bundle())
+                        commands.spawn_bundle(RootElementBundle::new())
                     }
                 };
 

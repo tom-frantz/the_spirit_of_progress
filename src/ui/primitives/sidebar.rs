@@ -1,9 +1,8 @@
-use crate::ui::primitives::header::render_header;
-use crate::ui::theme::SPACING;
-use crate::ui::theme::{Colour, MenuColour};
-use crate::ui::RootElement::Sidebar;
-use bevy::prelude::Val::*;
-use bevy::prelude::*;
+use crate::ui::{
+    primitives::header::render_header,
+    theme::{Colour, MenuColour, SPACING},
+};
+use bevy::prelude::{Val::*, *};
 
 pub fn render_sidebar<T>(parent: &mut ChildBuilder, spawn_children: T)
 where
@@ -11,7 +10,6 @@ where
 {
     parent
         .spawn_bundle(background_bundle())
-        .insert(Sidebar)
         .with_children(|sidebar| {
             render_header(sidebar);
             sidebar

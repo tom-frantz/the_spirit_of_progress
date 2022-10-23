@@ -1,7 +1,26 @@
 use bevy::{prelude::*, ui::Style};
 use Val::*;
 
-pub fn get_root_node_bundle() -> NodeBundle {
+#[derive(Component, Debug)]
+pub struct RootElement;
+
+#[derive(Bundle)]
+pub struct RootElementBundle {
+    #[bundle]
+    node_bundle: NodeBundle,
+    root_element_marker: RootElement,
+}
+
+impl RootElementBundle {
+    pub fn new() -> Self {
+        RootElementBundle {
+            node_bundle: get_root_node_bundle(),
+            root_element_marker: RootElement,
+        }
+    }
+}
+
+fn get_root_node_bundle() -> NodeBundle {
     NodeBundle {
         color: UiColor::from(Color::NONE),
 

@@ -1,4 +1,3 @@
-use crate::ui::theme::{Colour, Terrain};
 use crate::{
     game::world::{elevation::WorldElevationData, tectonics::WorldTectonicsData, HexWorldMapMode},
     render::{
@@ -7,6 +6,7 @@ use crate::{
         traits::QueryCellRender,
         HexWorldChunk,
     },
+    ui::theme::{Colour, Terrain},
 };
 use bevy::{
     prelude::*,
@@ -117,7 +117,7 @@ pub fn prepare(
                 let amount_of_vertices: u16 = line_str.len() as u16;
 
                 // TEMP: Hack to make interesting colours.
-                let mut colour = current_colours.pop();
+                let colour = current_colours.pop();
                 let colour = match colour {
                     Some(colour) => colour,
                     None => {

@@ -1,10 +1,12 @@
-use crate::ui::theme::SPACING;
-use crate::ui::theme::{Colour, MenuColour};
-use crate::ui::utils::clear_ui_elements;
-use crate::ui::RootElement;
-use bevy::prelude::Val::*;
-use bevy::prelude::*;
-use bevy::ui::UiRect;
+use crate::ui::{
+    primitives::root::RootElement,
+    theme::{Colour, MenuColour, SPACING},
+    utils::clear_ui_elements,
+};
+use bevy::{
+    prelude::{Val::*, *},
+    ui::UiRect,
+};
 
 #[derive(Component, Debug)]
 pub enum HeaderButton {
