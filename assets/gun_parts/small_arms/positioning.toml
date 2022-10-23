@@ -1,0 +1,32 @@
+[[barrel]]
+name = "Barrel 1"
+filename = "barrel_1.png"
+[barrel.offset]
+x = 0
+y = -1
+
+[[barrel]]
+name = "Barrel 2"
+filename = "barrel_2.png"
+[barrel.offset]
+x = 0
+y = -2
+
+[[body]]
+name = "Body 1"
+filename = "body_1.png"
+
+[[stock]]
+name = "Stock 1"
+filename = "stock_1.png"
+[barrel.offset]
+x = 0
+y = -4
+
+
+[[stock]]
+name = "Stock 2"
+filename = "stock_2.png"
+[barrel.offset]
+x = 0
+y = -1

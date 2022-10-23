@@ -29,6 +29,8 @@ bevy_ecs_tilemap = "0.7.0"
 rand = "0.8.5"
 geoutils = "0.5.1"
 h3ron = "0.15.1"
+toml = "0.5.9"
+serde = { version = "1.0.145", features = ["derive"] }
 
 # Enable only a small amount of optimization in debug mode
 [profile.dev]
