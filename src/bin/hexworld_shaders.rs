@@ -7,31 +7,16 @@ use bevy::{
     ui::UiPlugin,
 };
 use bevy_ecs_tilemap::TilemapPlugin;
-use the_spirit_of_progress::camera::CameraPlugin;
 use the_spirit_of_progress::{
+    camera::CameraPlugin,
     game::world::{HexWorld, HexWorldData},
     render::RenderPlugin,
+    SpiritOfProgressPlugin,
 };
 
 fn main() {
     App::new()
-        .insert_resource(WindowDescriptor {
-            title: "Hexworld Shaders".to_string(),
-            width: 900.,
-            height: 900.,
-
-            ..default()
-        })
-        .insert_resource(Msaa { samples: 1 })
-        .insert_resource(WgpuSettings {
-            backends: Some(Backends::DX12),
-            ..Default::default()
-        })
-        .add_plugins(DefaultPlugins)
-        .add_plugin(UiPlugin)
-        .add_plugin(RenderPlugin)
-        .add_plugin(CameraPlugin)
-        .insert_resource(ImageSettings::default_nearest())
+        .add_plugin(SpiritOfProgressPlugin)
         .add_startup_system(init)
         // .insert_plugin()
         .run()

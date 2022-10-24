@@ -7,24 +7,12 @@ use the_spirit_of_progress::{
         theme::{Colour, MenuColour},
         UiPlugin,
     },
+    SpiritOfProgressPlugin,
 };
 
 fn main() {
     App::new()
-        // Bevy
-        .insert_resource(Msaa { samples: 1 })
-        .insert_resource(ClearColor(MenuColour::BlackPen.color()))
-        // .insert_resource(WgpuSettings {
-        //     backends: Some(bevy::render::settings::Backends::DX12),
-        //     ..Default::default()
-        // })
-        .add_plugins(DefaultPlugins)
-        .add_plugin(BevyUiPlugin)
-        // Spirit of Progress
-        .add_plugin(UiPlugin)
-        .add_plugin(RenderPlugin)
-        .add_plugin(CameraPlugin)
-        .insert_resource(ImageSettings::default_nearest())
+        .add_plugin(SpiritOfProgressPlugin)
         .add_startup_system(init)
         .run();
 }
