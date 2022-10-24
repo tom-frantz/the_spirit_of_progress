@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 
-mod components;
+mod component;
+mod small_arms;
 
 pub struct WeaponsPlugin;
 impl Plugin for WeaponsPlugin {
