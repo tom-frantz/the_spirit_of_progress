@@ -1,5 +1,5 @@
 use crate::game::weapons::component::WeaponComponent;
-use bevy::prelude::*;
+use bevy::{prelude::*, reflect::TypeUuid};
 use bevy_asset_loader::prelude::*;
 use serde::Deserialize;
 
@@ -11,7 +11,8 @@ pub struct SmallArmsProperty {
     range: f32,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, TypeUuid)]
+#[uuid = "829a85e9-0cd6-4822-8f2d-93af251ab5de"]
 pub struct SmallArmsComponents {
     #[serde(rename = "barrel")]
     barrels: Vec<WeaponComponent<SmallArmsProperty>>,
@@ -23,9 +24,10 @@ pub struct SmallArmsComponents {
     stocks: Vec<WeaponComponent<SmallArmsProperty>>,
 }
 
-pub struct SmallArmComponentsAssets {
+#[derive(AssetCollection)]
+pub struct SmallArmsComponentsAssets {
     #[asset(path = "gun_parts/small_arms/components.toml")]
-    components: Handle<Image>,
+    pub components: Handle<SmallArmsComponents>,
 
     #[asset(path = "gun_parts/small_arms/barrel_1.png")]
     barrel_1: Handle<Image>,

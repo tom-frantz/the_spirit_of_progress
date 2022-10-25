@@ -332,6 +332,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "bevy_common_assets"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3f7be9ee39085d8319d5cd853447b0b5c4f8b4bfd647aec91e2bd996e9db67ef"
+dependencies = [
+ "anyhow",
+ "bevy",
+ "serde",
+ "toml",
+]
+
+[[package]]
 name = "bevy_core"
 version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3126,6 +3138,7 @@ version = "0.2.0"
 dependencies = [
  "bevy",
  "bevy_asset_loader",
+ "bevy_common_assets",
  "bevy_ecs_tilemap",
  "bevy_prototype_lyon",
  "geoutils",
