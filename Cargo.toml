@@ -31,6 +31,7 @@ geoutils = "0.5.1"
 h3ron = "0.15.1"
 toml = "0.5.9"
 serde = { version = "1.0.145", features = ["derive"] }
+bevy_asset_loader = "0.12.1"
 
 # Enable only a small amount of optimization in debug mode
 [profile.dev]
