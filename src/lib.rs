@@ -9,7 +9,6 @@ use crate::{
 };
 use bevy::{prelude::*, render::texture::ImageSettings, ui::UiPlugin as BevyUiPlugin};
 use bevy_asset_loader::prelude::*;
-use bevy_common_assets::toml::TomlAssetPlugin;
 
 pub mod game;
 

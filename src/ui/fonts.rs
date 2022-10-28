@@ -11,7 +11,7 @@ pub enum Typography {
 }
 
 impl Typography {
-    const fn font_handle(&self) -> &str {
+    const fn font_filename(&self) -> &str {
         match self {
             Typography::Title => "fonts/Pixolde/Pixolde.ttf",
             Typography::Subtitle => "fonts/Pixolde/Pixolde.ttf",
@@ -57,7 +57,7 @@ impl Typography {
             TextStyle {
                 color: self.colour(),
                 font_size: self.font_size(),
-                font: asset_server.load(self.font_handle()),
+                font: asset_server.load(self.font_filename()),
             },
         )
     }

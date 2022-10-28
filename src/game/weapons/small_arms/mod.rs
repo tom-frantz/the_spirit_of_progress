@@ -1,6 +1,7 @@
-use crate::game::weapons::component::WeaponComponent;
+use crate::{game::weapons::component::WeaponComponent, GameState};
 use bevy::{prelude::*, reflect::TypeUuid};
 use bevy_asset_loader::prelude::*;
+use bevy_common_assets::toml::TomlAssetPlugin;
 use serde::Deserialize;
 
 #[derive(Deserialize, Debug, Default)]
@@ -39,6 +40,27 @@ pub struct SmallArmsComponentsAssets {
     stock_1: Handle<Image>,
     #[asset(path = "gun_parts/small_arms/stock_2.png")]
     stock_2: Handle<Image>,
+}
+
+pub struct SmallArmsPlugin;
+impl Plugin for SmallArmsPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_plugin(TomlAssetPlugin::<SmallArmsComponents>::new(&["toml"]))
+            .add_loading_state(
+                LoadingState::new(GameState::AssetLoading)
+                    .with_collection::<SmallArmsComponentsAssets>(),
+            )
+            .add_system_set(SystemSet::on_enter(GameState::Loaded).with_system(register));
+    }
+}
+
+fn register(
+    small_arms_res: Res<SmallArmsComponentsAssets>,
+    assets: Res<Assets<SmallArmsComponents>>,
+) {
+    let small_arms = assets.get(&small_arms_res.components).unwrap();
+
+    println!("SMALL ARMS: {small_arms:#?}");
 }
 
 #[cfg(test)]

@@ -1,7 +1,7 @@
 use crate::ui::{
     fonts::Typography,
     primitives::center_box::{render_center_box, CenterBoxProps},
-    screens::Screen,
+    screens::{weapon_design::selector_sidebar::SelectorSidebar, Screen},
     theme::{Colour, IndustryColour, MenuColour},
     utils::style_builder::StyleBuilder,
 };
@@ -9,27 +9,20 @@ use bevy::prelude::{Val::*, *};
 
 const HALF_BORDER: Val = Px(4.);
 
-#[derive(Debug, Clone)]
-pub enum WeaponDesignMode {
-    Gun,
-}
+mod costs_panel;
+mod selector_sidebar;
+mod stats_sidebar;
+mod weapon_window;
 
-impl Default for WeaponDesignMode {
-    fn default() -> Self {
-        WeaponDesignMode::Gun
-    }
+#[derive(Default, Debug, Clone)]
+pub enum WeaponDesignMode {
+    #[default]
+    Gun,
 }
 
 #[derive(Component, Debug, Default, Clone)]
 pub struct WeaponDesignScreen {
     weapon_mode: WeaponDesignMode,
-}
-
-pub fn flex_row_style() -> Style {
-    Style {
-        flex_direction: FlexDirection::Row,
-        ..default()
-    }
 }
 
 impl Screen for WeaponDesignScreen {
@@ -78,7 +71,7 @@ impl Screen for WeaponDesignScreen {
                             )
                             .with_children(|main_content| {
                                 // Options Sidebar
-                                main_content.spawn_bundle(Self::weapon_options_sidebar_bundle());
+                                main_content.spawn_bundle(SelectorSidebar::bundle());
                                 // Other content
                                 main_content
                                     .spawn_bundle(
@@ -118,19 +111,6 @@ impl Screen for WeaponDesignScreen {
 }
 
 impl WeaponDesignScreen {
-    fn weapon_options_sidebar_bundle() -> NodeBundle {
-        NodeBundle {
-            color: MenuColour::Background.ui_color(),
-            style: StyleBuilder::new()
-                .margin_right(HALF_BORDER)
-                .size(Percent(25.), Auto)
-                .column()
-                .build(),
-
-            ..default()
-        }
-    }
-
     fn weapon_window_bundle() -> NodeBundle {
         NodeBundle {
             color: IndustryColour::Purple.ui_color(),

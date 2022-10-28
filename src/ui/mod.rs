@@ -1,8 +1,11 @@
-use crate::ui::{
-    primitives::UiPrimitivesPlugin,
-    screens::{weapon_design::WeaponDesignScreen, Screen},
+use crate::{
+    ui::{
+        primitives::UiPrimitivesPlugin,
+        screens::{weapon_design::WeaponDesignScreen, Screen},
+    },
+    GameState,
 };
-use bevy::prelude::{Val::*, *};
+use bevy::prelude::*;
 
 mod screens;
 
@@ -44,7 +47,9 @@ impl Plugin for UiPlugin {
             .add_system(WeaponDesignScreen::on_change)
             .add_plugin(UiPrimitivesPlugin)
             // Debugs
-            .add_startup_system(weapon_design_screen_debug);
+            .add_system_set(
+                SystemSet::on_enter(GameState::Loaded).with_system(weapon_design_screen_debug),
+            );
     }
 }
 

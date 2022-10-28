@@ -3,7 +3,7 @@ use bevy::prelude::*;
 
 pub mod weapon_design;
 
-type ChangedScreenQuery<'world, 'state, 'q_component, ScreenType> = Query<
+pub type ChangedUiQuery<'world, 'state, 'q_component, ScreenType> = Query<
     'world,
     'state,
     (
@@ -30,7 +30,7 @@ where
         asset_server: Res<AssetServer>,
 
         root_element_query: Query<Entity, &RootElement>,
-        screen_query: ChangedScreenQuery<Self>,
+        screen_query: ChangedUiQuery<Self>,
     ) {
         for (entity, visibility, self_component) in screen_query.iter() {
             if visibility.is_visible {
